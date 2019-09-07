@@ -1,85 +1,65 @@
-package clcondorcet.olympa.fr.olympaBot;
+package clcondorcet.olympa.fr.olympaBot.Functions;
 
-import java.awt.Color;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.HashMap;
 
-import net.dv8tion.jda.core.EmbedBuilder;
+import clcondorcet.olympa.fr.olympaBot.Main;
+import clcondorcet.olympa.fr.olympaBot.Listeners.GuildListener;
+import clcondorcet.olympa.fr.olympaBot.Utilities.Messages;
+import clcondorcet.olympa.fr.olympaBot.Utilities.Utils;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
-import net.dv8tion.jda.core.entities.MessageEmbed.Field;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
 
 /**
- * @author clcondorcet
- *
+ * Invitations manager.
  * 
+ * Events: 
+ *  - GuildMemberJoinEvent (integrated in WelcomeMessages)
+ *  - GuildMemberLeaveEvent
+ * Commands:
+ *  - 
+ * 
+ * @author clcondorcet
+ * @since 0.0.3
  */
-public class InvitationListener implements EventListener {
+public class Invitations {
 	
+	/**
+	 * Cache of all invites code and their value on all guilds.
+	 */
 	public static HashMap<String, HashMap<String, Integer>> invites = new HashMap<>();
 	
-	@Override
-    public void onEvent(Event event) {
-		if(event instanceof GuildMemberJoinEvent){
-			if(!Main.canWork) {
-				return;
-			}
-			GuildMemberJoinEvent e = (GuildMemberJoinEvent) event;
-			
-			// Take invites from the guild to compare with past data
-			Invite inv = getInviteThatChange(e.getGuild());
-			// Update the data for next event
-			invites.get(e.getGuild().getId()).put(inv.getCode(), inv.getUses());
-			// Get the type of account
-			if(inv.getInviter().isFake() || inv.getInviter().isBot()){
-				// Get the number of people invited by this user
-				int i = getNumberOfInvitesFakes(e.getGuild(), inv.getInviter().getId()) + 1;
-				// Update the number
-				setNumberOfInvitesFakes(e.getGuild(), inv.getInviter().getId(), i);
-				addMemberToDb(e.getGuild(), e.getUser().getId(), inv.getInviter().getId());
+	/**
+	 * Event triggered when a member leave a guild.
+	 * Removing them to the database.
+	 * @see GuildListener
+	 * 
+	 * @param e The event
+	 */
+	public static void memberLeaveEvent(GuildMemberLeaveEvent e){
+		String idInviter = getWhoInvite(e.getGuild(), e.getUser().getId());
+		if(!idInviter.equals("NONE")){
+			if(e.getUser().isFake() || e.getUser().isBot()){
+				setNumberOfInvitesFakes(e.getGuild(), idInviter, getNumberOfInvitesFakes(e.getGuild(), idInviter) - 1);
 			}else{
-				// Get the number of people invited by this user
-				int i = getNumberOfInvites(e.getGuild(), inv.getInviter().getId()) + 1;
-				// Update the number
-				setNumberOfInvites(e.getGuild(), inv.getInviter().getId(), i);
-				addMemberToDb(e.getGuild(), e.getUser().getId(), inv.getInviter().getId());
+				setNumberOfInvitesLeaves(e.getGuild(), idInviter, getNumberOfInvitesLeaves(e.getGuild(), idInviter) + 1);
 			}
-			int i = getNumberOfInvites(e.getGuild(), inv.getInviter().getId()) + getNumberOfInvitesBonus(e.getGuild(), inv.getInviter().getId()) - getNumberOfInvitesLeaves(e.getGuild(), inv.getInviter().getId());
-			
-			// Message
-			Main.jda.getTextChannelById(Main.idsChannels.get(e.getGuild().getId())).sendMessage(new EmbedBuilder()
-					.setAuthor("OlympaBot", "https://olympa.net---BROKEN", "https://cdn.discordapp.com/app-icons/614936649096233160/d02b7707f95487df0db947deb62d33a6.png")
-					.setColor(new Color(255, 153, 51))
-					.setDescription("Bienvenue à toi " + e.getMember().getAsMention() + " sur Olympa !")
-					.addField(new Field("", "• Tu as été invité par: " + inv.getInviter().getAsMention() + ", qui a lui: " + i + " invitations !", false))
-					.addField(new Field("", "» Grâce à toi, notre Discord à atteint les " + e.getGuild().getMembers().size() + " joueurs !", false))
-					.setFooter("OlympaBot", null)
-					.setTimestamp(new Date(System.currentTimeMillis()).toInstant())
-					.build()).queue();
-		}else if(event instanceof GuildMemberLeaveEvent){
-			if(!Main.canWork) {
-				return;
-			}
-			GuildMemberLeaveEvent e = (GuildMemberLeaveEvent) event;
-			String idInviter = getWhoInvite(e.getGuild(), e.getUser().getId());
-			if(!idInviter.equals("NONE")){
-				if(e.getUser().isFake() || e.getUser().isBot()){
-					setNumberOfInvitesFakes(e.getGuild(), idInviter, getNumberOfInvitesFakes(e.getGuild(), idInviter) - 1);
-				}else{
-					setNumberOfInvitesLeaves(e.getGuild(), idInviter, getNumberOfInvitesLeaves(e.getGuild(), idInviter) + 1);
-				}
-				removeMemberFromDb(e.getGuild(), e.getUser().getId());
-			}
+			removeMemberFromDb(e.getGuild(), e.getUser().getId());
 		}
 	}
-	
+
+	/**
+	 * Get number of normal invites.
+	 * 
+	 * @param guild The guild where you want to get the number to.
+	 * @param userId The user you want get the number of invites from.
+	 * @return The number of invites the user do in the specified guild.
+	 */
 	public static int getNumberOfInvites(Guild guild, String userId){
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -93,6 +73,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Get number of Fakes invites. (including fakes and bots)
+	 * 
+	 * @param guild The guild where you want to get the number to.
+	 * @param userId The user you want get the number of invites from.
+	 * @return The number of invites the user do in the specified guild.
+	 */
 	public static int getNumberOfInvitesFakes(Guild guild, String userId){
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -106,6 +93,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Get number member who leave after be inviting by the member.
+	 * 
+	 * @param guild The guild where you want to get the number to.
+	 * @param userId The user you want get the number of invites from.
+	 * @return The number of invites the user do in the specified guild.
+	 */
 	public static int getNumberOfInvitesLeaves(Guild guild, String userId){
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -119,6 +113,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Get number of bonus invites.
+	 * 
+	 * @param guild The guild where you want to get the number to.
+	 * @param userId The user you want get the number of invites from.
+	 * @return The number of invites the user do in the specified guild.
+	 */
 	public static int getNumberOfInvitesBonus(Guild guild, String userId){
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -132,6 +133,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Set the number of normal invites for this member.
+	 * 
+	 * @param guild The guild you want to set the number of invites to.
+	 * @param userId The user you want to set the number of invites.
+	 * @param i The new value.
+	 */
 	public static void setNumberOfInvites(Guild guild, String userId, int i) {
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -145,6 +153,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Set the number of fakes invites for this member.
+	 * 
+	 * @param guild The guild you want to set the number of invites to.
+	 * @param userId The user you want to set the number of invites.
+	 * @param i The new value.
+	 */
 	public static void setNumberOfInvitesFakes(Guild guild, String userId, int i) {
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -158,6 +173,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Set the number of Bonus invites for this member.
+	 * 
+	 * @param guild The guild you want to set the number of invites to.
+	 * @param userId The user you want to set the number of invites.
+	 * @param i The new value.
+	 */
 	public static void setNumberOfInvitesBonus(Guild guild, String userId, int i) {
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -171,6 +193,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Set the number of Leaves invites for this member.
+	 * 
+	 * @param guild The guild you want to set the number of invites to.
+	 * @param userId The user you want to set the number of invites.
+	 * @param i The new value.
+	 */
 	public static void setNumberOfInvitesLeaves(Guild guild, String userId, int i) {
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -184,6 +213,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Get the userId of the inviter of this member.
+	 * 
+	 * @param guild The guild where the invite is from.
+	 * @param userId The user you want to know who is his inviter.
+	 * @return The inviter userId.
+	 */
 	public static String getWhoInvite(Guild guild, String userId){
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -197,6 +233,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Add a member to the database.
+	 * 
+	 * @param guild The guild from.
+	 * @param userId The userId.
+	 * @param userWhoInviteId The userId of the inviter.
+	 */
 	public static void addMemberToDb(Guild guild, String userId, String userWhoInviteId){
 		try {
 			ResultSet result = Main.database.get("SELECT * FROM Users WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -209,6 +252,12 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Remove a member from the database.
+	 * 
+	 * @param guild The guild from.
+	 * @param userId The userid of the user you want to delete.
+	 */
 	public static void removeMemberFromDb(Guild guild, String userId){
 		try {
 			Main.database.set("DELETE FROM `Users` WHERE GuildId='" + guild.getId() + "' AND UserId='" + userId + "';");
@@ -216,7 +265,13 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
-	public Invite getInviteThatChange(Guild guild) {
+	/**
+	 * Get the invite that change after a JoinEvent.
+	 * 
+	 * @param guild The guild you want to look at.
+	 * @return The invite that change.
+	 */
+	public static Invite getInviteThatChange(Guild guild) {
 		HashMap<String, Integer> actualMap = getInvites(guild);
 		for(String code : invites.get(guild.getId()).keySet()) {
 			if(invites.get(guild.getId()).get(code) != actualMap.get(code)) {
@@ -236,7 +291,13 @@ public class InvitationListener implements EventListener {
 		return null;
 	}
 	
-	public HashMap<String, Integer> getInvites(Guild guild) {
+	/**
+	 * Get the invites HashMap of a guild from the JDA.
+	 * 
+	 * @param guild The guild you want to look at.
+	 * @return Hashmap of all the invites and their number of uses.
+	 */
+	public static HashMap<String, Integer> getInvites(Guild guild) {
 		HashMap<String, Integer> map = new HashMap<>();
 		for(Invite inv : guild.getInvites().complete()) {
 			map.put(inv.getCode(), inv.getUses());
@@ -244,6 +305,10 @@ public class InvitationListener implements EventListener {
 		return map;
 	}
 	
+	/**
+	 * Stock all the invites of a all joined guilds.
+	 * That wont work for a guild if the bot doesn't have the permission "MANAGE_SERVER" (this will be log an error)
+	 */
 	public static void stockAllGuildsInvites() {
 		invites.clear();
 		for(Guild guild : Main.jda.getGuilds()) {
@@ -259,6 +324,11 @@ public class InvitationListener implements EventListener {
 		}
 	}
 	
+	/**
+	 * Add guild invites to the cache
+	 * 
+	 * @param guild The guild you want to get the invites from.
+	 */
 	public static void addGuildInvites(Guild guild) {
 		if(invites.containsKey(guild.getId())) {
 			invites.remove(guild.getId());
@@ -270,10 +340,117 @@ public class InvitationListener implements EventListener {
 		invites.put(guild.getId(), map);
 	}
 	
+	/**
+	 * Remove guild invites from the cache.
+	 * 
+	 * @param guild The guild you want to remove the invites.
+	 */
 	public static void removeGuildInvites(Guild guild) {
 		if(invites.containsKey(guild.getId())) {
 			invites.remove(guild.getId());
 		}
 	}
-
+	
+	/**
+	 * Send the message that show invites numbers of a member.
+	 * 
+	 * @param channel The channel where the command is send.
+	 * @param author The author of the command.
+	 * @param cmd The message of the command.
+	 */
+	public static void InvitesCommand(TextChannel channel, User author, String cmd[]){
+		User who = author;
+		if(cmd.length > 1){
+			if(cmd[1].startsWith("@")){
+				cmd[1] = cmd[1].replaceFirst("@", "");
+			}
+			try{
+				who = Utils.getUserByName(channel.getGuild(), cmd[1], false);
+			}catch(NullPointerException ex){
+				Messages.sendErrorMessage(channel, "\"" + cmd[1] + "\" est introuvable.", 10);
+				return;
+			}
+		}
+		int invites = Invitations.getNumberOfInvites(channel.getGuild(), who.getId());
+		int iFakes = Invitations.getNumberOfInvitesFakes(channel.getGuild(), who.getId());
+		int iBonus = Invitations.getNumberOfInvitesBonus(channel.getGuild(), who.getId());
+		int iLeaves = Invitations.getNumberOfInvitesLeaves(channel.getGuild(), who.getId());
+		Messages.sendInvitesMessage(channel, who, invites, iBonus, iLeaves, iFakes);
+	}
+	
+	/**
+	 * Change the bonus invites of a member in the specified guild.
+	 * And send a custom message.
+	 * 
+	 * @param channel The channel where the command is send.
+	 * @param author The author of the command.
+	 * @param cmd The message of the command.
+	 * @return True when the change occure, False when there is an error
+	 */
+	public static boolean addBonusCommand(TextChannel channel, User author, String cmd[]){
+		if(cmd.length <= 2){
+			Messages.sendErrorMessage(channel, "il vous manque des paramètres.\nUsage: !" + cmd[0] + " [@Joueur] [nombre]", 10);
+			return false;
+		}else{
+			User who = null;
+			if(cmd[1].startsWith("@")){
+				cmd[1] = cmd[1].replaceFirst("@", "");
+			}
+			try{
+				who = Utils.getUserByName(channel.getGuild(), cmd[1], false);
+			}catch(NullPointerException ex){
+				Messages.sendErrorMessage(channel, "\"" + cmd[1] + "\" est introuvable.", 10);
+				return false;
+			}
+			int i = 0;
+			try{
+				i = Integer.parseInt(cmd[2]);
+			}catch(Exception ex){
+				Messages.sendErrorMessage(channel, "\"" + cmd[2] + "\" n'est pas un nombre !", 10);
+				return false;
+			}
+			int o = Invitations.getNumberOfInvitesBonus(channel.getGuild(), who.getId());
+			Invitations.setNumberOfInvitesBonus(channel.getGuild(), who.getId(), o + i);
+			Messages.sendAddBonusMessage(channel, o, i);
+			return true;
+		}
+	}
+	
+	/**
+	 * Change the bonus invites of a member in the specified guild.
+	 * And send a custom message.
+	 * 
+	 * @param channel The channel where the command is send.
+	 * @param author The author of the command.
+	 * @param cmd The message of the command.
+	 * @return True when the change occure, False when there is an error
+	 */
+	public static boolean removeBonusCommand(TextChannel channel, User author, String cmd[]){
+		if(cmd.length <= 2){
+			Messages.sendErrorMessage(channel, "il vous manque des paramètres.\nUsage: !" + cmd[0] + " [@Joueur] [nombre]", 10);
+			return false;
+		}else{
+			User who = null;
+			if(cmd[1].startsWith("@")){
+				cmd[1] = cmd[1].replaceFirst("@", "");
+			}
+			try{
+				who = Utils.getUserByName(channel.getGuild(), cmd[1], false);
+			}catch(NullPointerException ex){
+				Messages.sendErrorMessage(channel, "\"" + cmd[1] + "\" est introuvable.", 10);
+				return false;
+			}
+			int i = 0;
+			try{
+				i = Integer.parseInt(cmd[2]);
+			}catch(Exception ex){
+				Messages.sendErrorMessage(channel, "\"" + cmd[2] + "\" n'est pas un nombre !", 10);
+				return false;
+			}
+			int o = Invitations.getNumberOfInvitesBonus(channel.getGuild(), who.getId());
+			Invitations.setNumberOfInvitesBonus(channel.getGuild(), who.getId(), o - i);
+			Messages.sendRemoveBonusMessage(channel, o, i);
+			return true;
+		}
+	}
 }

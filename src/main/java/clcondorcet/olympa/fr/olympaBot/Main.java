@@ -3,18 +3,20 @@ package clcondorcet.olympa.fr.olympaBot;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 
 import javax.security.auth.login.LoginException;
 
+import clcondorcet.olympa.fr.olympaBot.Functions.Invitations;
+import clcondorcet.olympa.fr.olympaBot.Functions.WelcomeMessages;
+import clcondorcet.olympa.fr.olympaBot.Listeners.GuildListener;
+import clcondorcet.olympa.fr.olympaBot.Listeners.MessageListener;
+import clcondorcet.olympa.fr.olympaBot.Utilities.SQL;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
+
 	/**
 	 * La classe Main est la la class maitresse du bot.
 	 * 
@@ -22,40 +24,72 @@ import net.dv8tion.jda.core.entities.TextChannel;
 	 * 
 	 * Le bot a été conçu spécialement pour Olympa mais peut être
 	 * ajouter par n'importe quel serveur discord sans problème,
-	 * si les bonnes permission lui sont donné.
+	 * si les bonnes permissions lui sont donné.
+	 * 
+	 * ---------------------
+	 * 
+	 * This class is the Main class of this bot.
+	 * 
+	 * This bot work with the JDA library that ensure the connection to Discord.
+	 * 
+	 * This bot is made for Olympa, but it can be add to any
+	 * guilds you want as long as you give the good permissions to
+	 * the bot.
 	 * 
 	 * @author clcondorcet
 	 * 
-	 * @version 0.0.2 Master
+	 * @version 0.0.3 Dev
 	 * 
 	 */
 public class Main {
 
-	
+	/**
+	 * It's the JDA instance of the bot.
+	 */
 	public static JDA jda = null;
-	public static String version = "0.0.2 Master";
+	
+	/**
+	 * Version of the code.
+	 */
+	public static String version = "0.0.3 Dev";
+	
+	/**
+	 * Variable that define if the bot can work proprely or not.
+	 */
 	public static boolean canWork = true;
+	
+	/**
+	 * The database connection.
+	 */
 	public static SQL database = null;
+	
+	/**
+	 * The path of the directory where the .jar file is.
+	 */
 	public static String path = "none";
-	public static HashMap<String, String> idsChannels = new HashMap<>();
 	
-	
-	/*
+	/**
+	 * Main method of the project.
 	 * 
+	 * Init the bot
 	 * 
+	 * @param args Main parameters.
+	 * @since 0.0.1
+	 * @throws LoginException JDA error.
+	 * @throws InterruptedException JDA error.
 	 */
     public static void main( String[] args ) throws LoginException, InterruptedException {
-    	//  Connect to discord
-    	JDA jda = new JDABuilder(AccountType.BOT).setToken("NjE0OTM2NjQ5MDk2MjMzMTYw.XXFITw.pKpqS1CnXjBAMembDvW0gSTftyU").buildBlocking();
+    	//  Start JDA association with the TOKEN of the bot
+    	JDA jda = new JDABuilder(AccountType.BOT).setToken("NjE5MjI0NzAyNTY4NjI4MjQ1.XXFIGg.Sk2dvSiOf2KKzcWV7__1auZFUvE").buildBlocking();
         
-    	// register Events
+    	// Register events
     	jda.addEventListener(new MessageListener());
-        jda.addEventListener(new InvitationListener());
         jda.addEventListener(new GuildListener());
         
-        // set the "Joue à  ..."
+        // Set the playing text.
         jda.getPresence().setGame(Game.playing("play.olympa.fr | !aide"));
         
+        // Set the jda instance into a public variable.
         Main.jda = jda;
         
         // Get the path of the folder that hold the .jar
@@ -84,7 +118,7 @@ public class Main {
         	}
         	
         	// Stock all invites of all guilds
-        	InvitationListener.stockAllGuildsInvites();
+        	Invitations.stockAllGuildsInvites();
         	
         	// Set a thread that reconnect to the database all 5 minutes
         	Runnable databaseRunnable = () -> {
@@ -92,7 +126,10 @@ public class Main {
     			boolean first = true;
     			try {
     				while(task) {
-    					// Set the SQL
+    					// Set the SQL after close the first one if there is one
+    					try{
+    						database.closeConnection();
+    					}catch(Exception ex){}
     					database = new SQL(path + "database.db");
     					try {
 							database.open();
@@ -130,22 +167,8 @@ public class Main {
     					// Get the stats when the bot start
     					if(first) {
     						first = false;
-    						try {
-    							// Get the channel where put the connections text for all guilds
-								ResultSet result = database.get("SELECT * FROM connectionsChannels;");
-								while(result.next()) {
-									idsChannels.put(result.getString("id"), result.getString("channel"));
-								}
-							} catch (SQLException e) {
-								canWork = false;
-								System.out.print("[WARN] - Impossible de prendre les données dans la table connectionsChannels de la base de données.\n");
-								e.printStackTrace();
-								System.out.print("[WARN] - Fin de l'erreur. Le bot est donc inutilisable ! Veuillez le redémarrer, si le problème persiste veuillez consulter internet ou son créateur (clcondorcet, discord: clcondorcet#1812) avec l'eureur si dessu.\n");
-							}
-    						for(Guild guild : jda.getGuilds()) {
-    							System.out.print("[INFO] - checkchannel pour le serveur " + guild.getName() + " (" + guild.getId() + ")\n");
-    							checkchannel(guild);
-    						}
+    						// Recover all the channel data for welcome messages.
+    						WelcomeMessages.getChannels();
     					}
     					Thread.sleep(1000 * 60 * 5);
     				}
@@ -157,48 +180,5 @@ public class Main {
     		databaseThread.start();
         	System.out.print("[INFO] - Le bot est prêt ! version: " + version + "\n");	
         }
-    }
-    
-    public static void checkchannel(Guild guild) {
-    	if(idsChannels.containsKey(guild.getId())) {
-    		System.out.print("[INFO] - Le serveur est déjà  enregistrer, récupération du channel ...\n");
-    		boolean isChannel = false;
-    		for(TextChannel txt : guild.getTextChannels()) {
-    			if(txt.getId().equals(idsChannels.get(guild.getId()))) {
-    				isChannel = true;
-    				break;
-    			}
-    		}
-    		if(!isChannel) {
-    			System.out.print("[INFO] - Le channel n'existe plus !\n");
-    			idsChannels.put(guild.getId(), guild.getDefaultChannel().getId());
-    			try {
-    				System.out.print("[INFO] - Essai d'update dans la base de donnée.\n");
-					database.set("UPDATE `connectionsChannels` SET channel='" + guild.getDefaultChannel().getId() + "' WHERE id='" + guild.getId() + "';");
-					System.out.print("[INFO] - Enregistrement réussi !\n");
-    			} catch (SQLException e) {
-					System.out.print("[WARN] - Impossible d'enregistrer les nouvelles données dans la base de données de la guilde " + guild.getName() + " (" + guild.getId() + ") avec comme valeur : " + guild.getDefaultChannel().getId() + "\n");
-					e.printStackTrace();
-					System.out.print("[WARN] - Fin de l'erreur.\n");
-				}
-    		}
-    	}else {
-    		System.out.print("[INFO] - Le serveur n'est pas enregistrer.\n");
-    		idsChannels.put(guild.getId(), guild.getDefaultChannel().getId());
-			try {
-				System.out.print("[INFO] - Essai d'enregister dans la base de donnée.\n");
-				database.set("INSERT INTO `connectionsChannels` (`id`, `channel`) VALUES ('" + guild.getId() + "','" + guild.getDefaultChannel().getId() + "')");
-				System.out.print("[INFO] - Enregistrement réussi !\n");
-			} catch (SQLException e) {
-				System.out.print("[WARN] - Impossible d'enregistrer les nouvelles données dans la base de données de la guilde " + guild.getName() + " (" + guild.getId() + ") avec comme valeur : " + guild.getDefaultChannel().getId() + "\n");
-				e.printStackTrace();
-				System.out.print("[WARN] - Fin de l'erreur.\n");
-			}
-    	}
-    }
-    
-    public TextChannel getConnectionsChannel(Guild guild) {
-    	checkchannel(guild);
-    	return guild.getTextChannelById(idsChannels.get(guild.getId()));
     }
 }

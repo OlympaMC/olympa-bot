@@ -1,4 +1,4 @@
-package clcondorcet.olympa.fr.olympaBot;
+package clcondorcet.olympa.fr.olympaBot.Utilities;
 
 import java.io.*;
 import java.sql.*;
@@ -46,8 +46,8 @@ public class SQL {
         return this.c;
     }
 
-    public void closeConnection(Connection c) {
-        c = null;
+    public void closeConnection() {
+        this.c = null;
     }
     
     public ResultSet get(String syntax) throws SQLException {
