@@ -1,21 +1,32 @@
 package fr.olympa.bot.discord;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.login.LoginException;
 
+import fr.olympa.bot.discord.commands.AnnonceCommand;
+import fr.olympa.bot.discord.commands.EmoteCommand;
+import fr.olympa.bot.discord.commands.InstanceCommand;
+import fr.olympa.bot.discord.commands.SupportCommand;
+import fr.olympa.bot.discord.commands.api.CommandListener;
+import fr.olympa.bot.discord.listener.JoinListener;
+import fr.olympa.bot.discord.listener.ReadyListener;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 
 public class OlympaDiscord {
 
 	private static JDA jda;
+	public static int timeToDelete = 20;
 
 	public static void connect() {
 
@@ -23,20 +34,51 @@ public class OlympaDiscord {
 
 		// builder.setToken("NjYwMjIzOTc0MDAwNjg5MTgy.Xg0CEg.klNZz78zFNarlFSNCmfwbL6roKI");
 
-		builder.setToken("NjUzODY0OTY0NTY1NzYyMDY5.Xg1NKQ.AqLOPsO8vjbc7pl7YU_-l0wHKt4");
+		builder.setToken("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setAutoReconnect(true);
 		builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
 
-		builder.setActivity(Activity.playing("⏫ En développement"));
-
-		builder.addEventListeners(new DiscordListener());
+		builder.addEventListeners(new CommandListener());
+		builder.addEventListeners(new ReadyListener());
+		builder.addEventListeners(new JoinListener());
+		new AnnonceCommand().register();
+		new EmoteCommand().register();
+		new SupportCommand().register();
+		new InstanceCommand().register();
 
 		try {
 			jda = builder.build();
 		} catch (LoginException e) {
 			e.printStackTrace();
+			return;
 		}
-		
+
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				jda.getPresence().setActivity(Activity.playing("⚠️ En développement"));
+			}
+		}, 0, 20000);
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				int usersConnected = 0;
+				int usersTotal = 0;
+				for (User user2 : jda.getUserCache()) {
+					if (!user2.isBot()) {
+						Guild firstGuild = user2.getMutualGuilds().get(0);
+						Member member2 = firstGuild.getMember(user2);
+						if (member2.getOnlineStatus() != OnlineStatus.OFFLINE) {
+							usersConnected++;
+						}
+						usersTotal++;
+					}
+				}
+				jda.getPresence().setActivity(Activity.watching(usersConnected + "/" + usersTotal + " membres"));
+			}
+		}, 10000, 20000);
+
 		/*try {
 			jda = builder.buildAsync();
 			ProxyServer.getInstance().getScheduler().schedule(Main.getInstance(), () -> updateConnected(), 0, 1, TimeUnit.MINUTES);
@@ -108,14 +150,17 @@ public class OlympaDiscord {
 		OlympaDiscord.sendTempMessageToChannel(channel, author.getAsMention() + " ➤ " + member.getEffectiveName() + " a désormais le rôle " + role.getName());
 	}*/
 
-	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
-		Message out = new MessageBuilder(msg).build();
-		channel.sendMessage(out).complete().delete().queueAfter(1, TimeUnit.MINUTES);
-	}
-
 	public static void disconnect() {
-		if(jda != null) {
+		if (jda != null) {
 			jda.shutdown();
 		}
+	}
+
+	public static JDA getJda() {
+		return jda;
+	}
+	
+	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
+		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES));
 	}
 }
