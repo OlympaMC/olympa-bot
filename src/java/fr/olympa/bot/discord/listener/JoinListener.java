@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.listener;
 
-import fr.olympa.bot.discord.DiscordUtils;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class JoinListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Guild guild = event.getGuild();
@@ -23,9 +23,9 @@ public class JoinListener extends ListenerAdapter {
 			}
 		}
 		GuildChannel membersChannel = guild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
-		membersChannel.getManager().setName("Membres : " + usersTotal);
+		membersChannel.getManager().setName("Membres : " + usersTotal).queue();
 	}
-
+	
 	@Override
 	public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
 		Guild guild = event.getGuild();
@@ -39,6 +39,6 @@ public class JoinListener extends ListenerAdapter {
 			}
 		}
 		GuildChannel membersChannel = guild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
-		membersChannel.getManager().setName("Membres : " + usersTotal);
+		membersChannel.getManager().setName("Membres : " + usersTotal).queue();
 	}
 }

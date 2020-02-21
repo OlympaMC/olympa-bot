@@ -19,7 +19,7 @@
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>3.2.1</version>
 				<configuration>
-                	<minimizeJar>true</minimizeJar>
+					<minimizeJar>true</minimizeJar>
 				</configuration>
 				<executions>
 					<execution>
@@ -48,21 +48,28 @@
 	</build>
 
 	<repositories>
-		<!--Repo Bungeecord 
 		<repository>
-			<id>bungeecord-repo</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</repository>-->
-
-		<repository>
-                    <id>bintray-dv8fromtheworld-maven</id>
-                    <name>bintray</name>
-                    <url>https://dl.bintray.com/dv8fromtheworld/maven</url>
+			<id>jcenter</id>
+			<name>jcenter-bintray</name>
+			<url>https://jcenter.bintray.com</url>
 		</repository>
 	</repositories>
 
 	<dependencies>
-	<!--Bungeecord API
+
+
+		<dependency>
+			<groupId>net.dv8tion</groupId>
+			<artifactId>JDA</artifactId>
+			<version>4.1.1_108</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vdurmont</groupId>
+			<artifactId>emoji-java</artifactId>
+			<version>5.1.1</version>
+		</dependency>
+
+		<!--Bungeecord API
 	<dependency>
 		<groupId>net.md-5</groupId>
 		<artifactId>bungeecord-api</artifactId>
@@ -84,14 +91,6 @@
 	  <artifactId>twitter4j-core</artifactId>
 	  <version>[4.0.7,)</version>
 	</dependency>-->
-
-    <dependency>
-    	<groupId>net.dv8tion</groupId>
-		<artifactId>JDA</artifactId>
-		<version>[4.1.1_108,)</version>
-	</dependency>
-
-	
 	<!--
 	<dependency> 
 	  <groupId>org.slf4j</groupId>

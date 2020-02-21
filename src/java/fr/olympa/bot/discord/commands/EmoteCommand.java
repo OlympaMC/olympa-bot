@@ -3,8 +3,8 @@ package fr.olympa.bot.discord.commands;
 import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 
-import fr.olympa.bot.discord.DiscordUtils;
 import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.commands.api.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;

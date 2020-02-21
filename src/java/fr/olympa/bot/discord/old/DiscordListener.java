@@ -1,10 +1,11 @@
-package fr.olympa.bot.discord;
+package fr.olympa.bot.discord.old;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.olympa.bot.discord.OlympaDiscord;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;

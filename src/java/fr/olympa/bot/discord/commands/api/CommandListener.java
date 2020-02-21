@@ -2,7 +2,7 @@ package fr.olympa.bot.discord.commands.api;
 
 import java.util.Arrays;
 
-import fr.olympa.bot.discord.DiscordUtils;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,7 +21,10 @@ public class CommandListener extends ListenerAdapter {
 		Message message = event.getMessage();
 		User user = event.getAuthor();
 
-		Guild guild = event.getGuild();
+		Guild guild = null;
+		if (event.isFromGuild()) {
+			guild = event.getGuild();
+		}
 		if (guild == null || guild.getIdLong() != 541605430397370398L) {
 			return;
 		}
@@ -36,6 +39,8 @@ public class CommandListener extends ListenerAdapter {
 		}
 		String[] args = message.getContentDisplay().split(" ");
 		String commandName = args[0];
+		
+		args = Arrays.copyOfRange(args, 1, args.length);
 		if (!commandName.startsWith(DiscordCommand.prefix)) {
 			return;
 		}
@@ -75,6 +80,6 @@ public class CommandListener extends ListenerAdapter {
 			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Usage: !" + commandName + " <message>");
 			return;
 		}
-		discordCommand.onCommandSend(discordCommand, Arrays.copyOfRange(args, 1, args.length), message);
+		discordCommand.onCommandSend(discordCommand, args, message);
 	}
 }

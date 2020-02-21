@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord;
 
+import java.awt.Color;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -7,12 +8,15 @@ import java.util.concurrent.TimeUnit;
 import javax.security.auth.login.LoginException;
 
 import fr.olympa.bot.discord.commands.AnnonceCommand;
+import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.InstanceCommand;
-import fr.olympa.bot.discord.commands.SupportCommand;
 import fr.olympa.bot.discord.commands.api.CommandListener;
+import fr.olympa.bot.discord.invites.InviteCommand;
 import fr.olympa.bot.discord.listener.JoinListener;
 import fr.olympa.bot.discord.listener.ReadyListener;
+import fr.olympa.bot.discord.support.SupportCommand;
+import fr.olympa.bot.discord.support.SupportListener;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -27,6 +31,7 @@ public class OlympaDiscord {
 
 	private static JDA jda;
 	public static int timeToDelete = 20;
+	public static Color color = Color.YELLOW;
 
 	public static void connect() {
 
@@ -36,15 +41,19 @@ public class OlympaDiscord {
 
 		builder.setToken("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setAutoReconnect(true);
+		builder.setGuildSubscriptionsEnabled(true);
 		builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
 
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
 		builder.addEventListeners(new JoinListener());
+		builder.addEventListeners(new SupportListener());
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
 		new InstanceCommand().register();
+		new ClearCommand().register();
+		new InviteCommand().register();
 
 		try {
 			jda = builder.build();
@@ -57,7 +66,7 @@ public class OlympaDiscord {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				jda.getPresence().setActivity(Activity.playing("⚠️ En développement"));
+				jda.getPresence().setActivity(Activity.playing("🚧 En développement"));
 			}
 		}, 0, 20000);
 		timer.schedule(new TimerTask() {
@@ -78,77 +87,7 @@ public class OlympaDiscord {
 				jda.getPresence().setActivity(Activity.watching(usersConnected + "/" + usersTotal + " membres"));
 			}
 		}, 10000, 20000);
-
-		/*try {
-			jda = builder.buildAsync();
-			ProxyServer.getInstance().getScheduler().schedule(Main.getInstance(), () -> updateConnected(), 0, 1, TimeUnit.MINUTES);
-		} catch(LoginException e) {
-			e.printStackTrace();
-		}*/
 	}
-
-	/*public static void updateConnected() {
-		int co = ProxyServer.getInstance().getOnlineCount();
-		JDA jda = OlympaDiscord.jda;
-		jda.getPresence().setGame(Game.playing(co + " connecté" + Utils.withOrWithoutS(co) + " | play.olympamc.fr"));
-	}
-
-	public static void checkName(Guild guild, Member member) {
-		List<TextChannel> channels = guild.getTextChannelsByName("bot", false);
-		TextChannel channel;
-		if(!channels.isEmpty()) {
-			channel = channels.get(0);
-		} else {
-			channel = guild.getDefaultChannel();
-		}
-
-		GuildController guildController = guild.getController();
-
-		OlympaPlayer olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
-		if(olympaPlayer == null) {
-			guildController.removeRolesFromMember(member, member.getRoles()).queue();
-			channel.sendMessage(member.getAsMention() + " ➤ " + member.getEffectiveName() + " n'est pas connu par OlympaMC, merci d'utiliser le même pseudo que en jeux").queue();
-			return;
-		}
-	}
-
-	public static void setRole(Member author, Guild guild, MessageChannel channel, String memberName) {
-		List<Member> members = guild.getMembersByEffectiveName(memberName, false);
-
-		if(members.isEmpty()) {
-			OlympaDiscord.sendTempMessageToChannel(channel, author.getAsMention() + " ➤ Le pseudo " + memberName + " est introuvable sur ce Discord.");
-			return;
-		}
-
-		if(members.size() > 1) {
-			OlympaDiscord.sendTempMessageToChannel(channel,
-					author.getAsMention() + " ➤ Le pseudo " + memberName + " est associé à plusieurs comptes: " + members.stream().map(member -> member.getEffectiveName()).collect(
-							Collectors.joining(", ")) + ".");
-			return;
-		}
-
-		Member member = members.get(0);
-
-		OlympaPlayer olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
-		if(olympaPlayer == null) {
-			OlympaDiscord.sendTempMessageToChannel(channel, author.getAsMention() + " ➤ Le pseudo " + member.getEffectiveName() + " est introuvable dans la base de donnés minecraft OlympaMC.");
-			return;
-		}
-		GuildController guildController = guild.getController();
-
-		List<Role> roles = jda.getRolesByName(olympaPlayer.getGroup().getName(), true);
-
-		if(roles.isEmpty()) {
-			OlympaDiscord.sendTempMessageToChannel(channel, author.getAsMention() + " ➤ Le rôle " + olympaPlayer.getGroup().getName() + " n'existe pas sur ce Discord.");
-			return;
-		}
-
-		Role role = roles.get(0);
-
-
-		guildController.addSingleRoleToMember(member, role).queue();
-		OlympaDiscord.sendTempMessageToChannel(channel, author.getAsMention() + " ➤ " + member.getEffectiveName() + " a désormais le rôle " + role.getName());
-	}*/
 
 	public static void disconnect() {
 		if (jda != null) {
@@ -156,11 +95,20 @@ public class OlympaDiscord {
 		}
 	}
 
+	public static Color getColor() {
+		return color;
+	}
+	
 	public static JDA getJda() {
 		return jda;
 	}
-	
+
+	@Deprecated
 	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
 		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES));
+	}
+	
+	public static void setColor(Color color) {
+		OlympaDiscord.color = color;
 	}
 }

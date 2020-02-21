@@ -1,8 +1,9 @@
-package fr.olympa.bot.discord;
+package fr.olympa.bot.discord.api;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import fr.olympa.bot.discord.OlympaDiscord;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -53,6 +54,10 @@ public class DiscordUtils {
 
 	public static void sendTempMessage(MessageAction message) {
 		message.queue(msgSend -> deleteTempMessage(msgSend));
+	}
+	
+	public static void sendTempMessage(MessageChannel channel, Member member, String msg) {
+		sendTempMessage(channel, member.getAsMention() + " ➤ " + msg);
 	}
 	
 	public static void sendTempMessage(MessageChannel channel, String msg) {
