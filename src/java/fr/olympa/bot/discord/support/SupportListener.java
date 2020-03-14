@@ -19,7 +19,7 @@ public class SupportListener extends ListenerAdapter {
 	public void onMessageReceived(MessageReceivedEvent event) {
 		Member member = event.getMember();
 		MessageChannel channel = event.getChannel();
-		if (!SupportHandler.isSupportChannel(channel, member)) {
+		if (!event.isFromGuild() || !SupportHandler.isSupportChannel(channel, member)) {
 			return;
 		}
 		TextChannel channelSupport = SupportHandler.getChannel(member);

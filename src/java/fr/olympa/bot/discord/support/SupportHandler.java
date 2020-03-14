@@ -1,7 +1,8 @@
 package fr.olympa.bot.discord.support;
 
+import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.groups.DiscordGroup;
@@ -19,7 +20,7 @@ import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 
 public class SupportHandler {
-
+	
 	public static void askWhoStaff(TextChannel textChannel, Member member) {
 		EmbedBuilder mb = new EmbedBuilder().setTitle("Ta demande est prise en compte");
 		mb.setColor(OlympaDiscord.getColor());
@@ -39,11 +40,11 @@ public class SupportHandler {
 			}
 		});
 	}
-
+	
 	public static void createCategory(Guild guild) {
 		guild.createCategory("🏳️ Support").queue(category -> category.getManager().setPosition(0).queue());
 	}
-
+	
 	public static void createChannel(Category category, Member member) {
 		Role defaultRole = category.getGuild().getPublicRole();
 		PermissionOverrideAction permissionAction = category.createPermissionOverride(defaultRole);
@@ -54,7 +55,7 @@ public class SupportHandler {
 				manager.setTopic(member.getId() + " " + StatusSupportChannel.OPEN.getId()).queue();
 				PermissionOverrideAction permissionAction2 = textChannel.createPermissionOverride(member);
 				permissionAction2.setAllow(Permission.MESSAGE_READ, Permission.VIEW_CHANNEL).queue();
-
+				
 				EmbedBuilder mb = new EmbedBuilder().setTitle("Bienvenue sur le support Discord");
 				mb.setColor(OlympaDiscord.getColor());
 				mb.setDescription("Les règles sont simples :");
@@ -66,30 +67,36 @@ public class SupportHandler {
 			});
 		});
 	}
-	
+
 	public static void createChannel(Member member) {
 		Guild guild = member.getGuild();
-		CompletableFuture.runAsync(() -> {
-			Category category = getCategory(guild);
-			if (category == null) {
-				createCategory(guild);
-				category = getCategory(guild);
-			}
-			createChannel(category, member);
-		});
+		//		CompletableFuture.runAsync(() -> {
+		Category category = getCategory(guild);
+		if (category == null) {
+			createCategory(guild);
+			category = getCategory(guild);
+		}
+		createChannel(category, member);
+		//		});
 	}
-
+	
 	public static Category getCategory(Guild guild) {
-		List<Category> cats = guild.getCategoriesByName("🏳 Support", true);
+		List<Category> cats = guild.getCategories().stream().filter(cat -> cat.getName().endsWith("Support")).collect(Collectors.toList());
 		if (cats.isEmpty()) {
 			return null;
 		}
 		if (cats.size() > 1) {
 			System.out.println("[ERROR] They are more than 1 Support category in guild " + guild.getName());
+			Iterator<Category> it = cats.iterator();
+			it.next();
+			while (it.hasNext()) {
+				Category cat = it.next();
+				cat.delete().queue();
+			}
 		}
 		return cats.get(0);
 	}
-	
+
 	public static TextChannel getChannel(Member member) {
 		Category cat = getCategory(member.getGuild());
 		GuildChannel channel = null;
@@ -106,23 +113,23 @@ public class SupportHandler {
 		}
 		return (TextChannel) channel;
 	}
-	
+
 	public static StatusSupportChannel getChannelStatus(TextChannel channel) {
 		String[] topic = channel.getTopic().split(" ");
 		int statusId = Integer.parseInt(topic[1]);
 		return StatusSupportChannel.get(statusId);
 	}
-	
+
 	public static boolean isSupportChannel(MessageChannel messageChannel, Member member) {
 		return messageChannel.getName().equals(member.getEffectiveName().toLowerCase());
 	}
-	
+
 	public static void setChannelStatus(TextChannel channel, StatusSupportChannel status) {
 		String[] topic = channel.getTopic().split(" ");
 		topic[1] = String.valueOf(status.getId());
 		channel.getManager().setTopic(String.join(" ", topic)).queue();
 	}
-	
+
 	public static void updateChannel(Member member) {
 		GuildChannel channel = getChannel(member);
 		if (channel == null || channel.getName().equals(member.getEffectiveName().toLowerCase())) {
