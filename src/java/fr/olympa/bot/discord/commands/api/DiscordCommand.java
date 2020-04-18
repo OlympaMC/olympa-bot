@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.Permission;
 
 public abstract class DiscordCommand implements CommandEvent {
 
-	protected static String prefix = "!";
+	protected static String prefix = ":";
 	private static Map<String, DiscordCommand> commands = new HashMap<>();
 
 	public static DiscordCommand getCommand(String nameOrAliase) {
@@ -40,8 +40,8 @@ public abstract class DiscordCommand implements CommandEvent {
 		this.name = name;
 		this.aliases = Arrays.asList(aliases);
 	}
-	
+
 	public void register() {
-		DiscordCommand.commands.put(this.name, this);
+		DiscordCommand.commands.put(name, this);
 	}
 }

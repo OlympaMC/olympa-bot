@@ -3,7 +3,7 @@ package fr.olympa.bot.discord.commands;
 import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 
-import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.commands.api.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,17 +13,17 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class EmoteCommand extends DiscordCommand {
-	
+
 	public EmoteCommand() {
 		super("emote", Permission.MESSAGE_MANAGE);
-		this.minArg = 1;
+		minArg = 1;
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
 		message.delete().queue();
-		
+
 		String test = args[0];
 		Emote emote = message.getJDA().getEmotesByName(test, true).get(0);
 		if (emote == null) {
@@ -32,7 +32,7 @@ public class EmoteCommand extends DiscordCommand {
 		}
 		EmbedBuilder embed = new EmbedBuilder().setDescription("Id: " + emote.getId() + " Name: " + emote.getName()).setTitle("Emote");
 		embed.setColor(Color.YELLOW);
-		channel.sendMessage(embed.build()).queue(m -> m.addReaction(emote).queue(m2 -> m.delete().queueAfter(OlympaDiscord.timeToDelete, TimeUnit.SECONDS)));
+		channel.sendMessage(embed.build()).queue(m -> m.addReaction(emote).queue(m2 -> m.delete().queueAfter(OlympaBots.getInstance().getDiscord().timeToDelete, TimeUnit.SECONDS)));
 	}
-	
+
 }

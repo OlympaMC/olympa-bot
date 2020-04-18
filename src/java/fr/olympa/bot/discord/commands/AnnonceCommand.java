@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.commands;
 
-import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.commands.api.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -11,7 +11,7 @@ public class AnnonceCommand extends DiscordCommand {
 
 	public AnnonceCommand() {
 		super("annonce", Permission.MESSAGE_MANAGE);
-		this.minArg = 1;
+		minArg = 1;
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class AnnonceCommand extends DiscordCommand {
 
 		CharSequence description = String.join(" ", args);
 		EmbedBuilder embed = new EmbedBuilder().setDescription(description).setTitle("📢 Annonce");
-		embed.setColor(OlympaDiscord.getColor());
+		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		channel.sendMessage("@everyone").queue(msg -> channel.sendMessage(embed.build()).queue(m -> m.addReaction("☑️").queue()));
 	}
 

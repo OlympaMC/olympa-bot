@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.commands.api.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -22,22 +21,22 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
 public class InviteCommand extends DiscordCommand {
-	
+
 	public InviteCommand() {
 		super("invite", Permission.MESSAGE_MANAGE);
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
-		Guild guild = DiscordUtils.getDefaultGuild();
+		Guild guild = message.getGuild();
 		message.delete().queue();
-		
+
 		if (args.length != 0 && args[0].equalsIgnoreCase("show")) {
 			EmbedBuilder em = new EmbedBuilder();
 			List<Invite> invites = guild.retrieveInvites().complete();
 			Set<Long> invitesPeruser = invites.stream().map(invite -> invite.getInviter().getIdLong()).collect(Collectors.toSet());
-			
+
 			em.setTitle("💌 Invitations");
 			em.setDescription("Il y a " + invites.size() + " invations par " + invitesPeruser.size() + " membres.\n");
 			for (Invite invite : invites) {
@@ -59,7 +58,7 @@ public class InviteCommand extends DiscordCommand {
 				int uses = invite.getUses();
 				maxInvite = invite.getMaxUses();
 				String timeCreated = invite.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-				
+
 				smallSb.append("Utilisé " + uses + " fois ");
 				if (maxInvite != 0 || maxAge != 0) {
 					smallSb.append("Valable ");
@@ -82,49 +81,48 @@ public class InviteCommand extends DiscordCommand {
 			}
 			channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(60, TimeUnit.SECONDS));
 		} else {
-			EmbedBuilder em = new EmbedBuilder();
-			em.setTitle("💌 Invitations");
-			List<Invite> invites = guild.retrieveInvites().complete();
 			Map<User, Integer> stats = new HashMap<>();
-			for (Invite invite : invites) {
-				User user = invite.getInviter();
-				int uses = invite.getUses();
-				Integer actualNb = stats.get(user);
-				if (uses != 0) {
-					if (actualNb != null) {
-						uses += actualNb;
+			guild.retrieveInvites().queue(invites -> {
+				EmbedBuilder em = new EmbedBuilder();
+				em.setTitle("💌 Invitations");
+				for (Invite invite : invites) {
+					User user = invite.getInviter();
+					int uses = invite.getUses();
+					Integer actualNb = stats.get(user);
+					if (uses != 0) {
+						if (actualNb != null) {
+							uses += actualNb;
+						}
+						stats.put(user, uses);
 					}
-					stats.put(user, uses);
 				}
-			}
-			int nb = 1;
-			TreeMap<User, Integer> statsSorted = new TreeMap<>((o1, o2) -> {
-				Integer o1Value = stats.get(o1);
-				Integer o2Value = stats.get(o2);
-				return o2Value.compareTo(o1Value);
+				int nb = 1;
+				TreeMap<User, Integer> statsSorted = new TreeMap<>((o1, o2) -> {
+					Integer o1Value = stats.get(o1);
+					Integer o2Value = stats.get(o2);
+					return o2Value.compareTo(o1Value);
+				});
+				statsSorted.putAll(stats);
+				em.setDescription("Il y a " + stats.size() + " joueurs qui ont ramener " + stats.values().stream().mapToInt(Integer::valueOf).sum() + " joueurs.\n");
+				for (Entry<User, Integer> entry : statsSorted.entrySet()) {
+					User user = entry.getKey();
+					Integer uses = entry.getValue();
+					Member member = guild.getMember(user);
+					String inviterName;
+					if (member == null) {
+						inviterName = "🚪 " + user.getName();
+					} else {
+						inviterName = user.getAsMention();
+					}
+					em.appendDescription(nb++ + " | " + uses + " joueurs " + inviterName + ".\n");
+					if (em.getDescriptionBuilder().length() > 1800) {
+						channel.sendMessage(em.build()).queue();
+						em = new EmbedBuilder();
+					}
+				}
+				channel.sendMessage(em.build()).queue();
 			});
-			statsSorted.putAll(stats);
-			em.setDescription("Il y a " + stats.size() + " joueurs qui ont ramener " + stats.values().stream().mapToInt(Integer::valueOf).sum() + " joueurs.\n");
-			for (Entry<User, Integer> entry : statsSorted.entrySet()) {
-				User user = entry.getKey();
-				Integer uses = entry.getValue();
-				Member member = guild.getMember(user);
-				String inviterName;
-				if (member == null) {
-					inviterName = "🚪 " + user.getName();
-				} else {
-					inviterName = user.getAsMention();
-				}
-				em.appendDescription(nb++ + " " + uses + " joueurs " + inviterName + ".\n");
-				if (em.getDescriptionBuilder().length() > 1800) {
-					channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(60, TimeUnit.SECONDS));
-					em = new EmbedBuilder();
-				}
-				/*if (nb >= 20) {
-					break;
-				}*/
-			}
-			channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(60, TimeUnit.SECONDS));
+
 		}
 	}
 }

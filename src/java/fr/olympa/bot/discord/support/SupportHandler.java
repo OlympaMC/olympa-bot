@@ -1,117 +1,122 @@
 package fr.olympa.bot.discord.support;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.managers.ChannelManager;
-import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 
 public class SupportHandler {
-	
+
 	public static void askWhoStaff(TextChannel textChannel, Member member) {
-		EmbedBuilder mb = new EmbedBuilder().setTitle("Ta demande est prise en compte");
-		mb.setColor(OlympaDiscord.getColor());
+		EmbedBuilder mb = new EmbedBuilder().setTitle("Support Olympa");
+		mb.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		for (DiscordGroup discordGroup : DiscordGroup.values()) {
 			if (discordGroup.isSupportShow()) {
-				mb.addField(discordGroup.getRole().getName(), discordGroup.getSupportDesc(), true);
+				mb.addField(discordGroup.getRole(textChannel.getGuild()).getName(), "```" + discordGroup.getSupportDesc() + "```", true);
 			}
 		}
 		mb.setDescription("Maintenant tu dois choisir à qui s'adresse ta demande.");
 		textChannel.sendMessage(mb.build()).queue(msg -> {
 			for (DiscordGroup discordGroup : DiscordGroup.values()) {
-				Role role = discordGroup.getRole();
-				System.out.println("Role: " + discordGroup.getRole().getName() + " emoji " + discordGroup.getEmoji(role));
+				Role role = discordGroup.getRole(textChannel.getGuild());
 				if (discordGroup.isSupportCanTag()) {
-					msg.addReaction(discordGroup.getEmoji(role)).queue();
+					msg.addReaction(DiscordGroup.getEmoji(role)).queue();
 				}
 			}
 		});
 	}
-	
-	public static void createCategory(Guild guild) {
-		guild.createCategory("🏳️ Support").queue(category -> category.getManager().setPosition(0).queue());
+
+	public static void createCategor(Guild guild) {
+		createCategory(guild, null);
 	}
-	
+
+	public static void createCategory(Guild guild, Consumer<Category> created) {
+		guild.createCategory("🏳️ Support").queue(r -> {
+			if (created != null) {
+				created.accept(r);
+			}
+		});
+	}
+
 	public static void createChannel(Category category, Member member) {
-		Role defaultRole = category.getGuild().getPublicRole();
-		PermissionOverrideAction permissionAction = category.createPermissionOverride(defaultRole);
-		permissionAction.deny(Permission.VIEW_CHANNEL).queue(perm -> {
+		DiscordUtils.deny(category, null, perm -> {
 			category.createTextChannel(member.getEffectiveName().toLowerCase()).queue(textChannel -> {
 				ChannelManager manager = textChannel.getManager();
-				manager.setSlowmode(10).queue();
 				manager.setTopic(member.getId() + " " + StatusSupportChannel.OPEN.getId()).queue();
-				PermissionOverrideAction permissionAction2 = textChannel.createPermissionOverride(member);
-				permissionAction2.setAllow(Permission.MESSAGE_READ, Permission.VIEW_CHANNEL).queue();
-				
+				manager.setSlowmode(10).queue();
+				DiscordUtils.allow(textChannel, member, Permission.MESSAGE_READ, Permission.VIEW_CHANNEL);
+
 				EmbedBuilder mb = new EmbedBuilder().setTitle("Bienvenue sur le support Discord");
-				mb.setColor(OlympaDiscord.getColor());
+				mb.setColor(OlympaBots.getInstance().getDiscord().getColor());
 				mb.setDescription("Les règles sont simples :");
-				mb.addField("Ce que tu ne peux pas", "- Pas de report de cheater\n- Pas de plainte\n- Pas de candidature", true);
-				mb.addField("Ce que tu peux dire", "- Signalement de bugs\n- Une question si tu as déjà chercher la réponse.", true);
+				mb.addField("Ce que tu ne peux pas", "- Pas de signalement de cheater\n- Pas de plainte\n- Pas de candidature", true);
+				mb.addField("Ce que tu peux dire", "- Signalement de bugs\n- Une question", true);
 				mb.addField("Pour écrire ici tu dois", "Avoir relier ton compte Olympa et ton compte Discord via /discord link sur Minecraft", false);
 				mb.addField("Pas d'abus", "N'abuse pas du support et n'oublie pas d'être polie. Cette conversation risque d'être enregistrer.", false);
 				textChannel.sendMessage(mb.build()).queue();
 			});
-		});
+		}, Permission.VIEW_CHANNEL, Permission.MESSAGE_MENTION_EVERYONE, Permission.MESSAGE_ADD_REACTION);
 	}
 
 	public static void createChannel(Member member) {
 		Guild guild = member.getGuild();
-		//		CompletableFuture.runAsync(() -> {
+		// CompletableFuture.runAsync(() -> {
 		Category category = getCategory(guild);
 		if (category == null) {
-			createCategory(guild);
-			category = getCategory(guild);
+			createCategory(guild, c -> createChannel(member));
+		} else {
+			createChannel(category, member);
 		}
-		createChannel(category, member);
-		//		});
 	}
-	
+
+	public static Set<Category> getCategory() {
+		Set<Category> cats = OlympaBots.getInstance().getDiscord().getJda().getCategories().stream().filter(cat -> cat.getName().endsWith("Support")).collect(Collectors.toSet());
+		if (cats.isEmpty()) {
+			return null;
+		}
+		Set<Category> catsSameGuild = cats.stream().map(cat -> cats.stream().filter(cat2 -> cat2.getGuild().getIdLong() != cat.getGuild().getIdLong()).findFirst().orElse(null)).collect(Collectors.toSet());
+		cats.removeAll(removeDuplicCat(catsSameGuild));
+		return cats;
+	}
+
 	public static Category getCategory(Guild guild) {
 		List<Category> cats = guild.getCategories().stream().filter(cat -> cat.getName().endsWith("Support")).collect(Collectors.toList());
 		if (cats.isEmpty()) {
 			return null;
 		}
+		Set<Category> catsSameGuild = cats.stream().map(cat -> cats.stream().filter(cat2 -> cat2.getGuild().getIdLong() == cat.getGuild().getIdLong()).findFirst().orElse(null)).collect(Collectors.toSet());
+		cats.removeAll(removeDuplicCat(catsSameGuild));
 		if (cats.size() > 1) {
 			System.out.println("[ERROR] They are more than 1 Support category in guild " + guild.getName());
-			Iterator<Category> it = cats.iterator();
-			it.next();
-			while (it.hasNext()) {
-				Category cat = it.next();
-				cat.delete().queue();
-			}
 		}
 		return cats.get(0);
 	}
 
 	public static TextChannel getChannel(Member member) {
-		Category cat = getCategory(member.getGuild());
-		GuildChannel channel = null;
-		if (cat != null) {
-			channel = cat.getChannels().stream().filter(ch -> {
-				boolean b = ch.getType() == ChannelType.TEXT;
-				if (b) {
-					TextChannel tch = (TextChannel) ch;
-					String[] topic = tch.getTopic().split(" ");
-					b = topic[0].equalsIgnoreCase(member.getId());
-				}
-				return b;
-			}).findFirst().orElse(null);
+		Category category = getCategory(member.getGuild());
+		if (category != null) {
+			return category.getTextChannels().stream().filter(ch -> ch.getTopic().split(" ")[0].equalsIgnoreCase(member.getId())).findFirst().orElse(null);
 		}
-		return (TextChannel) channel;
+		return null;
 	}
 
 	public static StatusSupportChannel getChannelStatus(TextChannel channel) {
@@ -120,8 +125,87 @@ public class SupportHandler {
 		return StatusSupportChannel.get(statusId);
 	}
 
-	public static boolean isSupportChannel(MessageChannel messageChannel, Member member) {
-		return messageChannel.getName().equals(member.getEffectiveName().toLowerCase());
+	public static Member getMemberByChannel(TextChannel channel) {
+		return channel.getTopic() == null || !getCategory(channel.getGuild()).getChannels().contains(channel) ? null : channel.getGuild().getMemberById(channel.getTopic().split(" ")[0]);
+	}
+
+	public static Entry<Member, StatusSupportChannel> getMemberStatusByChannel(TextChannel channel) {
+		if (channel.getTopic() == null || channel.getParent() == null || !channel.getParent().getName().endsWith("Support")) {
+			return null;
+		}
+		String[] split = channel.getTopic().split(" ");
+		return new AbstractMap.SimpleEntry<>(channel.getGuild().getMemberById(split[0]), StatusSupportChannel.get(Integer.parseInt(split[1])));
+	}
+
+	public static boolean isSupportChannel(TextChannel TextChannel, Member member) {
+		return TextChannel.getName().equals(member.getEffectiveName().toLowerCase());
+	}
+
+	public static boolean panelStaff(ReactionEmote reactionEmote, TextChannel textChannel, long msgId, Member member) {
+		DiscordGroup group = DiscordGroup.get(textChannel.getGuild(), reactionEmote.getEmoji());
+		if (group == null) {
+			return false;
+		}
+		Role staffRole = group.getRole(textChannel.getGuild());
+		DiscordUtils.allow(textChannel, staffRole, Permission.MESSAGE_READ);
+		// textChannel.sendMessage(staffRole.getAsMention()).queue();
+		EmbedBuilder mb2 = new EmbedBuilder().setTitle("Panel Staff").setDescription("Ce panel est réservé au staff");
+		mb2.setColor(OlympaBots.getInstance().getDiscord().getColor());
+		List<String> reactions = new ArrayList<>();
+		for (DiscordGroup discordGroup : DiscordGroup.values()) {
+			if (!discordGroup.isStaff()) {
+				continue;
+			}
+			Role role2 = discordGroup.getRole(textChannel.getGuild());
+			if (role2 != null && role2.getIdLong() != staffRole.getIdLong()) {
+				String membersRole = textChannel.getGuild().getMembersWithRoles(role2).stream().map(Member::getAsMention).collect(Collectors.joining(", "));
+				if (!membersRole.isEmpty()) {
+					mb2.addField(role2.getName(), membersRole, true);
+					reactions.add(DiscordGroup.getEmoji(role2));
+				}
+			}
+		}
+		for (AutoResponse ar : AutoResponse.values()) {
+			mb2.addField(ar.getEmoji(), "`" + ar.getName() + "`", true);
+			reactions.add(ar.getEmoji());
+		}
+		textChannel.sendMessage(mb2.build()).queue(msg -> reactions.forEach(unicode -> msg.addReaction(unicode).queue()));
+		EmbedBuilder mb = new EmbedBuilder().setTitle("Support Olympa");
+		StringBuilder sb = new StringBuilder("Ta demande a été prise en compte. ");
+		mb.setColor(OlympaBots.getInstance().getDiscord().getColor());
+		List<Member> staff = staffRole.getGuild().getMembersWithRoles(staffRole);
+		Role staffUse = staffRole;
+		Permission[] perms = new Permission[] { Permission.MESSAGE_READ, Permission.MESSAGE_WRITE };
+		if (staff.isEmpty()) {
+			Role assistant = DiscordGroup.ASSISTANT.getRole(textChannel.getGuild());
+			DiscordUtils.allow(textChannel, assistant, perms);
+			sb.append("Malheureusement nous n'avons actuellement aucun " + staffUse.getAsMention() + " actuellement. Je te redirige vers les " + assistant.getAsMention() + ".");
+			staffUse = DiscordGroup.ASSISTANT.getRole(textChannel.getGuild());
+		} else {
+			if (staff.stream().map(Member::getOnlineStatus).filter(s -> s != OnlineStatus.OFFLINE && s != OnlineStatus.INVISIBLE).findFirst().isPresent()) {
+				sb.append("Les " + staffUse.getAsMention() + " sont au courant, ils vont te répondre sous peu.");
+			} else {
+				sb.append("Malheureusement aucun " + staffUse.getAsMention() + " n'est actuellement disponible. Ils vont te répondre dès que possible.");
+			}
+		}
+		DiscordUtils.allow(textChannel, staffUse, perms);
+		// textChannel.sendMessage(staffUse.getAsMention()).queue();
+		mb.setDescription(sb.toString());
+		textChannel.sendMessage(mb.build()).queue();
+		return true;
+	}
+
+	private static Set<Category> removeDuplicCat(Set<Category> catsSameGuild) {
+		Iterator<Category> it = catsSameGuild.iterator();
+		while (it.hasNext()) {
+			Category categorieGuild = it.next();
+			if (categorieGuild.getGuild().getCategories().stream().filter(cat -> cat.getName().endsWith("Support")).count() > 1) {
+				categorieGuild.delete().queue();
+			} else {
+				catsSameGuild.remove(categorieGuild);
+			}
+		}
+		return catsSameGuild;
 	}
 
 	public static void setChannelStatus(TextChannel channel, StatusSupportChannel status) {

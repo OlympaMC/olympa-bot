@@ -1,10 +1,15 @@
 package fr.olympa.bot.discord.api;
 
+import java.util.Arrays;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.OlympaBots;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -13,24 +18,58 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class DiscordUtils {
 
+	public static void allow(GuildChannel channel, IPermissionHolder role, Consumer<Void> success, Permission... perms) {
+		if (role == null) {
+			role = channel.getGuild().getPublicRole();
+		}
+		channel.getManager().putPermissionOverride(role, Arrays.asList(perms), null).queue(r -> {
+			if (success != null) {
+				success.accept(r);
+			}
+		});
+	}
+
+	public static void allow(GuildChannel channel, IPermissionHolder role, Permission... perms) {
+		allow(channel, role, null, perms);
+	}
+
+	public static void allow(GuildChannel channel, Permission... perms) {
+		allow(channel, null, null, perms);
+	}
+
 	public static boolean compareGuild(Guild guild1, Guild guild2) {
 		return guild1 != null && guild2 != null && guild1.getIdLong() == guild2.getIdLong();
 	}
 
 	public static ScheduledFuture<?> deleteTempMessage(Message message) {
 		try {
-			return message.delete().queueAfter(OlympaDiscord.timeToDelete, TimeUnit.SECONDS);
+			return message.delete().queueAfter(OlympaBots.getInstance().getDiscord().timeToDelete, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	public static Guild getDefaultGuild() {
-		return OlympaDiscord.getJda().getGuildById(544593846831415307L);
+	public static void deny(GuildChannel channel, IPermissionHolder role, Consumer<Void> success, Permission... perms) {
+		if (role == null) {
+			role = channel.getGuild().getPublicRole();
+		}
+		channel.getManager().putPermissionOverride(role, null, Arrays.asList(perms)).queue(r -> {
+			if (success != null) {
+				success.accept(r);
+			}
+		});
+	}
+
+	public static void deny(GuildChannel channel, IPermissionHolder role, Permission... perms) {
+		deny(channel, role, null, perms);
+	}
+
+	public static void deny(GuildChannel channel, Permission... perms) {
+		deny(channel, null, null, perms);
 	}
 
 	public static Member getMember(User user) {
-		Guild guild = getDefaultGuild();
+		Guild guild = DiscordIds.getDefaultGuild();
 		Member member = null;
 		if (guild != null) {
 			member = guild.getMember(user);
@@ -38,28 +77,36 @@ public class DiscordUtils {
 		return member;
 	}
 
-	public static Guild getStaffGuild() {
-		return OlympaDiscord.getJda().getGuildById(541605430397370398L);
+	public static long getMembersSize(Guild guild) {
+		return guild.getMembers().stream().filter(mem -> !mem.getUser().isBot()).count();
 	}
-	
+
 	public static boolean isDefaultGuild(Guild guild) {
-		Guild defaultGuild = getDefaultGuild();
+		Guild defaultGuild = DiscordIds.getDefaultGuild();
 		return compareGuild(defaultGuild, guild);
 	}
-	
+
+	public static boolean isMe(Member member) {
+		return OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getIdLong() == member.getIdLong();
+	}
+
+	public static boolean isMe(User user) {
+		return OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getIdLong() == user.getIdLong();
+	}
+
 	public static boolean isStaffGuild(Guild guild) {
-		Guild staffGuild = getStaffGuild();
+		Guild staffGuild = DiscordIds.getStaffGuild();
 		return compareGuild(staffGuild, guild);
 	}
 
 	public static void sendTempMessage(MessageAction message) {
 		message.queue(msgSend -> deleteTempMessage(msgSend));
 	}
-	
+
 	public static void sendTempMessage(MessageChannel channel, Member member, String msg) {
 		sendTempMessage(channel, member.getAsMention() + " ➤ " + msg);
 	}
-	
+
 	public static void sendTempMessage(MessageChannel channel, String msg) {
 		sendTempMessage(channel.sendMessage(msg));
 	}

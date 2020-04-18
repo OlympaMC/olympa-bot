@@ -1,38 +1,45 @@
 package fr.olympa.bot.discord.webhook;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 
-import fr.olympa.bot.discord.api.DiscordUtils;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
+import fr.olympa.bot.discord.api.DiscordIds;
+import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.WebhookType;
+import net.dv8tion.jda.api.managers.WebhookManager;
+import net.dv8tion.jda.internal.entities.WebhookImpl;
 
 public class WebHookHandler {
-	
-	private static Guild getGuild() {
-		return DiscordUtils.getStaffGuild();
-	}
-	
-	JDA jda;
-	
-	public WebHookHandler(JDA jda) {
-		this.jda = jda;
-		
+
+	public void test() {
+
+		String name = "test";
+		TextChannel channel = DiscordIds.getChannelInfo();
+		User user = channel.getJDA().getUserById(217682399234883584L);
+
+		channel.getGuild().retrieveWebhooks().queue(wbs -> {
+			Webhook webhook = wbs.stream().filter(wb -> wb.getName().equals(name)).findFirst().orElse(null);
+			if (webhook == null) {
+				channel.createWebhook(name).queue(wb -> test());
+				return;
+			}
+
+			WebhookManager man = webhook.getManager();
+			man.setName(user.getName()).queue();
+			File file = Paths.get(user.getEffectiveAvatarUrl()).toFile();
+			try {
+				man.setAvatar(Icon.from(file)).queue();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			man.setChannel(channel).queue();
+
+			WebhookImpl wb = new WebhookImpl(channel, webhook.getIdLong(), WebhookType.INCOMING).setToken(webhook.getToken());
+		});
 	}
 
-	public TextChannel getChannel() {
-		Guild guild = getGuild();
-		List<GuildChannel> channels = guild.getChannels().stream().filter(ch -> ch.getName().endsWith("reseaux")).collect(Collectors.toList());
-		if (channels.isEmpty()) {
-			return null;
-		}
-		if (channels.size() > 1) {
-			System.out.println("[ERROR] They are more than 1 Reseaux channel in guild " + guild.getName());
-		}
-		return (TextChannel) channels.stream().filter(ch -> ch.getType() == ChannelType.TEXT).findFirst().orElse(null);
-	}
-	
 }

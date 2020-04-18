@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.commands.api.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -17,16 +17,15 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 public class InstanceCommand extends DiscordCommand {
-	
+
 	public InstanceCommand() {
 		super("instance", "credit", "info");
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
 		message.delete().queue();
-		
 		JDA jda = message.getJDA();
 		SelfUser user = jda.getSelfUser();
 		List<Guild> guilds = jda.getGuilds();
@@ -44,7 +43,7 @@ public class InstanceCommand extends DiscordCommand {
 		}
 
 		User author = jda.getUserById(450125243592343563L);
-		
+
 		EmbedBuilder embed = new EmbedBuilder()
 				.setTitle("Informations")
 				.addField("Nom", user.getName(), true)
@@ -55,7 +54,7 @@ public class InstanceCommand extends DiscordCommand {
 				.addField("Donnés envoyés", String.valueOf(jda.getResponseTotal()), true)
 				.setFooter("Créateur " + author.getName(), author.getAvatarUrl());
 		embed.setColor(Color.YELLOW);
-		channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.timeToDelete, TimeUnit.SECONDS));
+		channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaBots.getInstance().getDiscord().timeToDelete, TimeUnit.SECONDS));
 	}
-	
+
 }
