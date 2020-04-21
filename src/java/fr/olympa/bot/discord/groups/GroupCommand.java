@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import fr.olympa.api.objects.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
-import fr.olympa.bot.discord.commands.api.DiscordCommand;
+import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;

@@ -30,10 +30,11 @@ public enum DiscordGroup {
 	BUILDER(OlympaGroup.BUILDER, 558322957798080514L, 558441911271161867L, null, false),
 	ANIMATEUR(OlympaGroup.ASSISTANT, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
 	GRAPHISTE(OlympaGroup.GRAPHISTE, 558322958905638944L, 558442057174089740L, null, false),
-	PLAYER(OlympaGroup.PLAYER, 0, 558334380393627670L, null, false);
+	PLAYER(OlympaGroup.PLAYER, 0, 558334380393627670L, null, false),
+	SIGNED(null, 679992766117183494L, 0, null, false);
 
 	public static Set<DiscordGroup> get(Collection<OlympaGroup> groups) {
-		return Arrays.stream(DiscordGroup.values()).filter(dg -> groups.stream().anyMatch(g -> g.getId() == dg.getOlympaGroup().getId())).collect(Collectors.toSet());
+		return Arrays.stream(DiscordGroup.values()).filter(dg -> groups.stream().anyMatch(g -> dg.getOlympaGroup() != null && g.getId() == dg.getOlympaGroup().getId())).collect(Collectors.toSet());
 	}
 
 	public static DiscordGroup get(Guild guild, String emoji) {
@@ -45,7 +46,7 @@ public enum DiscordGroup {
 	}
 
 	public static DiscordGroup get(OlympaGroup group) {
-		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.getOlympaGroup().getId() == group.getId()).findFirst().orElse(null);
+		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.getOlympaGroup() != null && dg.getOlympaGroup().getId() == group.getId()).findFirst().orElse(null);
 	}
 
 	public static DiscordGroup get(Role role) {
@@ -74,7 +75,6 @@ public enum DiscordGroup {
 	}
 
 	OlympaGroup olympaGroup;
-
 	long idStaff;
 	long idPublic;
 	String supportDesc;
@@ -123,7 +123,7 @@ public enum DiscordGroup {
 	}
 
 	public boolean isStaff() {
-		return idStaff != 0L;
+		return idStaff != 0L && olympaGroup != null;
 	}
 
 	public boolean isSupportCanTag() {

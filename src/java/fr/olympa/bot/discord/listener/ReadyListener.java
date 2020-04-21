@@ -7,7 +7,7 @@ import java.util.TimerTask;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordIds;
-import fr.olympa.bot.discord.api.DiscordUtils;
+import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDA.Status;
@@ -16,9 +16,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
@@ -85,29 +84,37 @@ public class ReadyListener extends ListenerAdapter {
 			}
 			db.append("&7]");
 		}
-
 		OlympaBots.getInstance().sendMessage(db.toString());
+
+		Guild defaultGuild = DiscordIds.getDefaultGuild(event.getJDA());
+		Role defaultRole = DiscordGroup.PLAYER.getRole(defaultGuild);
+		List<Member> members = defaultGuild.getMembers();
+		System.out.println("Membres : " + members.size());
+		members.stream().filter(m -> m.getRoles().isEmpty()).forEach(member -> {
+			defaultGuild.addRoleToMember(member, defaultRole).queue();
+			OlympaBots.getInstance().sendMessage("&c" + member.getUser().getAsTag() + " n'avait pas de roles.");
+		});
+
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Bot connecté").setDescription("Je suis de retour.");
 		embed.setTimestamp(OffsetDateTime.now());
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		MessageChannel channel = DiscordIds.getChannelInfo();
-		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
-			List<Message> list = historyMsg.getRetrievedHistory();
-			if (!list.isEmpty()) {
-				for (Message histMessage : list) {
-					if (DiscordUtils.isMe(histMessage.getAuthor())) {
-						histMessage.editMessage(embed.build()).queue();
-						return;
-					}
-				}
-			}
-			channel.sendMessage(embed.build()).queue();
-		});
+		channel.sendMessage(embed.build()).queue();
+//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
+//			List<Message> list = historyMsg.getRetrievedHistory();
+//			if (!list.isEmpty()) {
+//				for (Message histMessage : list) {
+//					if (DiscordUtils.isMe(histMessage.getAuthor())) {
+//						histMessage.editMessage(embed.build()).queue();
+//						return;
+//					}
+//				}
+//			}
+//		});
 	}
 
 	@Override
 	public void onStatusChange(StatusChangeEvent event) {
-		OlympaBots.getInstance().sendMessage("&6Changement du statue du bot Discord " + event.getOldStatus() + " -> " + event.getNewStatus());
 		if (!event.getNewStatus().equals(Status.SHUTTING_DOWN)) {
 			return;
 		}
@@ -115,19 +122,17 @@ public class ReadyListener extends ListenerAdapter {
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		embed.setTimestamp(OffsetDateTime.now());
 		MessageChannel channel = DiscordIds.getChannelInfo();
-		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
-			List<Message> list = historyMsg.getRetrievedHistory();
-			if (!list.isEmpty()) {
-				for (Message histMessage : list) {
-					if (DiscordUtils.isMe(histMessage.getAuthor())) {
-						histMessage.editMessage(embed.build()).queue();
-						return;
-					}
-				}
-			}
-			if (OlympaBots.getInstance().getDiscord().getJda() != null) {
-				channel.sendMessage(embed.build()).queue();
-			}
-		});
+		channel.sendMessage(embed.build()).queue();
+//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
+//			List<Message> list = historyMsg.getRetrievedHistory();
+//			if (!list.isEmpty()) {
+//				for (Message histMessage : list) {
+//					if (DiscordUtils.isMe(histMessage.getAuthor())) {
+//						histMessage.editMessage(embed.build()).queue();
+//						return;
+//					}
+//				}
+//			}
+//		});
 	}
 }

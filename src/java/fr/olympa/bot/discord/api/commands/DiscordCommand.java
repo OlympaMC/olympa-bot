@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.commands.api;
+package fr.olympa.bot.discord.api.commands;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.Permission;
 
 public abstract class DiscordCommand implements CommandEvent {
 
-	protected static String prefix = ":";
+	protected static String prefix = ".";
 	private static Map<String, DiscordCommand> commands = new HashMap<>();
 
 	public static DiscordCommand getCommand(String nameOrAliase) {

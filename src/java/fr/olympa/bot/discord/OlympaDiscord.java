@@ -5,11 +5,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.login.LoginException;
 
+import fr.olympa.bot.discord.api.commands.CommandListener;
 import fr.olympa.bot.discord.commands.AnnonceCommand;
 import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
-import fr.olympa.bot.discord.commands.InstanceCommand;
-import fr.olympa.bot.discord.commands.api.CommandListener;
+import fr.olympa.bot.discord.commands.InfoCommand;
 import fr.olympa.bot.discord.groups.GroupCommand;
 import fr.olympa.bot.discord.groups.GroupListener;
 import fr.olympa.bot.discord.invites.InviteCommand;
@@ -33,7 +33,7 @@ public class OlympaDiscord {
 	}
 
 	private JDA jda;
-	public int timeToDelete = 20;
+	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
 
 	public void connect() {
@@ -57,7 +57,7 @@ public class OlympaDiscord {
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
-		new InstanceCommand().register();
+		new InfoCommand().register();
 		new ClearCommand().register();
 		new InviteCommand().register();
 		new GroupCommand().register();

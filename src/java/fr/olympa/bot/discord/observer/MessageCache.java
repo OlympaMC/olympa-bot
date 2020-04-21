@@ -3,18 +3,18 @@ package fr.olympa.bot.discord.observer;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
-import net.dv8tion.jda.api.entities.User;
 
 public class MessageCache {
 
-	User author;
+	Member author;
 	String content;
 	List<Attachment> attachments = new ArrayList<>();
 
 	public MessageCache(Message message) {
-		author = message.getAuthor();
+		author = message.getMember();
 		content = message.getContentRaw();
 		attachments = message.getAttachments();
 	}
@@ -23,7 +23,7 @@ public class MessageCache {
 		return attachments;
 	}
 
-	public User getAuthor() {
+	public Member getAuthor() {
 		return author;
 	}
 

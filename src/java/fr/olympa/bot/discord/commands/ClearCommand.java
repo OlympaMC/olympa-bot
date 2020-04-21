@@ -3,7 +3,7 @@ package fr.olympa.bot.discord.commands;
 import java.util.List;
 
 import fr.olympa.bot.discord.api.DiscordUtils;
-import fr.olympa.bot.discord.commands.api.DiscordCommand;
+import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

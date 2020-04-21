@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import fr.olympa.bot.discord.commands.api.DiscordCommand;
+import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;

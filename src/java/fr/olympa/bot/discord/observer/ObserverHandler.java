@@ -12,6 +12,7 @@ public class ObserverHandler {
 	public static boolean logVoice = true;
 	public static boolean logMsgs = true;
 	public static boolean logUsername = true;
+	public static boolean logAttachment = true;
 	public static boolean logEntries = true;
 	public static boolean logRoles = true;
 

@@ -10,6 +10,7 @@ import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.link.LinkBungeListener;
 import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.bungee.utils.BungeeUtils;
+import fr.olympa.core.spigot.chat.SwearHandler;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 
@@ -22,6 +23,7 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 	}
 
 	private OlympaDiscord olympaDiscord;
+	private SwearHandler swearHandler;
 
 	@Override
 	public Connection getDatabase() throws SQLException {
@@ -34,6 +36,11 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 
 	private String getPrefixConsole() {
 		return "&f[&6" + getDescription().getName() + "&f] &e";
+	}
+
+	public SwearHandler getSwearHandler() {
+		// TODO Auto-generated method stub
+		return swearHandler;
 	}
 
 	@Override

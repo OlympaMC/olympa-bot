@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.commands.api;
+package fr.olympa.bot.discord.api.commands;
 
 import net.dv8tion.jda.api.entities.Message;
 

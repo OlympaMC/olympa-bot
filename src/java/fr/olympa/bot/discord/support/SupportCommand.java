@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import fr.olympa.bot.discord.api.DiscordUtils;
-import fr.olympa.bot.discord.commands.api.DiscordCommand;
+import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;

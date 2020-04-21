@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.commands.api;
+package fr.olympa.bot.discord.api.commands;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,16 +14,16 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandListener extends ListenerAdapter {
 
-	@Override
-	public void onMessageReceived(MessageReceivedEvent event) {
-		Message message = event.getMessage();
-		User user = event.getAuthor();
+	private void checkMsg(GenericMessageEvent event, Message message) {
+		User user = message.getAuthor();
 
 		MessageChannel channel = event.getChannel();
 
@@ -48,7 +48,7 @@ public class CommandListener extends ListenerAdapter {
 			return;
 		}
 		Member member = null;
-		if (event.isFromGuild()) {
+		if (message.isFromGuild()) {
 			member = message.getMember();
 		} else {
 			member = DiscordIds.getStaffGuild().getMember(message.getAuthor());
@@ -65,16 +65,13 @@ public class CommandListener extends ListenerAdapter {
 			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande n'existe pas.").queue();
 			return;
 		}
-		/*
-		 * if (message.isFromGuild()) { DiscordUtils.deleteTempMessage(message); }
-		 */
 		boolean privateChannel = discordCommand.privateChannel;
 		if (!privateChannel && !message.isFromGuild()) {
 			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande est impossible en priver.").queue();
 			return;
 		}
 		if (message.isFromGuild()) {
-			member = event.getMember();
+			member = message.getMember();
 		} else {
 			member = DiscordUtils.getMember(user);
 		}
@@ -96,5 +93,15 @@ public class CommandListener extends ListenerAdapter {
 			return;
 		}
 		discordCommand.onCommandSend(discordCommand, args, message);
+	}
+
+	@Override
+	public void onMessageReceived(MessageReceivedEvent event) {
+		checkMsg(event, event.getMessage());
+	}
+
+	@Override
+	public void onMessageUpdate(MessageUpdateEvent event) {
+		checkMsg(event, event.getMessage());
 	}
 }
