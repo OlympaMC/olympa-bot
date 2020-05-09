@@ -6,11 +6,12 @@ import java.sql.SQLException;
 import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.provider.RedisAccess;
 import fr.olympa.bot.bungee.DiscordCommand;
+import fr.olympa.bot.bungee.LinkBungeListener;
 import fr.olympa.bot.discord.OlympaDiscord;
-import fr.olympa.bot.discord.link.LinkBungeListener;
 import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.bungee.utils.BungeeUtils;
 import fr.olympa.core.spigot.chat.SwearHandler;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 
@@ -39,7 +40,6 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 	}
 
 	public SwearHandler getSwearHandler() {
-		// TODO Auto-generated method stub
 		return swearHandler;
 	}
 
@@ -58,16 +58,17 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 	public void onEnable() {
 		instance = this;
 
-		LinkSpigotBungee.Provider.link = OlympaBungee.getInstance();
 		RedisAccess.init("bungeeBot").connect();
 		PluginManager pluginManager = getProxy().getPluginManager();
-		// new
-		// SwearHandler(BungeeConfigUtils.getDefaultConfig().getStringList("chat.insult"));
+		// swearHandler = new
+		// SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
 		pluginManager.registerListener(this, new LinkBungeListener());
 		new DiscordCommand(this).register();
 		olympaDiscord = new OlympaDiscord();
-		olympaDiscord.connect();
+		olympaDiscord.connect(this);
 		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
+		Plugin olympaBungee = ProxyServer.getInstance().getPluginManager().getPlugin("OlympaBungee");
+		sendMessage("§adebug olympa1: " + olympaBungee);
 	}
 
 	@SuppressWarnings("deprecation")

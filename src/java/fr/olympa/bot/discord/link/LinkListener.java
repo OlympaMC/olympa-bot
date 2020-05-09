@@ -26,7 +26,8 @@ public class LinkListener extends ListenerAdapter {
 		String code = msg.split(" ")[0];
 
 		ProxiedPlayer player = LinkHandler.getPlayer(code);
-		if (player == null || !player.isConnected()) {
+		if ((player == null || !player.isConnected()) && !channel.hasLatestMessage()) {
+
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
 			embed.setDescription("Pour relier ton compte Olympa et ton compte Discord, fait **/discord link** sur Minecraft et donne moi ici le code obtenu.");

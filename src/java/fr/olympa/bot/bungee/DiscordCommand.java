@@ -30,7 +30,7 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 public class DiscordCommand extends BungeeCommand implements TabExecutor {
 
 	public DiscordCommand(Plugin plugin) {
-		super(plugin, "discord", "discordlink");
+		super(plugin, "discord");
 	}
 
 	@Override
@@ -80,14 +80,13 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 		switch (args[0].toLowerCase()) {
 
 		case "link":
-
 			olympaPlayer = new AccountProvider(proxiedPlayer.getUniqueId()).getFromRedis();
 			if (olympaPlayer == null) {
 				sender.sendMessage(Prefix.DEFAULT_BAD + BungeeUtils.color("Impossible d'accéder à tes donnés."));
 				return;
 			}
 			if (olympaPlayer.getDiscordId() != 0) {
-				sender.sendMessage(Prefix.DEFAULT_BAD + BungeeUtils.color("Tu as déjà un compte Discord reliée."));
+				sender.sendMessage(Prefix.DEFAULT_BAD + BungeeUtils.color("Tu as déjà un compte Discord relié."));
 				return;
 			}
 
@@ -108,7 +107,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &dRoles de " + proxiedPlayer.getName() + " " + id + ": &5" + roles + "&d."));
 			break;
 		case "stop":
-			if (olympaPlayer != null && !olympaPlayer.hasPermission(OlympaCorePermissions.DEV)) {
+			if (olympaPlayer != null && !OlympaCorePermissions.DEV.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}
@@ -121,12 +120,12 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 
 			break;
 		case "start":
-			if (olympaPlayer != null && !olympaPlayer.hasPermission(OlympaCorePermissions.DEV)) {
+			if (olympaPlayer != null && !OlympaCorePermissions.DEV.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}
 			if (OlympaBots.getInstance().getDiscord().getJda() == null) {
-				OlympaBots.getInstance().getDiscord().connect();
+				OlympaBots.getInstance().getDiscord().connect(OlympaBots.getInstance());
 				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &aBot allumé."));
 			} else {
 				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &cBot déjà allumé."));

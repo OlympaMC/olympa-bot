@@ -5,10 +5,11 @@ import java.util.List;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordIds;
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -36,8 +37,7 @@ public class CommandListener extends ListenerAdapter {
 			return;
 		}
 		String commandName = args[0];
-
-		if (!commandName.startsWith(DiscordCommand.prefix)) {
+		if (!commandName.startsWith(DiscordCommand.prefix) && !commandName.startsWith(DiscordCommand.prefix + DiscordCommand.prefix)) {
 			List<User> mentions = message.getMentionedUsers();
 			if (mentions.contains(event.getJDA().getSelfUser())) {
 				EmbedBuilder eb = new EmbedBuilder();
@@ -49,6 +49,18 @@ public class CommandListener extends ListenerAdapter {
 		}
 		Member member = null;
 		if (message.isFromGuild()) {
+			Guild guild = message.getGuild();
+			if (DiscordIds.getDefaultGuild().getIdLong() == guild.getIdLong()) {
+				List<Long> channelCommands = Arrays.asList(558148930194374656L, 558356359805009931L);
+				if (!channelCommands.contains(message.getChannel().getIdLong())) {
+					return;
+				}
+			} else if (DiscordIds.getStaffGuild().getIdLong() == guild.getIdLong()) {
+				List<Long> channelCommands = Arrays.asList(679464560784179252L);
+				if (!channelCommands.contains(message.getChannel().getIdLong())) {
+					return;
+				}
+			}
 			member = message.getMember();
 		} else {
 			member = DiscordIds.getStaffGuild().getMember(message.getAuthor());
@@ -75,8 +87,8 @@ public class CommandListener extends ListenerAdapter {
 		} else {
 			member = DiscordUtils.getMember(user);
 		}
-		Permission permision = discordCommand.permission;
-		if (permision != null && (member == null || !member.hasPermission(permision))) {
+		DiscordPermission permision = discordCommand.permission;
+		if (permision != null && (member == null || !permision.hasPermission(member))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
 			if (!message.isFromGuild()) {
 				out.queue();
@@ -89,7 +101,7 @@ public class CommandListener extends ListenerAdapter {
 		Integer minArg = discordCommand.minArg;
 		if (minArg != null && minArg > args.length) {
 			DiscordUtils.deleteTempMessage(message);
-			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Usage: !" + commandName + " <message>");
+			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Usage: !" + commandName + " " + discordCommand.usage);
 			return;
 		}
 		discordCommand.onCommandSend(discordCommand, args, message);

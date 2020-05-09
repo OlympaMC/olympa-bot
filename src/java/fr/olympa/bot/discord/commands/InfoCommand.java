@@ -27,6 +27,7 @@ public class InfoCommand extends DiscordCommand {
 
 	public InfoCommand() {
 		super("info", "credit", "info");
+		description = "[ancien|boost|nonsigne|signe|absent|bot|role]";
 	}
 
 	@Override
@@ -124,7 +125,7 @@ public class InfoCommand extends DiscordCommand {
 			totalSize = noSigned.size() + signed.size();
 			embed = new EmbedBuilder();
 			embed.setTitle("Ceux qui ont signé la clause sont : (" + signed.size() + "/" + totalSize + ")");
-			embed.setDescription(noSigned.stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
+			embed.setDescription(signed.stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
 			break;
@@ -135,6 +136,16 @@ public class InfoCommand extends DiscordCommand {
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roles.stream().map(Role::getName).collect(Collectors.joining(", ")) + ": ");
 			embed.setDescription(members.stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
+			embed.setColor(discord.getColor());
+			channel.sendMessage(embed.build()).queue();
+			break;
+		case "absent":
+			guild = message.getGuild();
+			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
+
+			embed = new EmbedBuilder();
+			embed.setTitle("Membre avec le role " + roleAbsent.getName() + ": ");
+			embed.setDescription(guild.getMembersWithRoles(roleAbsent).stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
 			break;

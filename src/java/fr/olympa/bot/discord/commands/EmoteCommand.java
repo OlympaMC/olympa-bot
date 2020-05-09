@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class EmoteCommand extends DiscordCommand {
 
 	public EmoteCommand() {
-		super("emote", Permission.MESSAGE_MANAGE);
+		super("emote", DiscordPermission.DEV);
 		minArg = 1;
 	}
 

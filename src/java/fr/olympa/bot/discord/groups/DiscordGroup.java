@@ -20,10 +20,10 @@ public enum DiscordGroup {
 	ADMIN(OlympaGroup.ADMIN, 558322950680346624L, 544594116932272139L, "Ils sont très occupés et si vraiement tu as besoin de les contacter, passe par le forum.", false),
 	MODP(OlympaGroup.MODP, 558322952009941012L, 558179276973932546L, null, false),
 	RESP_TECH(OlympaGroup.RESP_TECH, 571755659557601290L, 600770206192762908L, null, false),
-	MODO(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur lié aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum", true),
+	MOD(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur lié aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum", true),
 	ASSISTANT(OlympaGroup.ASSISTANT, 558322953314631690L, 558168138848403456L, "Question ou autre demande. Il saura t'aider pour toute autre situation.", true),
 	RESP_STAFF(OlympaGroup.RESP_STAFF, 600766523354644491L, 600770102006120452L, null, false),
-	RESPANIMATION(OlympaGroup.RESP_ANIMATION, 606158641355292723L, 606162089903521827L, null, false),
+	RESP_ANIMATION(OlympaGroup.RESP_ANIMATION, 606158641355292723L, 606162089903521827L, null, false),
 	RESP_BUILDER(OlympaGroup.RESP_BUILDER, 570320569443155983L, 560935286289203202L, null, false),
 	DEVP(OlympaGroup.DEVP, 558322951250771978L, 0, null, false),
 	DEV(OlympaGroup.DEV, 558322951250771978L, 558441264140386304L, "Signalement de bugs, quelque soit la platforme (Minecraft, Site, Forum, Discord, Teamspeak ...).", true),
@@ -31,7 +31,9 @@ public enum DiscordGroup {
 	ANIMATEUR(OlympaGroup.ASSISTANT, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
 	GRAPHISTE(OlympaGroup.GRAPHISTE, 558322958905638944L, 558442057174089740L, null, false),
 	PLAYER(OlympaGroup.PLAYER, 0, 558334380393627670L, null, false),
-	SIGNED(null, 679992766117183494L, 0, null, false);
+	SIGNED(null, 679992766117183494L, 0, null, false),
+	ABSENT(null, 624938102313582593L, 0, null, false),
+	MUTED(null, 0, 566627971276865576L, null, false);
 
 	public static Set<DiscordGroup> get(Collection<OlympaGroup> groups) {
 		return Arrays.stream(DiscordGroup.values()).filter(dg -> groups.stream().anyMatch(g -> dg.getOlympaGroup() != null && g.getId() == dg.getOlympaGroup().getId())).collect(Collectors.toSet());

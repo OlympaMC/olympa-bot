@@ -8,7 +8,6 @@ import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.DiscordIds;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.core.bungee.utils.BungeeConfigUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -158,10 +157,10 @@ public class ObserverListener extends ListenerAdapter {
 			EmbedBuilder embed = ObverserEmbed.get("✍ Pièces jointes", null, desc + "\n\nS'y rendre: " + message.getJumpUrl(), member);
 			embed.setTimestamp(message.getTimeCreated());
 			embed.setImage(attachments.get(0).getUrl());
-			embed.addField("Pièce jointe", attachments.stream().map(a -> a.getFileName() + " " + a.getUrl()).collect(Collectors.joining("\n\n")), true);
+			embed.addField("Pièce jointe", attachments.stream().map(a -> a.getFileName() + " " + a.getProxyUrl()).collect(Collectors.joining("\n\n")), true);
 			DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
 		}
-		System.out.println("test " + BungeeConfigUtils.getDefaultConfig().getStringList("chat.insult"));
+		// System.out.println("test1 " + OlympaBungee.getInstance()); null
 //		for (Pattern regex : new SwearHandler(BungeeConfigUtils.getDefaultConfig().getStringList("chat.insult")).getRegexSwear()) {
 //			Matcher matcher = regex.matcher(message.getContentDisplay());
 //			if (matcher.find()) {

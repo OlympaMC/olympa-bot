@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.listener;
+package fr.olympa.bot.discord.listeners;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordUtils;

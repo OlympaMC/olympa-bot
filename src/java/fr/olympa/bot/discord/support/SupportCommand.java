@@ -3,6 +3,7 @@ package fr.olympa.bot.discord.support;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.Permission;
@@ -19,7 +20,7 @@ public class SupportCommand extends DiscordCommand {
 
 	public SupportCommand() {
 		super("support", "aide", "ticket", "ticket", "tiket", "help");
-		permission = Permission.MESSAGE_MANAGE;
+		permission = DiscordPermission.DEV;
 	}
 
 	@Override
@@ -28,7 +29,7 @@ public class SupportCommand extends DiscordCommand {
 		DiscordUtils.deleteTempMessage(message);
 
 		if (args.length == 0) {
-			DiscordUtils.sendTempMessage(message.getChannel(), "");
+			return;
 		}
 
 		if (args[0].equalsIgnoreCase("del")) {

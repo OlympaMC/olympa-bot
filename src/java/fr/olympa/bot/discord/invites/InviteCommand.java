@@ -10,9 +10,9 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
@@ -23,7 +23,8 @@ import net.dv8tion.jda.api.entities.User;
 public class InviteCommand extends DiscordCommand {
 
 	public InviteCommand() {
-		super("invite", Permission.MESSAGE_MANAGE);
+		super("invite", DiscordPermission.DEV);
+		description = "Donnes des stats concernant les invitations.";
 	}
 
 	@Override

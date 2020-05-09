@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import javax.security.auth.login.LoginException;
 
 import fr.olympa.bot.discord.api.commands.CommandListener;
+import fr.olympa.bot.discord.api.reaction.ReactionListener;
 import fr.olympa.bot.discord.commands.AnnonceCommand;
 import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
@@ -14,16 +15,20 @@ import fr.olympa.bot.discord.groups.GroupCommand;
 import fr.olympa.bot.discord.groups.GroupListener;
 import fr.olympa.bot.discord.invites.InviteCommand;
 import fr.olympa.bot.discord.link.LinkListener;
-import fr.olympa.bot.discord.listener.JoinListener;
-import fr.olympa.bot.discord.listener.ReadyListener;
+import fr.olympa.bot.discord.listeners.JoinListener;
+import fr.olympa.bot.discord.listeners.ReadyListener;
 import fr.olympa.bot.discord.observer.ObserverListener;
+import fr.olympa.bot.discord.sanctions.MuteCommand;
+import fr.olympa.bot.discord.spam.SpamListener;
 import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
+import fr.olympa.bot.discord.support.chat.SupportChatListener;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.md_5.bungee.api.plugin.Plugin;
 
 public class OlympaDiscord {
 
@@ -36,11 +41,9 @@ public class OlympaDiscord {
 	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
 
-	public void connect() {
+	public void connect(Plugin plugin) {
 
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
-
-		// builder.setToken("NjYwMjIzOTc0MDAwNjg5MTgy.Xg0CEg.klNZz78zFNarlFSNCmfwbL6roKI");
 
 		builder.setToken("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setAutoReconnect(true);
@@ -54,6 +57,9 @@ public class OlympaDiscord {
 		builder.addEventListeners(new ObserverListener());
 		builder.addEventListeners(new LinkListener());
 		builder.addEventListeners(new GroupListener());
+		builder.addEventListeners(new SpamListener());
+		builder.addEventListeners(new ReactionListener());
+		builder.addEventListeners(new SupportChatListener());
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
@@ -61,13 +67,16 @@ public class OlympaDiscord {
 		new ClearCommand().register();
 		new InviteCommand().register();
 		new GroupCommand().register();
+		new MuteCommand().register();
 
-		try {
-			jda = builder.build();
-		} catch (LoginException e) {
-			e.printStackTrace();
-			return;
-		}
+		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+			try {
+				jda = builder.build();
+			} catch (LoginException e) {
+				e.printStackTrace();
+				return;
+			}
+		});
 
 	}
 

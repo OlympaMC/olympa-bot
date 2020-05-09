@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.listener;
+package fr.olympa.bot.discord.listeners;
 
 import java.time.OffsetDateTime;
 import java.util.List;

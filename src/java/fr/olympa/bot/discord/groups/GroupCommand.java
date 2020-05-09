@@ -7,14 +7,13 @@ import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class GroupCommand extends DiscordCommand {
 
 	public GroupCommand() {
-		super("groupe", Permission.MESSAGE_MANAGE);
+		super("groupe");
 	}
 
 	@Override
@@ -25,12 +24,7 @@ public class GroupCommand extends DiscordCommand {
 		if (args.length < 1) {
 			return;
 		}
-
-		if (args[0].equalsIgnoreCase("staff")) {
-			GroupHandler.update();
-			return;
-		}
-
+		
 		OlympaPlayer olympaTarget = null;
 		try {
 			olympaTarget = AccountProvider.getFromDatabase(args[0]);

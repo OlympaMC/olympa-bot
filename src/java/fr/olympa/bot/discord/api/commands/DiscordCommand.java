@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.dv8tion.jda.api.Permission;
+import fr.olympa.bot.discord.api.DiscordPermission;
 
 public abstract class DiscordCommand implements CommandEvent {
 
@@ -21,17 +21,23 @@ public abstract class DiscordCommand implements CommandEvent {
 		return command;
 	}
 
+	public static Map<String, DiscordCommand> getCommands() {
+		return commands;
+	}
+
 	String name;
 	protected List<String> aliases;
 	protected boolean privateChannel = false;
-	protected Permission permission;
+	protected DiscordPermission permission;
 	protected Integer minArg;
+	protected String description;
+	protected String usage;
 
 	public DiscordCommand(String name) {
 		this.name = name;
 	}
 
-	public DiscordCommand(String name, Permission permission) {
+	public DiscordCommand(String name, DiscordPermission permission) {
 		this.name = name;
 		this.permission = permission;
 	}
@@ -39,6 +45,14 @@ public abstract class DiscordCommand implements CommandEvent {
 	public DiscordCommand(String name, String... aliases) {
 		this.name = name;
 		this.aliases = Arrays.asList(aliases);
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public DiscordPermission getPermission() {
+		return permission;
 	}
 
 	public void register() {

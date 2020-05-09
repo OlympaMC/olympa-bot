@@ -2,20 +2,22 @@ package fr.olympa.bot.discord.commands;
 
 import java.util.List;
 
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class ClearCommand extends DiscordCommand {
-	
+
 	public ClearCommand() {
-		super("clear", Permission.MESSAGE_MANAGE);
-		this.minArg = 1;
+		super("clear", DiscordPermission.ASSISTANT);
+		minArg = 1;
+		description = "Supprime le nombre lignes en argument.";
+		usage = "<nombre>";
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
@@ -40,5 +42,5 @@ public class ClearCommand extends DiscordCommand {
 		DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ " + j + "/" + hists.size() + " messages ont été supprimés.");
 
 	}
-	
+
 }

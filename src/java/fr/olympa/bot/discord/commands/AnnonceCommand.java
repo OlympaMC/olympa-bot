@@ -1,17 +1,18 @@
 package fr.olympa.bot.discord.commands;
 
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class AnnonceCommand extends DiscordCommand {
 
 	public AnnonceCommand() {
-		super("annonce", Permission.MESSAGE_MANAGE);
+		super("annonce", DiscordPermission.HIGH_STAFF);
 		minArg = 1;
+		description = "Ecrire une annonce par le bot, et @everyone. Message en argument.";
 	}
 
 	@Override

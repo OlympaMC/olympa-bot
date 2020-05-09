@@ -216,9 +216,10 @@ public class SupportHandler {
 
 	public static void updateChannel(Member member) {
 		GuildChannel channel = getChannel(member);
-		if (channel == null || channel.getName().equals(member.getEffectiveName().toLowerCase())) {
+		String name = member.getEffectiveName().toLowerCase();
+		if (channel == null || channel.getName().equals(name)) {
 			return;
 		}
-		channel.getManager().setName(member.getEffectiveName().toLowerCase());
+		channel.getManager().setName(name).queue();
 	}
 }
