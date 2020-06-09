@@ -24,34 +24,32 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 public class InfoCommand extends DiscordCommand {
-
+	
 	public InfoCommand() {
 		super("info", "credit", "info");
 		description = "[ancien|boost|nonsigne|signe|absent|bot|role]";
 	}
-
+	
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		OlympaDiscord discord = OlympaBots.getInstance().getDiscord();
 		MessageChannel channel = message.getChannel();
 		message.delete().queueAfter(discord.timeToDelete, TimeUnit.SECONDS);
 		JDA jda = message.getJDA();
-
+		
 		if (args.length == 0) {
 			SelfUser user = jda.getSelfUser();
 			List<Guild> guilds = jda.getGuilds();
 			int usersConnected = 0;
 			int usersTotal = 0;
-			for (User user2 : jda.getUsers()) {
+			for (User user2 : jda.getUsers())
 				if (!user2.isBot()) {
 					Guild firstGuild = user2.getMutualGuilds().get(0);
 					Member member2 = firstGuild.getMember(user2);
-					if (member2.getOnlineStatus() != OnlineStatus.OFFLINE) {
+					if (member2.getOnlineStatus() != OnlineStatus.OFFLINE)
 						usersConnected++;
-					}
 					usersTotal++;
 				}
-			}
 			User author = jda.getUserById(450125243592343563L);
 			EmbedBuilder embed = new EmbedBuilder()
 					.setTitle("Informations")
@@ -61,12 +59,13 @@ public class InfoCommand extends DiscordCommand {
 					.addField("Clients", usersConnected + "/" + usersTotal, true)
 					.addField("Serveurs Discord", String.valueOf(guilds.size()), true)
 					.addField("Donnés envoyés", String.valueOf(jda.getResponseTotal()), true)
+					.addField("Connecté depuis ", Utils.timestampToDuration(OlympaDiscord.lastConnection), true)
 					.setFooter("Dev " + author.getName(), author.getAvatarUrl());
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(discord.timeToDelete, TimeUnit.SECONDS));
 			return;
 		}
-
+		
 		switch (Utils.removeAccents(args[0]).toLowerCase()) {
 		case "ancien":
 		case "vieux":
@@ -101,9 +100,8 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "nonsigne":
 			Guild guild = message.getGuild();
-			if (DiscordIds.getStaffGuild().getIdLong() != guild.getIdLong()) {
+			if (DiscordIds.getStaffGuild().getIdLong() != guild.getIdLong())
 				return;
-			}
 			Role roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			Set<Member> signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
 			Set<Member> noSigned = guild.getMemberCache().asSet().stream().filter(m -> !signed.contains(m) && DiscordGroup.isStaff(m) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -116,9 +114,8 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "signe":
 			guild = message.getGuild();
-			if (DiscordIds.getStaffGuild().getIdLong() != guild.getIdLong()) {
+			if (DiscordIds.getStaffGuild().getIdLong() != guild.getIdLong())
 				return;
-			}
 			roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
 			noSigned = guild.getMemberCache().asSet().stream().filter(m -> !signed.contains(m) && DiscordGroup.isStaff(m) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -142,7 +139,7 @@ public class InfoCommand extends DiscordCommand {
 		case "absent":
 			guild = message.getGuild();
 			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
-
+			
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roleAbsent.getName() + ": ");
 			embed.setDescription(guild.getMembersWithRoles(roleAbsent).stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
@@ -151,5 +148,5 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		}
 	}
-
+	
 }

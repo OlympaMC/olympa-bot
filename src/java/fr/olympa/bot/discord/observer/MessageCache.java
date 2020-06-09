@@ -5,29 +5,47 @@ import java.util.List;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Message.Attachment;
 
 public class MessageCache {
 
 	Member author;
-	String content;
-	List<Attachment> attachments = new ArrayList<>();
+	List<MessageContent> content = new ArrayList<>();
+	Message logMsg = null;
 
 	public MessageCache(Message message) {
 		author = message.getMember();
-		content = message.getContentRaw();
-		attachments = message.getAttachments();
+		addEditedMessage(message);
 	}
 
-	public List<Attachment> getAttachments() {
-		return attachments;
+	public void addEditedMessage(Message message) {
+		content.add(new MessageContent(message));
 	}
-
+	
 	public Member getAuthor() {
 		return author;
 	}
-
-	public String getContent() {
+	
+	public MessageContent getContent() {
+		return content.get(content.size() - 1);
+	}
+	
+	public List<MessageContent> getContents() {
 		return content;
+	}
+
+	public Message getLogMsg() {
+		return logMsg;
+	}
+
+	public MessageContent getOriginalContent() {
+		return content.get(0);
+	}
+
+	public void setLogMsg(Message logMsg) {
+		this.logMsg = logMsg;
+	}
+	
+	public void setOriginalNotFound() {
+		content.add(0, new MessageContent());
 	}
 }

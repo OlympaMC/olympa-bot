@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.login.LoginException;
 
+import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.commands.CommandListener;
 import fr.olympa.bot.discord.api.reaction.ReactionListener;
 import fr.olympa.bot.discord.commands.AnnonceCommand;
@@ -23,31 +24,32 @@ import fr.olympa.bot.discord.spam.SpamListener;
 import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
 import fr.olympa.bot.discord.support.chat.SupportChatListener;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class OlympaDiscord {
 
+	public static long uptime = Utils.getCurrentTimeInSeconds();
+	public static long lastConnection;
+
 	@Deprecated
 	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
-		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES));
+		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 	}
 
 	private JDA jda;
 	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
-
+	
+	@SuppressWarnings("deprecation")
 	public void connect(Plugin plugin) {
 
-		JDABuilder builder = new JDABuilder(AccountType.BOT);
-
-		builder.setToken("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
-		builder.setAutoReconnect(true);
-		builder.setGuildSubscriptionsEnabled(true);
+		JDABuilder builder = new JDABuilder("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setStatus(OnlineStatus.IDLE);
 
 		builder.addEventListeners(new CommandListener());

@@ -19,36 +19,37 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class InviteCommand extends DiscordCommand {
-
+	
 	public InviteCommand() {
 		super("invite", DiscordPermission.DEV);
 		description = "Donnes des stats concernant les invitations.";
 	}
-
+	
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
-		message.delete().queue();
-
+		message.delete().queue(null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
+		
 		if (args.length != 0 && args[0].equalsIgnoreCase("show")) {
 			EmbedBuilder em = new EmbedBuilder();
 			List<Invite> invites = guild.retrieveInvites().complete();
 			Set<Long> invitesPeruser = invites.stream().map(invite -> invite.getInviter().getIdLong()).collect(Collectors.toSet());
-
+			
 			em.setTitle("💌 Invitations");
 			em.setDescription("Il y a " + invites.size() + " invations par " + invitesPeruser.size() + " membres.\n");
 			for (Invite invite : invites) {
 				User user = invite.getInviter();
 				Member member = guild.getMember(user);
 				String inviterName;
-				if (member != null) {
+				if (member != null)
 					inviterName = member.getAsMention();
-				} else {
+				else
 					inviterName = "🚪 " + user.getName();
-				}
 				StringBuilder smallSb = new StringBuilder();
 				int maxAge = 0;
 				int maxInvite = 0;
@@ -59,17 +60,15 @@ public class InviteCommand extends DiscordCommand {
 				int uses = invite.getUses();
 				maxInvite = invite.getMaxUses();
 				String timeCreated = invite.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-
+				
 				smallSb.append("Utilisé " + uses + " fois ");
 				if (maxInvite != 0 || maxAge != 0) {
 					smallSb.append("Valable ");
-					if (maxInvite != 0) {
+					if (maxInvite != 0)
 						smallSb.append(maxInvite + " fois ");
-					}
 					if (maxAge != 0) {
-						if (maxInvite != 0) {
+						if (maxInvite != 0)
 							smallSb.append("et ");
-						}
 						smallSb.append("pendant " + maxAge + " secondes ");
 					}
 				}
@@ -91,9 +90,8 @@ public class InviteCommand extends DiscordCommand {
 					int uses = invite.getUses();
 					Integer actualNb = stats.get(user);
 					if (uses != 0) {
-						if (actualNb != null) {
+						if (actualNb != null)
 							uses += actualNb;
-						}
 						stats.put(user, uses);
 					}
 				}
@@ -110,11 +108,10 @@ public class InviteCommand extends DiscordCommand {
 					Integer uses = entry.getValue();
 					Member member = guild.getMember(user);
 					String inviterName;
-					if (member == null) {
+					if (member == null)
 						inviterName = "🚪 " + user.getName();
-					} else {
+					else
 						inviterName = user.getAsMention();
-					}
 					em.appendDescription(nb++ + " | " + uses + " joueurs " + inviterName + ".\n");
 					if (em.getDescriptionBuilder().length() > 1800) {
 						channel.sendMessage(em.build()).queue();
@@ -123,7 +120,7 @@ public class InviteCommand extends DiscordCommand {
 				}
 				channel.sendMessage(em.build()).queue();
 			});
-
+			
 		}
 	}
 }

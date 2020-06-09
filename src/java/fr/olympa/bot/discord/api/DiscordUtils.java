@@ -14,99 +14,96 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class DiscordUtils {
-
+	
 	public static void allow(GuildChannel channel, IPermissionHolder role, Consumer<Void> success, Permission... perms) {
-		if (role == null) {
+		if (role == null)
 			role = channel.getGuild().getPublicRole();
-		}
 		channel.getManager().putPermissionOverride(role, Arrays.asList(perms), null).queue(r -> {
-			if (success != null) {
+			if (success != null)
 				success.accept(r);
-			}
 		});
 	}
-
+	
 	public static void allow(GuildChannel channel, IPermissionHolder role, Permission... perms) {
 		allow(channel, role, null, perms);
 	}
-
+	
 	public static void allow(GuildChannel channel, Permission... perms) {
 		allow(channel, null, null, perms);
 	}
-
+	
 	public static boolean compareGuild(Guild guild1, Guild guild2) {
 		return guild1 != null && guild2 != null && guild1.getIdLong() == guild2.getIdLong();
 	}
-
+	
 	public static ScheduledFuture<?> deleteTempMessage(Message message) {
 		try {
-			return message.delete().queueAfter(OlympaBots.getInstance().getDiscord().timeToDelete, TimeUnit.SECONDS);
+			return message.delete().queueAfter(OlympaBots.getInstance().getDiscord().timeToDelete, TimeUnit.SECONDS, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
 		} catch (Exception e) {
 			return null;
 		}
 	}
-
+	
 	public static void deny(GuildChannel channel, IPermissionHolder role, Consumer<Void> success, Permission... perms) {
-		if (role == null) {
+		if (role == null)
 			role = channel.getGuild().getPublicRole();
-		}
 		channel.getManager().putPermissionOverride(role, null, Arrays.asList(perms)).queue(r -> {
-			if (success != null) {
+			if (success != null)
 				success.accept(r);
-			}
 		});
 	}
-
+	
 	public static void deny(GuildChannel channel, IPermissionHolder role, Permission... perms) {
 		deny(channel, role, null, perms);
 	}
-
+	
 	public static void deny(GuildChannel channel, Permission... perms) {
 		deny(channel, null, null, perms);
 	}
-
+	
 	public static Member getMember(User user) {
 		Guild guild = DiscordIds.getDefaultGuild();
 		Member member = null;
-		if (guild != null) {
+		if (guild != null)
 			member = guild.getMember(user);
-		}
 		return member;
 	}
-
+	
 	public static long getMembersSize(Guild guild) {
 		return guild.getMembers().stream().filter(mem -> !mem.getUser().isBot()).count();
 	}
-
+	
 	public static boolean isDefaultGuild(Guild guild) {
 		Guild defaultGuild = DiscordIds.getDefaultGuild();
 		return compareGuild(defaultGuild, guild);
 	}
-
+	
 	public static boolean isMe(Member member) {
 		return OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getIdLong() == member.getIdLong();
 	}
-
+	
 	public static boolean isMe(User user) {
 		return OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getIdLong() == user.getIdLong();
 	}
-
+	
 	public static boolean isStaffGuild(Guild guild) {
 		Guild staffGuild = DiscordIds.getStaffGuild();
 		return compareGuild(staffGuild, guild);
 	}
-
+	
 	public static void sendTempMessage(MessageAction message) {
 		message.queue(msgSend -> deleteTempMessage(msgSend));
 	}
-
+	
 	public static void sendTempMessage(MessageChannel channel, Member member, String msg) {
 		sendTempMessage(channel, member.getAsMention() + " ➤ " + msg);
 	}
-
+	
 	public static void sendTempMessage(MessageChannel channel, String msg) {
 		sendTempMessage(channel.sendMessage(msg));
 	}

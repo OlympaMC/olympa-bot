@@ -22,27 +22,25 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandListener extends ListenerAdapter {
-
+	
 	private void checkMsg(GenericMessageEvent event, Message message) {
 		User user = message.getAuthor();
-
+		
 		MessageChannel channel = event.getChannel();
-
+		
 		MessageType type = message.getType();
-		if (type != MessageType.DEFAULT) {
+		if (type != MessageType.DEFAULT)
 			return;
-		}
 		String[] args = message.getContentDisplay().split(" ");
-		if (args.length == 0) {
+		if (args.length == 0)
 			return;
-		}
 		String commandName = args[0];
 		if (!commandName.startsWith(DiscordCommand.prefix) && !commandName.startsWith(DiscordCommand.prefix + DiscordCommand.prefix)) {
 			List<User> mentions = message.getMentionedUsers();
 			if (mentions.contains(event.getJDA().getSelfUser())) {
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
-				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " pour te servir. Le prefix est '" + DiscordCommand.prefix + "'" + ".");
+				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " pour te servir. Le prefix est `" + DiscordCommand.prefix + "`" + ".");
 				channel.sendMessage(eb.build()).queue();
 			}
 			return;
@@ -52,24 +50,21 @@ public class CommandListener extends ListenerAdapter {
 			Guild guild = message.getGuild();
 			if (DiscordIds.getDefaultGuild().getIdLong() == guild.getIdLong()) {
 				List<Long> channelCommands = Arrays.asList(558148930194374656L, 558356359805009931L);
-				if (!channelCommands.contains(message.getChannel().getIdLong())) {
+				if (!channelCommands.contains(message.getChannel().getIdLong()))
 					return;
-				}
 			} else if (DiscordIds.getStaffGuild().getIdLong() == guild.getIdLong()) {
 				List<Long> channelCommands = Arrays.asList(679464560784179252L);
-				if (!channelCommands.contains(message.getChannel().getIdLong())) {
+				if (!channelCommands.contains(message.getChannel().getIdLong()))
 					return;
-				}
 			}
 			member = message.getMember();
-		} else {
+		} else
 			member = DiscordIds.getStaffGuild().getMember(message.getAuthor());
-		}
 		if (member == null || !DiscordGroup.isStaff(member)) {
 			channel.sendMessage("Le bot est encore en développement, t'es pas prêt.").queue();
 			return;
 		}
-
+		
 		args = Arrays.copyOfRange(args, 1, args.length);
 		commandName = commandName.substring(1);
 		DiscordCommand discordCommand = DiscordCommand.getCommand(commandName);
@@ -82,17 +77,16 @@ public class CommandListener extends ListenerAdapter {
 			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande est impossible en priver.").queue();
 			return;
 		}
-		if (message.isFromGuild()) {
+		if (message.isFromGuild())
 			member = message.getMember();
-		} else {
+		else
 			member = DiscordUtils.getMember(user);
-		}
 		DiscordPermission permision = discordCommand.permission;
 		if (permision != null && (member == null || !permision.hasPermission(member))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
-			if (!message.isFromGuild()) {
+			if (!message.isFromGuild())
 				out.queue();
-			} else {
+			else {
 				DiscordUtils.deleteTempMessage(message);
 				DiscordUtils.sendTempMessage(out);
 			}
@@ -106,12 +100,12 @@ public class CommandListener extends ListenerAdapter {
 		}
 		discordCommand.onCommandSend(discordCommand, args, message);
 	}
-
+	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		checkMsg(event, event.getMessage());
 	}
-
+	
 	@Override
 	public void onMessageUpdate(MessageUpdateEvent event) {
 		checkMsg(event, event.getMessage());

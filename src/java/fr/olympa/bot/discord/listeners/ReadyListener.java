@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordIds;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,11 +41,10 @@ public class ReadyListener extends ListenerAdapter {
 				ProxyServer.getInstance();
 				int count = ProxyServer.getInstance().getOnlineCount();
 				String s = count > 1 ? "s" : new String();
-				if (count > 0) {
+				if (count > 0)
 					presence.setActivity(Activity.playing("🚧 " + count + " joueur%s connecté%s".replaceAll("%s", s)));
-				} else {
+				else
 					presence.setActivity(Activity.playing("🚧 En développement"));
-				}
 				presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
 			}
 		}, 0, 40000);
@@ -52,16 +53,14 @@ public class ReadyListener extends ListenerAdapter {
 			public void run() {
 				int usersConnected = 0;
 				int usersTotal = 0;
-				for (User user2 : jda.getUserCache()) {
+				for (User user2 : jda.getUserCache())
 					if (!user2.isBot()) {
 						Guild firstGuild = user2.getMutualGuilds().get(0);
 						Member member2 = firstGuild.getMember(user2);
-						if (member2.getOnlineStatus() != OnlineStatus.OFFLINE) {
+						if (member2.getOnlineStatus() != OnlineStatus.OFFLINE)
 							usersConnected++;
-						}
 						usersTotal++;
 					}
-				}
 				Presence presence = jda.getPresence();
 				presence.setStatus(OnlineStatus.IDLE);
 				presence.setActivity(Activity.watching(usersConnected + "/" + usersTotal + " membres"));
@@ -72,16 +71,14 @@ public class ReadyListener extends ListenerAdapter {
 			Member owner = guild.getOwner();
 			db.append("\n&2" + guild.getName() + " avec " + guild.getMemberCount() + " membres. Owner: " + owner.getEffectiveName() + "(" + owner.getUser().getAsTag() + ", " + owner.getId() + ") ");
 			guild.retrieveInvites().queue(invites -> {
-				if (!invites.isEmpty()) {
+				if (!invites.isEmpty())
 					db.append(invites.stream().filter(i -> !i.isTemporary()).findFirst().orElse(invites.get(0)));
-				}
 			});
 			db.append("&7[");
-			if (guild.getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
+			if (guild.getSelfMember().hasPermission(Permission.ADMINISTRATOR))
 				db.append("&a&lADMIN");
-			} else {
+			else
 				db.append("&4&mADMIN");
-			}
 			db.append("&7]");
 		}
 		OlympaBots.getInstance().sendMessage(db.toString());
@@ -100,39 +97,39 @@ public class ReadyListener extends ListenerAdapter {
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		MessageChannel channel = DiscordIds.getChannelInfo();
 		channel.sendMessage(embed.build()).queue();
-//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
-//			List<Message> list = historyMsg.getRetrievedHistory();
-//			if (!list.isEmpty()) {
-//				for (Message histMessage : list) {
-//					if (DiscordUtils.isMe(histMessage.getAuthor())) {
-//						histMessage.editMessage(embed.build()).queue();
-//						return;
-//					}
-//				}
-//			}
-//		});
+		OlympaDiscord.lastConnection = Utils.getCurrentTimeInSeconds();
+		//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
+		//			List<Message> list = historyMsg.getRetrievedHistory();
+		//			if (!list.isEmpty()) {
+		//				for (Message histMessage : list) {
+		//					if (DiscordUtils.isMe(histMessage.getAuthor())) {
+		//						histMessage.editMessage(embed.build()).queue();
+		//						return;
+		//					}
+		//				}
+		//			}
+		//		});
 	}
 
 	@Override
 	public void onStatusChange(StatusChangeEvent event) {
-		if (!event.getNewStatus().equals(Status.SHUTTING_DOWN)) {
+		if (!event.getNewStatus().equals(Status.SHUTTING_DOWN))
 			return;
-		}
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Déconnexion du bot").setDescription("Il est désormais impossible d'utiliser toutes les commandes liés au bot.");
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		embed.setTimestamp(OffsetDateTime.now());
 		MessageChannel channel = DiscordIds.getChannelInfo();
 		channel.sendMessage(embed.build()).queue();
-//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
-//			List<Message> list = historyMsg.getRetrievedHistory();
-//			if (!list.isEmpty()) {
-//				for (Message histMessage : list) {
-//					if (DiscordUtils.isMe(histMessage.getAuthor())) {
-//						histMessage.editMessage(embed.build()).queue();
-//						return;
-//					}
-//				}
-//			}
-//		});
+		//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
+		//			List<Message> list = historyMsg.getRetrievedHistory();
+		//			if (!list.isEmpty()) {
+		//				for (Message histMessage : list) {
+		//					if (DiscordUtils.isMe(histMessage.getAuthor())) {
+		//						histMessage.editMessage(embed.build()).queue();
+		//						return;
+		//					}
+		//				}
+		//			}
+		//		});
 	}
 }

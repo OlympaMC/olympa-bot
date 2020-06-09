@@ -2,13 +2,15 @@ package fr.olympa.bot.discord.groups;
 
 import java.sql.SQLException;
 
-import fr.olympa.api.objects.OlympaPlayer;
+import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class GroupCommand extends DiscordCommand {
 
@@ -19,11 +21,10 @@ public class GroupCommand extends DiscordCommand {
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
-		message.delete().queue();
+		message.delete().queue(null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
 
-		if (args.length < 1) {
+		if (args.length < 1)
 			return;
-		}
 		
 		OlympaPlayer olympaTarget = null;
 		try {
@@ -39,9 +40,8 @@ public class GroupCommand extends DiscordCommand {
 		EmbedBuilder em = new EmbedBuilder();
 		em.setTitle("Info");
 		String uuid = "8667ba71-b85a-4004-af54-457a9734eed7";
-		if (olympaTarget.isPremium()) {
+		if (olympaTarget.isPremium())
 			uuid = olympaTarget.getPremiumUniqueId().toString();
-		}
 		em.setAuthor(olympaTarget.getName(), null, "https://crafatar.com/avatars/" + uuid);
 		em.addField("Groupes", olympaTarget.getGroupsToHumainString(), true);
 		em.addField("Première connexion", Utils.timestampToDuration(olympaTarget.getFirstConnection()), true);

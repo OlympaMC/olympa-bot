@@ -18,9 +18,10 @@ public class ObserverHandler {
 
 	public static Cache<Long, MessageCache> messageCache = CacheBuilder.newBuilder().expireAfterWrite(12, TimeUnit.HOURS).build();
 
-	public static void addMessageCache(Message message) {
-		messageCache.put(message.getIdLong(), new MessageCache(message));
-
+	public static MessageCache addMessageCache(Message message) {
+		MessageCache mc = new MessageCache(message);
+		messageCache.put(message.getIdLong(), mc);
+		return mc;
 	}
 
 	public static MessageCache getMessageCache(long idLong) {
