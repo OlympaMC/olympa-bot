@@ -13,6 +13,7 @@ import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.bungee.utils.BungeeUtils;
 import fr.olympa.core.spigot.chat.SwearHandler;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 
@@ -58,23 +59,26 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 	@Override
 	public void onEnable() {
 		instance = this;
+
+		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
+
+		Plugin olympaBungee = ProxyServer.getInstance().getPluginManager().getPlugin("OlympaBungee");
+		sendMessage("§adebug olympa1: " + olympaBungee);
 		
 		RedisAccess.init("bungeeBot").connect();
 		PluginManager pluginManager = getProxy().getPluginManager();
-		// swearHandler = new
-		// SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
+		// swearHandler = new SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
 		pluginManager.registerListener(this, new LinkBungeListener());
+
 		new DiscordCommand(this).register();
+
 		olympaDiscord = new OlympaDiscord();
 		olympaDiscord.connect(this);
+
 		new TwitterAPI(this).connect();
-		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
-		Plugin olympaBungee = ProxyServer.getInstance().getPluginManager().getPlugin("OlympaBungee");
-		sendMessage("§adebug olympa1: " + olympaBungee);
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void sendMessage(String message) {
-		getProxy().getConsole().sendMessage(BungeeUtils.color(getPrefixConsole() + message));
+		getProxy().getConsole().sendMessage(TextComponent.fromLegacyText(BungeeUtils.color(getPrefixConsole() + message)));
 	}
 }

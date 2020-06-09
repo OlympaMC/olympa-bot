@@ -1,5 +1,4 @@
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -45,7 +44,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<finalName>OlympaBot</finalName>
@@ -76,11 +74,13 @@
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
 			<version>LATEST</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.vdurmont</groupId>
 			<artifactId>emoji-java</artifactId>
 			<version>5.1.1</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.md-5</groupId>
@@ -100,23 +100,17 @@
 			<groupId>fr.olympa</groupId>
 			<artifactId>olympa-core</artifactId>
 			<version>[0.0.1-SNAPSHOT,)</version>
+			<scope>provided</scope>
 		</dependency>
-
-		<!--Bungeecord API <dependency> <groupId>net.md-5</groupId> <artifactId>bungeecord-api</artifactId> 
-			<version>1.12-SNAPSHOT</version> <type>jar</type> <scope>provided</scope> 
-			</dependency> -->
-
-		<!--Teamspeak API <dependency> <groupId>com.github.theholywaffle</groupId> 
-			<artifactId>teamspeak3-api</artifactId> <version>[1.2,)</version> </dependency> -->
-
-		<!--Twitter api -->
 		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j-core</artifactId>
-			<version>[4.0.7,)</version>
+			<version>4.0.7-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
-		<!-- <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-simple</artifactId> 
-			<version>1.7.25</version> </dependency> -->
+
+		<!--Teamspeak API <dependency> <groupId>com.github.theholywaffle</groupId> 
+			<artifactId>teamspeak3-api</artifactId> <version>[1.2,)</version> </dependency> -->
 
 	</dependencies>
 	<properties>
