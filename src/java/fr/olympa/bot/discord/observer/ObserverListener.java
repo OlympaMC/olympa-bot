@@ -151,8 +151,8 @@ public class ObserverListener extends ListenerAdapter {
 				if (!mContent.hasData())
 					embed.addField("Orignal", "❌ *le message a été écrit il y plus de " + Utils.timestampToDuration(OlympaDiscord.uptime) + ", nous n'avons aucunes données dessus.*", true);
 				else {
-					List<Attachment> attachments = mContent.attachments;
-					if (!attachments.isEmpty()) {
+					List<MessageAttachement> attachments = mContent.attachments;
+					if (attachments != null && !attachments.isEmpty()) {
 						embed.setImage(attachments.get(0).getUrl());
 						attch.append("\n\nPièce jointe: " + attachments.stream().map(a -> a.getFileName() + " " + a.getUrl()).collect(Collectors.joining("\n")));
 					}
@@ -192,38 +192,7 @@ public class ObserverListener extends ListenerAdapter {
 			
 		}
 	}
-	
-	@Override
-	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-		Guild guild = event.getGuild();
-		Message message = event.getMessage();
-		TextChannel channel = message.getTextChannel();
-		Member member = event.getMember();
-		if (!ObserverHandler.logMsgs || !DiscordUtils.isDefaultGuild(guild) || channel.getIdLong() == DiscordIds.getChannelInfo().getIdLong() || member == null || member.getUser().isBot())
-			return;
-		ObserverHandler.addMessageCache(message);
-		List<Attachment> attachments = message.getAttachments();
-		if (ObserverHandler.logAttachment && !attachments.isEmpty()) {
-			String desc = member.getAsMention() + " dans " + channel.getAsMention() + ":";
-			EmbedBuilder embed = ObverserEmbed.get("✍ Pièces jointes", null, desc + "\nS'y rendre: " + message.getJumpUrl(), member);
-			embed.setTimestamp(message.getTimeCreated());
-			embed.setImage(attachments.get(0).getUrl());
-			embed.addField("Pièce jointe: ", attachments.stream().map(a -> a.getFileName() + " " + a.getProxyUrl()).collect(Collectors.joining("\n")), true);
-			DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
-		}
-		// System.out.println("test1 " + OlympaBungee.getInstance()); null
-		//		for (Pattern regex : new SwearHandler(BungeeConfigUtils.getDefaultConfig().getStringList("chat.insult")).getRegexSwear()) {
-		//			Matcher matcher = regex.matcher(message.getContentDisplay());
-		//			if (matcher.find()) {
-		//				String desc = member.getAsMention() + " dans " + channel.getAsMention() + ": **" + matcher.group() + "**.";
-		//				EmbedBuilder embed = ObverserEmbed.get("💢 Insulte", null, desc + "\n" + message.getJumpUrl(), member.getUser());
-		//				embed.setTimestamp(message.getTimeCreated());
-		//				DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
-		//				break;
-		//			}
-		//		}
-	}
-	
+
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		Guild guild = event.getGuild();
@@ -239,7 +208,7 @@ public class ObserverListener extends ListenerAdapter {
 		} else
 			mc1.addEditedMessage(message);
 		MessageCache mc = mc1;
-		EmbedBuilder embed = ObverserEmbed.get("✍️ Message modifié", null, member.getAsMention() + " a modifié un message dans " + message.getTextChannel().getAsMention() + ".\nS'y rendre: " + message.getJumpUrl(), member);
+		EmbedBuilder embed = ObverserEmbed.get("✍️ Message modifié", message.getJumpUrl(), member.getAsMention() + " a modifié un message dans " + message.getTextChannel().getAsMention() + ".\nS'y rendre: " + message.getJumpUrl(), member);
 		OffsetDateTime time = message.getTimeEdited();
 		if (time == null)
 			time = message.getTimeCreated();
@@ -251,8 +220,8 @@ public class ObserverListener extends ListenerAdapter {
 			if (!mContent.hasData())
 				embed.addField("Orignal", "❌ *le message a été écrit il y plus de " + Utils.timestampToDuration(OlympaDiscord.uptime) + ", nous n'avons aucunes données dessus.*", true);
 			else {
-				List<Attachment> attachments = mContent.attachments;
-				if (!attachments.isEmpty()) {
+				List<MessageAttachement> attachments = mContent.attachments;
+				if (attachments != null && !attachments.isEmpty()) {
 					embed.setImage(attachments.get(0).getUrl());
 					attch.append("\n\nPièce jointe: " + attachments.stream().map(a -> a.getFileName() + " " + a.getUrl()).collect(Collectors.joining("\n")));
 				}
@@ -279,6 +248,38 @@ public class ObserverListener extends ListenerAdapter {
 			return;
 		EmbedBuilder embed = ObverserEmbed.get("✔️ Connecté au vocal", null, member.getAsMention() + " est connecté au salon vocal **" + event.getChannelJoined().getName() + "**.", member);
 		DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
+	}
+	
+	@Override
+	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+		Guild guild = event.getGuild();
+		Message message = event.getMessage();
+		TextChannel channel = message.getTextChannel();
+		User author = event.getAuthor();
+		if (!ObserverHandler.logMsgs || !DiscordUtils.isDefaultGuild(guild) || Arrays.stream(ObserverHandler.excludeChannelsIds).anyMatch(ex -> channel.getIdLong() == ex))
+			return;
+		ObserverHandler.addMessageCache(message);
+		List<Attachment> attachments = message.getAttachments();
+		Member authorMember = event.getMember();
+		if (ObserverHandler.logAttachment && !attachments.isEmpty() && authorMember != null) {
+			String desc = author.getAsMention() + " dans " + channel.getAsMention() + ":";
+			EmbedBuilder embed = ObverserEmbed.get("✍ Pièces jointes", null, desc + "\nS'y rendre: " + message.getJumpUrl(), authorMember);
+			embed.setTimestamp(message.getTimeCreated());
+			embed.setImage(attachments.get(0).getUrl());
+			embed.addField("Pièce jointe: ", attachments.stream().map(a -> a.getFileName() + " " + a.getProxyUrl()).collect(Collectors.joining("\n")), true);
+			DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
+		}
+		// System.out.println("test1 " + OlympaBungee.getInstance()); null
+		//		for (Pattern regex : new SwearHandler(BungeeConfigUtils.getDefaultConfig().getStringList("chat.insult")).getRegexSwear()) {
+		//			Matcher matcher = regex.matcher(message.getContentDisplay());
+		//			if (matcher.find()) {
+		//				String desc = member.getAsMention() + " dans " + channel.getAsMention() + ": **" + matcher.group() + "**.";
+		//				EmbedBuilder embed = ObverserEmbed.get("💢 Insulte", null, desc + "\n" + message.getJumpUrl(), member.getUser());
+		//				embed.setTimestamp(message.getTimeCreated());
+		//				DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
+		//				break;
+		//			}
+		//		}
 	}
 	
 	@Override
@@ -318,12 +319,12 @@ public class ObserverListener extends ListenerAdapter {
 		EmbedBuilder embed = ObverserEmbed.get("✏️ Changement de pseudo", null, user.getAsMention() + " a changer de **pseudo Discord**.", member);
 		embed.addField("Avant", event.getOldName(), true);
 		embed.addField("Après", event.getNewName(), true);
-		channel.retrieveMessageById(channel.getLatestMessageIdLong()).queue(message -> {
-			String msg = message.getContentRaw();
-			System.out.println("DEBUG BOT DISCORD: " + msg);
-			if (msg.contains("✏️ Changement de pseudo")) {
-			}
-		});
+		//		channel.retrieveMessageById(channel.getLatestMessageIdLong()).queue(message -> {
+		//			String msg = message.getContentRaw();
+		//			System.out.println("DEBUG BOT DISCORD: " + msg);
+		//			if (msg.contains("✏️ Changement de pseudo")) {
+		//			}
+		//		});
 		DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
 	}
 }

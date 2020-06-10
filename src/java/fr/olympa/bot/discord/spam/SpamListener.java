@@ -15,13 +15,13 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class SpamListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Message message = event.getMessage();
 		Guild guild = message.getGuild();
 		Member member = message.getMember();
-		if (DiscordIds.getDefaultGuild().getIdLong() != guild.getIdLong() || member.getUser().isBot())
+		if (DiscordIds.getDefaultGuild().getIdLong() != guild.getIdLong() || member == null || member.getUser().isBot())
 			return;
 		SpamHandler.removeAllTagMember(member);
 		TextChannel channel = message.getTextChannel();

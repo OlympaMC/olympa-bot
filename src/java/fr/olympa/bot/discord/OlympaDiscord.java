@@ -1,6 +1,7 @@
 package fr.olympa.bot.discord;
 
 import java.awt.Color;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.login.LoginException;
@@ -14,6 +15,9 @@ import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
 import fr.olympa.bot.discord.groups.GroupCommand;
 import fr.olympa.bot.discord.groups.GroupListener;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildsListener;
+import fr.olympa.bot.discord.guild.SettingsCommand;
 import fr.olympa.bot.discord.invites.InviteCommand;
 import fr.olympa.bot.discord.link.LinkListener;
 import fr.olympa.bot.discord.listeners.JoinListener;
@@ -21,9 +25,11 @@ import fr.olympa.bot.discord.listeners.ReadyListener;
 import fr.olympa.bot.discord.observer.ObserverListener;
 import fr.olympa.bot.discord.sanctions.MuteCommand;
 import fr.olympa.bot.discord.spam.SpamListener;
+import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
 import fr.olympa.bot.discord.support.chat.SupportChatListener;
+import fr.olympa.bot.discord.textmessage.GuildChannelListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -62,6 +68,8 @@ public class OlympaDiscord {
 		builder.addEventListeners(new SpamListener());
 		builder.addEventListeners(new ReactionListener());
 		builder.addEventListeners(new SupportChatListener());
+		builder.addEventListeners(new GuildChannelListener());
+		builder.addEventListeners(new GuildsListener());
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
@@ -70,11 +78,13 @@ public class OlympaDiscord {
 		new InviteCommand().register();
 		new GroupCommand().register();
 		new MuteCommand().register();
+		new SettingsCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {
+				GuildsHandler.guilds = DiscordSQL.selectGuilds();
 				jda = builder.build();
-			} catch (LoginException e) {
+			} catch (LoginException | SQLException e) {
 				e.printStackTrace();
 				return;
 			}

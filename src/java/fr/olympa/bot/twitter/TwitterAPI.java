@@ -10,21 +10,21 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterAPI {
-	
+
 	private Twitter twitter;
 	private String errorMsg;
-	
+
 	OlympaBots plugin;
-	
+
 	public TwitterAPI(OlympaBots plugin) {
 		this.plugin = plugin;
 	}
-
+	
 	public void connect() {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setDebugEnabled(true)
 				.setOAuthConsumerKey("xvz1evFS4wEEPTGEFPHBog")
-				.setOAuthConsumerSecret("kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw")
+				.setOAuthConsumerSecret("kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg")
 				.setOAuthAccessToken("370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb")
 				.setOAuthAccessTokenSecret("LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE");
 		TwitterFactory tf = new TwitterFactory(cb.build());
@@ -42,11 +42,11 @@ public class TwitterAPI {
 			errorMsg = errorMsg2;
 		}, 0, 5, TimeUnit.MINUTES);
 	}
-	
+
 	public boolean isWork() {
 		return errorMsg != null && errorMsg.isEmpty();
 	}
-	
+
 	public String updateConnected() {
 		try {
 			int co = plugin.getProxy().getOnlineCount();

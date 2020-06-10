@@ -35,10 +35,6 @@ public class LinkListener extends ListenerAdapter {
 		}
 		
 		Member member = DiscordIds.getStaffGuild().getMemberById(user.getIdLong());
-		AccountProvider account = new AccountProvider(player.getUniqueId());
-		OlympaPlayer olympaPlayer = account.getFromRedis();
-		olympaPlayer.setDiscordId(user.getIdLong());
-		account.saveToRedis(olympaPlayer);
 		
 		if (member == null) {
 			EmbedBuilder embed = new EmbedBuilder();
@@ -47,6 +43,11 @@ public class LinkListener extends ListenerAdapter {
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
+
+		AccountProvider account = new AccountProvider(player.getUniqueId());
+		OlympaPlayer olympaPlayer = account.getFromRedis();
+		olympaPlayer.setDiscordId(user.getIdLong());
+		account.saveToRedis(olympaPlayer);
 		member.modifyNickname(olympaPlayer.getName()).queue();
 		LinkHandler.updateGroups(member, olympaPlayer);
 		EmbedBuilder embed = new EmbedBuilder();

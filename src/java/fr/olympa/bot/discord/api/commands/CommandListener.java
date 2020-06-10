@@ -9,7 +9,6 @@ import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -22,12 +21,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandListener extends ListenerAdapter {
-	
+
 	private void checkMsg(GenericMessageEvent event, Message message) {
 		User user = message.getAuthor();
-		
+
 		MessageChannel channel = event.getChannel();
-		
+
 		MessageType type = message.getType();
 		if (type != MessageType.DEFAULT)
 			return;
@@ -46,25 +45,15 @@ public class CommandListener extends ListenerAdapter {
 			return;
 		}
 		Member member = null;
-		if (message.isFromGuild()) {
-			Guild guild = message.getGuild();
-			if (DiscordIds.getDefaultGuild().getIdLong() == guild.getIdLong()) {
-				List<Long> channelCommands = Arrays.asList(558148930194374656L, 558356359805009931L);
-				if (!channelCommands.contains(message.getChannel().getIdLong()))
-					return;
-			} else if (DiscordIds.getStaffGuild().getIdLong() == guild.getIdLong()) {
-				List<Long> channelCommands = Arrays.asList(679464560784179252L);
-				if (!channelCommands.contains(message.getChannel().getIdLong()))
-					return;
-			}
+		if (message.isFromGuild())
 			member = message.getMember();
-		} else
+		else
 			member = DiscordIds.getStaffGuild().getMember(message.getAuthor());
 		if (member == null || !DiscordGroup.isStaff(member)) {
 			channel.sendMessage("Le bot est encore en développement, t'es pas prêt.").queue();
 			return;
 		}
-		
+
 		args = Arrays.copyOfRange(args, 1, args.length);
 		commandName = commandName.substring(1);
 		DiscordCommand discordCommand = DiscordCommand.getCommand(commandName);
@@ -100,12 +89,12 @@ public class CommandListener extends ListenerAdapter {
 		}
 		discordCommand.onCommandSend(discordCommand, args, message);
 	}
-	
+
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		checkMsg(event, event.getMessage());
 	}
-	
+
 	@Override
 	public void onMessageUpdate(MessageUpdateEvent event) {
 		checkMsg(event, event.getMessage());
