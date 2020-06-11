@@ -24,7 +24,7 @@ public class SettingsCommand extends DiscordCommand {
 		message.delete().queue();
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
-		OlympaGuild olympaGuild = GuildsHandler.getGuild(guild);
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 		EmbedBuilder embed = new EmbedBuilder().setTitle("🔧 Paramètres");
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		

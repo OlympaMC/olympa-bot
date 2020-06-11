@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import fr.olympa.bot.OlympaBots;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class OlympaGuild {
 
@@ -36,8 +37,8 @@ public class OlympaGuild {
 	}
 
 	private String name;
-	private final long id;
-	private long guildId, logChannelId;
+	private final long id, discordId;
+	private long logChannelId;
 	private boolean logVoice, logMsg, logUsername, logAttachment, logRoles, logEntries;
 	private DiscordGuildType type;
 	private List<Long> excludeChannelsIds;
@@ -63,9 +64,9 @@ public class OlympaGuild {
 				resultSet.getInt("guild_type"));
 	}
 
-	public OlympaGuild(long id, long guildId, String guildName, int logVoice, int logMsg, int logUsername, int logAttachment, int logRoles, int logEntries, long logChannelId, List<Long> excludeChannelsIds, int type) {
+	public OlympaGuild(long id, long discordId, String guildName, int logVoice, int logMsg, int logUsername, int logAttachment, int logRoles, int logEntries, long logChannelId, List<Long> excludeChannelsIds, int type) {
 		this.id = id;
-		this.guildId = guildId;
+		this.discordId = discordId;
 		name = guildName;
 		this.logVoice = logVoice == 1;
 		this.logMsg = logMsg == 1;
@@ -86,12 +87,8 @@ public class OlympaGuild {
 		this.name = name;
 	}
 	
-	public long getGuildId() {
-		return guildId;
-	}
-	
-	public void setGuildId(long guildId) {
-		this.guildId = guildId;
+	public long getDiscordId() {
+		return discordId;
 	}
 	
 	public long getLogChannelId() {
@@ -103,7 +100,7 @@ public class OlympaGuild {
 	}
 	
 	public Guild getGuild() {
-		return getJda().getGuildById(guildId);
+		return getJda().getGuildById(discordId);
 	}
 
 	public void setLogChannelId(long logChannelId) {
@@ -172,6 +169,10 @@ public class OlympaGuild {
 	
 	public List<Long> getExcludeChannelsIds() {
 		return excludeChannelsIds;
+	}
+
+	public TextChannel getLogChannel() {
+		return getJda().getTextChannelById(logChannelId);
 	}
 
 }

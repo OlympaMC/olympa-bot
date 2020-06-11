@@ -6,16 +6,16 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildsHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -39,7 +39,7 @@ public class DiscordMessage {
 	}
 	
 	public DiscordMessage(Message message) throws SQLException {
-		olympaGuildId = GuildsHandler.getGuild(message.getGuild()).getId();
+		olympaGuildId = GuildsHandler.getOlympaGuild(message.getGuild()).getId();
 		messageId = message.getIdLong();
 		channelId = message.getChannel().getIdLong();
 		authorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
@@ -83,23 +83,24 @@ public class DiscordMessage {
 	}
 	
 	public void addEditedMessage(Message message) {
-		contents.add(new MessageContent(message));
-	}
-	
-	private JDA getJda() {
-		return OlympaBots.getInstance().getDiscord().getJda();
+		contents.add(new MessageContent(message, this));
 	}
 	
 	public OlympaGuild getOlympaGuild() {
-		return GuildsHandler.getGuild(olympaGuildId);
+		return GuildsHandler.getOlympaGuildByOlympaId(olympaGuildId);
 	}
 	
 	public Guild getGuild() {
-		return getJda().getGuildById(getOlympaGuild().getGuildId());
+		return getOlympaGuild().getGuild();
 	}
 	
 	public Member getAuthor() {
-		return getGuild().getMemberById(authorId);
+		try {
+			return getGuild().getMemberById(CacheDiscordSQL.getDiscordMemberByOlympaId(authorId).getDiscordId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public TextChannel getChannel() {
@@ -107,9 +108,10 @@ public class DiscordMessage {
 	}
 	
 	public Message getLogMsg() {
-		return getChannel().getHistory().getMessageById(logMessageId);
+		return getOlympaGuild().getLogChannel().getHistory().getMessageById(logMessageId);
 	}
 	
+	@Nullable
 	public Message getMessage() {
 		return getChannel().getHistory().getMessageById(messageId);
 	}
@@ -136,5 +138,9 @@ public class DiscordMessage {
 	
 	public void setMessageDeleted() {
 		contents.add(new MessageContent());
+	}
+	
+	public String getJumpUrl() {
+		return "https://discordapp.com/channels/" + getOlympaGuild().getDiscordId() + "/" + channelId + "/" + messageId;
 	}
 }

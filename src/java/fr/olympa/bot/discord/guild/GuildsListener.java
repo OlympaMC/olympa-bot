@@ -56,7 +56,7 @@ public class GuildsListener extends ListenerAdapter {
 	public void onGuildReady(GuildReadyEvent event) {
 		try {
 			Guild guild = event.getGuild();
-			OlympaGuild olympaGuild = GuildsHandler.getGuild(guild);
+			OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 			if (olympaGuild == null) {
 				olympaGuild = DiscordSQL.addGuild(guild);
 				if (olympaGuild != null)

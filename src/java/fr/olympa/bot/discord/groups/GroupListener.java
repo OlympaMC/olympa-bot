@@ -1,7 +1,8 @@
 package fr.olympa.bot.discord.groups;
 
-import fr.olympa.bot.discord.api.DiscordUtils;
-import fr.olympa.bot.discord.observer.ObserverHandler;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -15,24 +16,20 @@ public class GroupListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		if (!ObserverHandler.logRoles || !DiscordUtils.isDefaultGuild(guild) || user.isBot()) {
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		if (olympaGuild.getType() != DiscordGuildType.PUBLIC || user.isBot() || !DiscordGroup.isStaff(event.getRoles()))
 			return;
-		}
-		if (DiscordGroup.isStaff(event.getRoles())) {
-			GroupHandler.update();
-		}
+		GroupHandler.update();
 	}
-
+	
 	@Override
 	public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		if (!ObserverHandler.logRoles || !DiscordUtils.isDefaultGuild(guild) || user.isBot()) {
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		if (olympaGuild.getType() != DiscordGuildType.PUBLIC || user.isBot() || !DiscordGroup.isStaff(event.getRoles()))
 			return;
-		}
-		if (DiscordGroup.isStaff(event.getRoles())) {
-			GroupHandler.update();
-		}
+		GroupHandler.update();
 	}
 }

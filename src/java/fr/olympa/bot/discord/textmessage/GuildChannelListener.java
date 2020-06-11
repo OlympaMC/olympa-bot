@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class GuildChannelListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
 		Guild guild = event.getGuild();
@@ -29,24 +29,24 @@ public class GuildChannelListener extends ListenerAdapter {
 			Member member = discordMessage.getAuthor();
 			if (member == null || member.getUser().isBot())
 				return;
-			OlympaGuild olympaGuild = GuildsHandler.getGuild(guild);
+			OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 			TextChannel channel = discordMessage.getChannel();
-			if (olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
+			if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 				return;
 			discordMessage.setMessageDeleted();
 			DiscordSQL.updateMessage(discordMessage);
-		} catch (SQLException e1) {
-			e1.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		if (member == null || member.getUser().isBot())
 			return;
-		OlympaGuild olympaGuild = GuildsHandler.getGuild(guild);
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
 		TextChannel channel = message.getTextChannel();
 		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
@@ -62,21 +62,23 @@ public class GuildChannelListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		if (member == null || member.getUser().isBot())
 			return;
-		OlympaGuild olympaGuild = GuildsHandler.getGuild(guild);
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
 		TextChannel channel = message.getTextChannel();
 		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 			return;
 		try {
-			DiscordMessage discordMessage = DiscordSQL.addMessage(new DiscordMessage(message));
-			CacheDiscordSQL.cacheMessage.put(member.getIdLong(), discordMessage);
+			DiscordMessage discordMessage = new DiscordMessage(message);
+			DiscordSQL.addMessage(discordMessage);
+			long userId = message.getAuthor().getIdLong();
+			CacheDiscordSQL.cacheMessage.put(userId, discordMessage);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

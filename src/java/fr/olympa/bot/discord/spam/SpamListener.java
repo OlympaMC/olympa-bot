@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.api.DiscordIds;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -15,13 +17,14 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class SpamListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Message message = event.getMessage();
 		Guild guild = message.getGuild();
 		Member member = message.getMember();
-		if (DiscordIds.getDefaultGuild().getIdLong() != guild.getIdLong() || member == null || member.getUser().isBot())
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		if (olympaGuild.getType() == DiscordGuildType.STAFF || member == null || member.getUser().isBot())
 			return;
 		SpamHandler.removeAllTagMember(member);
 		TextChannel channel = message.getTextChannel();

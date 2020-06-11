@@ -22,7 +22,6 @@ import fr.olympa.bot.discord.invites.InviteCommand;
 import fr.olympa.bot.discord.link.LinkListener;
 import fr.olympa.bot.discord.listeners.JoinListener;
 import fr.olympa.bot.discord.listeners.ReadyListener;
-import fr.olympa.bot.discord.observer.ObserverListener;
 import fr.olympa.bot.discord.sanctions.MuteCommand;
 import fr.olympa.bot.discord.spam.SpamListener;
 import fr.olympa.bot.discord.sql.DiscordSQL;
@@ -30,6 +29,7 @@ import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
 import fr.olympa.bot.discord.support.chat.SupportChatListener;
 import fr.olympa.bot.discord.textmessage.GuildChannelListener;
+import fr.olympa.bot.discord.textmessage.LogListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -39,30 +39,30 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class OlympaDiscord {
-
+	
 	public static long uptime = Utils.getCurrentTimeInSeconds();
 	public static long lastConnection;
-
+	
 	@Deprecated
 	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
 		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 	}
-
+	
 	private JDA jda;
 	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
-	
+
 	@SuppressWarnings("deprecation")
 	public void connect(Plugin plugin) {
-
+		
 		JDABuilder builder = new JDABuilder("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setStatus(OnlineStatus.IDLE);
-
+		
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
 		builder.addEventListeners(new JoinListener());
 		builder.addEventListeners(new SupportListener());
-		builder.addEventListeners(new ObserverListener());
+		//builder.addEventListeners(new ObserverListener());
 		builder.addEventListeners(new LinkListener());
 		builder.addEventListeners(new GroupListener());
 		builder.addEventListeners(new SpamListener());
@@ -70,6 +70,7 @@ public class OlympaDiscord {
 		builder.addEventListeners(new SupportChatListener());
 		builder.addEventListeners(new GuildChannelListener());
 		builder.addEventListeners(new GuildsListener());
+		builder.addEventListeners(new LogListener());
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
@@ -79,7 +80,7 @@ public class OlympaDiscord {
 		new GroupCommand().register();
 		new MuteCommand().register();
 		new SettingsCommand().register();
-
+		
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {
 				GuildsHandler.guilds = DiscordSQL.selectGuilds();
@@ -89,24 +90,24 @@ public class OlympaDiscord {
 				return;
 			}
 		});
-
+		
 	}
-
+	
 	public void disconnect() {
 		if (jda != null) {
 			jda.shutdown();
 			jda = null;
 		}
 	}
-
+	
 	public Color getColor() {
 		return color;
 	}
-
+	
 	public JDA getJda() {
 		return jda;
 	}
-
+	
 	public void setColor(Color color) {
 		this.color = color;
 	}

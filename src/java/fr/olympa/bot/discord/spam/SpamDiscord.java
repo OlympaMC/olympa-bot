@@ -3,7 +3,8 @@ package fr.olympa.bot.discord.spam;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.olympa.bot.discord.api.DiscordIds;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -22,7 +23,9 @@ public class SpamDiscord {
 			i = data.get(member);
 		data.put(member, ++i);
 		if (i > 2) {
-			TextChannel channel = DiscordIds.getChannelInfo();
+			OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(member.getGuild());
+			TextChannel channel = olympaGuild.getLogChannel();
+			// TODO better mute
 			if (channel != null)
 				channel.sendMessage("?mute " + member.getUser().getAsTag() + " 1h Spam Mention").queue();
 		}
