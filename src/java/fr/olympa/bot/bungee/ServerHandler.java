@@ -24,12 +24,12 @@ public class ServerHandler {
 				while ((s = br.readLine()) != null)
 					sb.append(s);
 				String out = sb.toString().replaceAll("[]", "").replace("[0m", "").replace("[32m", "**").replace("[36m", "**").replace("[36m", "**").replace("[0;36m", "**").replace("[31m", "**").replace("[0;31m", "**");
-				channel.sendMessage(member.getAsMention() + " " + out);
+				channel.sendMessage(member.getAsMention() + " " + out).queue();
 				OlympaBungee.getInstance().sendMessage("§c[§4OUT§c] §c" + out);
 				p.waitFor();
 				p.destroy();
 			} catch (IOException | InterruptedException e) {
-				channel.sendMessage(member.getAsMention() + " " + e.getMessage());
+				channel.sendMessage(member.getAsMention() + " " + e.getMessage()).queue();
 				e.printStackTrace();
 			}
 		}).start();
