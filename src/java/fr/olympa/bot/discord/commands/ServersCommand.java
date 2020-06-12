@@ -1,9 +1,12 @@
 package fr.olympa.bot.discord.commands;
 
+import java.awt.Color;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import fr.olympa.api.maintenance.MaintenanceStatus;
 import fr.olympa.api.utils.spigot.TPSUtils;
@@ -22,11 +25,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 public class ServersCommand extends DiscordCommand {
-	
+
 	public ServersCommand() {
 		super("server", "servers");
 	}
-
+	
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		Member member = message.getMember();
@@ -38,17 +41,24 @@ public class ServersCommand extends DiscordCommand {
 			MaintenanceStatus status = serverInfo.getStatus();
 			StringJoiner sb = new StringJoiner(" ");
 			sb.add("[" + status.getName() + "]");
-			sb.add(status.getColor() + serverInfo.getName() + ":");
+			sb.add("**" + serverInfo.getName() + ":**");
 			if (serverInfo.getOnlinePlayer() != null)
 				sb.add(serverInfo.getOnlinePlayer() + "/" + serverInfo.getMaxPlayers());
 			if (serverInfo.getTps() != null)
-				sb.add(TPSUtils.getTpsColor(serverInfo.getTps()) + "tps");
+				sb.add(serverInfo.getTps() + "tps");
 			if (serverInfo.getPing() != null)
 				sb.add(serverInfo.getPing() + "ms");
 			if (serverInfo.getError() != null)
-				sb.add(status.getColor() + "Erreur: " + serverInfo.getError());
+				sb.add("Erreur: " + serverInfo.getError());
 			embedBuilder.addField(serverInfo.getName(), sb.toString(), true);
 		}
+		List<MaintenanceStatus> statuss = info.stream().map(si -> si.getStatus()).collect(Collectors.toList());
+		if (statuss.stream().allMatch(s -> s == MaintenanceStatus.OPEN))
+			embedBuilder.setColor(Color.GREEN);
+		else if (statuss.stream().allMatch(s -> s == MaintenanceStatus.CLOSE))
+			embedBuilder.setColor(Color.RED);
+		else
+			embedBuilder.setColor(Color.ORANGE);
 		Map<String, String> map = new HashMap<>();
 		map.put("🔄", "refresh");
 		channel.sendMessage(embedBuilder.build()).queue(msg -> AwaitReaction.addReaction(msg, new ReactionDiscord(map, member.getIdLong()) {
@@ -76,7 +86,7 @@ public class ServersCommand extends DiscordCommand {
 			}
 		}));
 	}
-
+	
 	public MessageEmbed getEmbed() {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
