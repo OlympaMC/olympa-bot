@@ -69,7 +69,7 @@ public class ServersCommand extends DiscordCommand {
 		for (MonitorInfo serverInfo : info) {
 			MaintenanceStatus status = serverInfo.getStatus();
 			StringJoiner sb = new StringJoiner(" ");
-			sb.add("[" + status.getName() + "]");
+			sb.add("__" + status.getName() + "__");
 			sb.add("**" + serverInfo.getName() + ":**");
 			if (serverInfo.getOnlinePlayer() != null)
 				sb.add(serverInfo.getOnlinePlayer() + "/" + serverInfo.getMaxPlayers());
@@ -78,7 +78,7 @@ public class ServersCommand extends DiscordCommand {
 			if (serverInfo.getPing() != null)
 				sb.add(serverInfo.getPing() + "ms");
 			if (serverInfo.getError() != null)
-				sb.add("Erreur: " + serverInfo.getError());
+				sb.add("Erreur: *" + serverInfo.getError() + "*");
 			embedBuilder.addField(serverInfo.getName(), sb.toString(), true);
 		}
 		List<MaintenanceStatus> statuss = info.stream().map(si -> si.getStatus()).collect(Collectors.toList());
