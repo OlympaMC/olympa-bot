@@ -13,10 +13,12 @@ import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class MemberListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onUserUpdateActivityOrder(UserUpdateActivityOrderEvent event) {
 		User user = event.getEntity();
+		if (user.isFake())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			long lastSeenTime = discordMember.getLastSeenTime();
@@ -27,10 +29,12 @@ public class MemberListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onUserUpdateOnlineStatus(UserUpdateOnlineStatusEvent event) {
 		User user = event.getEntity();
+		if (user.isFake())
+			return;
 		if (event.getNewOnlineStatus() == OnlineStatus.UNKNOWN)
 			return;
 		try {
@@ -43,10 +47,12 @@ public class MemberListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		User user = event.getAuthor();
+		if (user.isFake())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			long lastSeenTime = discordMember.getLastSeenTime();
@@ -57,7 +63,7 @@ public class MemberListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		User user = event.getAuthor();
