@@ -29,10 +29,6 @@ public class GuildChannelListener extends ListenerAdapter {
 			Member member = discordMessage.getGuild().getMemberById(entry.getKey());
 			if (member == null || member.getUser().isBot())
 				return;
-			OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
-			TextChannel channel = discordMessage.getChannel();
-			if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
-				return;
 			discordMessage.setMessageDeleted();
 			DiscordSQL.updateMessage(discordMessage);
 		} catch (SQLException e) {
@@ -49,8 +45,6 @@ public class GuildChannelListener extends ListenerAdapter {
 		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
 		TextChannel channel = message.getTextChannel();
-		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
-			return;
 		DiscordMessage discordMessage;
 		try {
 			Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(olympaGuild, message);
@@ -76,8 +70,6 @@ public class GuildChannelListener extends ListenerAdapter {
 		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
 		TextChannel channel = message.getTextChannel();
-		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
-			return;
 		try {
 			DiscordMessage discordMessage = new DiscordMessage(message);
 			DiscordSQL.addMessage(discordMessage);

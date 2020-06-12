@@ -16,10 +16,13 @@ public class SwearDiscord {
 
 	public static void check(Member member, TextChannel channel, Message message, OlympaGuild olympaGuild) {
 		String messageRaw = swearHandler.testAndReplace(message.getContentRaw(), "**", "**");
-		if (messageRaw == null)
+		if (messageRaw == null) {
+			message.clearReactions("☢️");
 			return;
+		}
+		message.addReaction("☢️").queue();
 		String desc = member.getAsMention() + " dans " + channel.getAsMention() + ".";
-		EmbedBuilder embed = SendLogs.get("💢 Insulte", null, desc + "\n" + message.getJumpUrl(), member);
+		EmbedBuilder embed = SendLogs.get("☢️ Insulte", null, desc + "\n" + message.getJumpUrl(), member);
 		embed.addField("Message", messageRaw, true);
 		embed.setTimestamp(message.getTimeCreated());
 		embed.setColor(Color.MAGENTA);
