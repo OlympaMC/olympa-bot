@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import fr.olympa.api.maintenance.MaintenanceStatus;
 import fr.olympa.api.utils.spigot.TPSUtils;
@@ -23,13 +22,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 public class ServersCommand extends DiscordCommand {
-
+	
 	public ServersCommand() {
 		super("server", "servers");
-		description = "[" + MonitorServers.getLastServerInfo().stream().map(MonitorInfo::getName).collect(Collectors.joining("|")) + "]";
-		minArg = 1;
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		Member member = message.getMember();
@@ -58,28 +55,28 @@ public class ServersCommand extends DiscordCommand {
 			@Override
 			public void onReactRemove(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
 			}
-			
+
 			@Override
 			public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
 			}
-			
+
 			@Override
 			public void onReactModClearAll(long messageId, MessageChannel messageChannel) {
 			}
-			
+
 			@Override
 			public boolean onReactAdd(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
 				if ("refresh".equalsIgnoreCase(getData(messageReaction)))
 					msg.editMessage(getEmbed()).queue();
 				return false;
 			}
-			
+
 			@Override
 			public void onBotStop(long messageId) {
 			}
 		}));
 	}
-	
+
 	public MessageEmbed getEmbed() {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
