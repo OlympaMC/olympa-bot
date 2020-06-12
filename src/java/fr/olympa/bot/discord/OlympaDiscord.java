@@ -14,6 +14,7 @@ import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
 import fr.olympa.bot.discord.commands.RestartCommand;
+import fr.olympa.bot.discord.commands.ServersCommand;
 import fr.olympa.bot.discord.commands.StartCommand;
 import fr.olympa.bot.discord.commands.StopCommand;
 import fr.olympa.bot.discord.commands.UsurpCommand;
@@ -44,25 +45,25 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class OlympaDiscord {
-
+	
 	public static long uptime = Utils.getCurrentTimeInSeconds();
 	public static long lastConnection;
-
+	
 	@Deprecated
 	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
 		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 	}
-
+	
 	private JDA jda;
 	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
-	
+
 	@SuppressWarnings("deprecation")
 	public void connect(Plugin plugin) {
-
+		
 		JDABuilder builder = new JDABuilder("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setStatus(OnlineStatus.IDLE);
-
+		
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
 		builder.addEventListeners(new JoinListener());
@@ -90,7 +91,8 @@ public class OlympaDiscord {
 		new StopCommand().register();
 		new StartCommand().register();
 		new RestartCommand().register();
-
+		new ServersCommand().register();
+		
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {
 				GuildsHandler.guilds = DiscordSQL.selectGuilds();
@@ -100,24 +102,24 @@ public class OlympaDiscord {
 				return;
 			}
 		});
-
+		
 	}
-
+	
 	public void disconnect() {
 		if (jda != null) {
 			jda.shutdown();
 			jda = null;
 		}
 	}
-
+	
 	public Color getColor() {
 		return color;
 	}
-
+	
 	public JDA getJda() {
 		return jda;
 	}
-
+	
 	public void setColor(Color color) {
 		this.color = color;
 	}
