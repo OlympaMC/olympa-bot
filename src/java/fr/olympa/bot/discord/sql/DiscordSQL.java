@@ -263,6 +263,10 @@ public class DiscordSQL {
 		statement.setLong(i++, discordMessage.getGuildId());
 		statement.setLong(i++, discordMessage.getChannelId());
 		statement.setLong(i++, discordMessage.getMessageId());
+		if (discordMessage.getLogMessageId() != 0)
+			statement.setLong(i++, discordMessage.getLogMessageId());
+		else
+			statement.setObject(i++, null);
 		statement.executeUpdate();
 		statement.close();
 	}
