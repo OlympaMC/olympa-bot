@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -81,7 +81,7 @@ public class DiscordUtils {
 	}
 	
 	public static boolean isStaffGuild(Guild guild) {
-		Guild staffGuild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
+		Guild staffGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
 		return compareGuild(staffGuild, guild);
 	}
 	

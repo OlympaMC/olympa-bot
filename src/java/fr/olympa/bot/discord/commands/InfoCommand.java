@@ -13,7 +13,7 @@ import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -105,7 +105,7 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "nonsigne":
 			Guild guild = message.getGuild();
-			if (GuildsHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
 			Role roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			Set<Member> signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -119,7 +119,7 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "signe":
 			guild = message.getGuild();
-			if (GuildsHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
 			roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -174,7 +174,7 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "absent":
 			guild = message.getGuild();
-			if (GuildsHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
 			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
 

@@ -11,9 +11,9 @@ import fr.olympa.api.utils.UtilsCore;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.NumberEmoji;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
-import fr.olympa.bot.discord.api.reaction.AwaitReaction;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import fr.olympa.bot.discord.reaction.AwaitReaction;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,21 +21,21 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class MuteCommand extends DiscordCommand {
-	
+
 	public MuteCommand() {
 		super("mute", DiscordPermission.ASSISTANT);
 		minArg = 1;
 		usage = "<nom|surnom|tag|id>";
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		if (args.length == 0)
 			return;
-		
+
 		Member member = message.getMember();
 		MessageChannel channel = message.getChannel();
-		Guild guild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
+		Guild guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
 		List<Member> targets;
 		String name = args[0];
 		targets = guild.getMembersByEffectiveName(name, true);
@@ -68,13 +68,13 @@ public class MuteCommand extends DiscordCommand {
 				numberEmoji = numberEmoji.getNext();
 			}
 			em.setDescription(sj.toString());
-			channel.sendMessage(em.build()).queue(m -> AwaitReaction.addReaction(m, new MuteChooseCommand(data, member.getIdLong())));
-			
+			channel.sendMessage(em.build()).queue(m -> AwaitReaction.addReaction(m, new MuteChooseCommand(m, data, member.getIdLong())));
+
 			return;
 		} else {
 			Member target = targets.get(0);
 			SanctionHandler.mute(target, member.getUser(), channel);
 		}
 	}
-	
+
 }

@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -38,7 +38,7 @@ public class DiscordMessage {
 	}
 
 	public DiscordMessage(Message message) throws SQLException {
-		olympaGuildId = GuildsHandler.getOlympaGuild(message.getGuild()).getId();
+		olympaGuildId = GuildHandler.getOlympaGuild(message.getGuild()).getId();
 		messageId = message.getIdLong();
 		channelId = message.getChannel().getIdLong();
 		olympaAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
@@ -86,7 +86,7 @@ public class DiscordMessage {
 	}
 
 	public OlympaGuild getOlympaGuild() {
-		return GuildsHandler.getOlympaGuildByOlympaId(olympaGuildId);
+		return GuildHandler.getOlympaGuildByOlympaId(olympaGuildId);
 	}
 
 	public Guild getGuild() {

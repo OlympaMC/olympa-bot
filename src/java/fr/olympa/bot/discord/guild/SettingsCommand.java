@@ -24,7 +24,7 @@ public class SettingsCommand extends DiscordCommand {
 		message.delete().queue();
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		EmbedBuilder embed = new EmbedBuilder().setTitle("🔧 Paramètres");
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		
@@ -47,7 +47,7 @@ public class SettingsCommand extends DiscordCommand {
 			embed.addField("OlympaGuild Type", olympaGuild.getType().getName(), true);
 		} else if (args[0].equalsIgnoreCase("reload"))
 			try {
-				GuildsHandler.updateGuild(DiscordSQL.selectGuildById(olympaGuild.getId()));
+				GuildHandler.updateGuild(DiscordSQL.selectGuildById(olympaGuild.getId()));
 				embed.setDescription("✅ La config du discord `" + guild.getName() + "` a été rechargé.");
 			} catch (SQLException e) {
 				embed.setDescription("❌ Une erreur SQL est survenu: `" + e.getMessage() + "`.");

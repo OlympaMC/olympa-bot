@@ -5,7 +5,7 @@ import java.util.List;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.entities.Guild;
 
-public class GuildsHandler {
+public class GuildHandler {
 
 	public static List<OlympaGuild> guilds = null;
 	

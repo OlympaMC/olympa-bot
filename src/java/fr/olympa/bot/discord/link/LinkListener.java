@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -39,7 +39,7 @@ public class LinkListener extends ListenerAdapter {
 			return;
 		}
 
-		Member member = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(user.getIdLong());
+		Member member = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(user.getIdLong());
 
 		if (member == null) {
 			EmbedBuilder embed = new EmbedBuilder();

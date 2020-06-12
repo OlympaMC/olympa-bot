@@ -14,7 +14,7 @@ import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.observer.MessageContent;
@@ -47,7 +47,7 @@ public class LogListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() == DiscordGuildType.PUBLIC) {
 			Role defaultRole = DiscordGroup.PLAYER.getRole(guild);
 			guild.addRoleToMember(member, defaultRole).queue();
@@ -73,7 +73,7 @@ public class LogListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = event.getUser();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogEntries())
 			return;
 		String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
@@ -94,7 +94,7 @@ public class LogListener extends ListenerAdapter {
 		if (user.isBot() || Utils.getCurrentTimeInSeconds() - member.getTimeJoined().toEpochSecond() < 5 && member.getRoles().isEmpty())
 			return;
 		List<Role> addedRoles = event.getRoles();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogRoles())
 			return;
 		String rolesString = addedRoles.stream().map(role -> role.getAsMention()).collect(Collectors.joining(", "));
@@ -112,7 +112,7 @@ public class LogListener extends ListenerAdapter {
 		if (user.isBot())
 			return;
 		List<Role> removedRoles = event.getRoles();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() == DiscordGuildType.PUBLIC)
 			if (member.getRoles().isEmpty()) {
 				Role defaultRole = DiscordGroup.PLAYER.getRole(guild);
@@ -134,7 +134,7 @@ public class LogListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		long messageId = event.getMessageIdLong();
 		TextChannel channel = event.getChannel();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 			return;
 		try {
@@ -189,7 +189,7 @@ public class LogListener extends ListenerAdapter {
 		User user = event.getAuthor();
 		Message message = event.getMessage();
 		TextChannel channel = event.getChannel();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
 			return;
 		try {
@@ -234,7 +234,7 @@ public class LogListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogVoice() || user.isBot())
 			return;
 		EmbedBuilder embed = SendLogs.get("✅ Connecté au vocal", null, member.getAsMention() + " est connecté au salon vocal `" + event.getChannelJoined().getName() + "`.", member);
@@ -246,7 +246,7 @@ public class LogListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogVoice() || user.isBot())
 			return;
 		EmbedBuilder embed = SendLogs.get("❌ Déconnecté du vocal", null, member.getAsMention() + " est déconnecté du salon vocal `" + event.getChannelLeft().getName() + "`.", member);
@@ -258,7 +258,7 @@ public class LogListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogVoice() || user.isBot())
 			return;
 		EmbedBuilder embed = SendLogs.get("🪑 Changement de salon vocal", null, member.getAsMention() + " s'est déplacé.", member);
@@ -270,7 +270,7 @@ public class LogListener extends ListenerAdapter {
 	@Override
 	public void onUserUpdateName(UserUpdateNameEvent event) {
 		User user = event.getUser();
-		for (OlympaGuild olympaGuild : GuildsHandler.guilds) {
+		for (OlympaGuild olympaGuild : GuildHandler.guilds) {
 			if (!olympaGuild.isLogUsername() || user.isBot())
 				return;
 			Member member = olympaGuild.getGuild().getMember(user);
@@ -286,7 +286,7 @@ public class LogListener extends ListenerAdapter {
 	@Override
 	public void onGuildMemberUpdateNickname(GuildMemberUpdateNicknameEvent event) {
 		Guild guild = event.getGuild();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		Member member = event.getMember();
 		User user = event.getUser();
 		if (!olympaGuild.isLogUsername() || user.isBot())

@@ -8,7 +8,6 @@ import javax.security.auth.login.LoginException;
 
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.commands.CommandListener;
-import fr.olympa.bot.discord.api.reaction.ReactionListener;
 import fr.olympa.bot.discord.commands.AnnonceCommand;
 import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
@@ -20,7 +19,7 @@ import fr.olympa.bot.discord.commands.StopCommand;
 import fr.olympa.bot.discord.commands.UsurpCommand;
 import fr.olympa.bot.discord.groups.GroupCommand;
 import fr.olympa.bot.discord.groups.GroupListener;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.GuildsListener;
 import fr.olympa.bot.discord.guild.SettingsCommand;
 import fr.olympa.bot.discord.invites.InviteCommand;
@@ -28,6 +27,7 @@ import fr.olympa.bot.discord.link.LinkListener;
 import fr.olympa.bot.discord.listeners.JoinListener;
 import fr.olympa.bot.discord.listeners.ReadyListener;
 import fr.olympa.bot.discord.member.MemberListener;
+import fr.olympa.bot.discord.reaction.ReactionListener;
 import fr.olympa.bot.discord.sanctions.MuteCommand;
 import fr.olympa.bot.discord.spam.SpamListener;
 import fr.olympa.bot.discord.sql.DiscordSQL;
@@ -95,7 +95,7 @@ public class OlympaDiscord {
 		
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {
-				GuildsHandler.guilds = DiscordSQL.selectGuilds();
+				GuildHandler.guilds = DiscordSQL.selectGuilds();
 				jda = builder.build();
 			} catch (LoginException | SQLException e) {
 				e.printStackTrace();

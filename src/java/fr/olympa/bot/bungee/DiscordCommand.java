@@ -13,7 +13,7 @@ import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;
@@ -107,7 +107,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			break;
 		case "info":
 		case "roles":
-			OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
+			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
 			Guild guild = olympaGuild.getGuild();
 			if (args.length > 2) {
 				proxiedPlayer = ProxyServer.getInstance().getPlayer(args[1]);

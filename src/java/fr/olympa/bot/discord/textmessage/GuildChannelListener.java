@@ -3,7 +3,7 @@ package fr.olympa.bot.discord.textmessage;
 import java.sql.SQLException;
 import java.util.Map.Entry;
 
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
@@ -42,7 +42,7 @@ public class GuildChannelListener extends ListenerAdapter {
 		Member member = event.getMember();
 		if (member == null || member.getUser().isBot())
 			return;
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
 		TextChannel channel = message.getTextChannel();
 		DiscordMessage discordMessage;
@@ -67,7 +67,7 @@ public class GuildChannelListener extends ListenerAdapter {
 		Member member = event.getMember();
 		if (member == null || member.getUser().isBot())
 			return;
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
 		TextChannel channel = message.getTextChannel();
 		try {
