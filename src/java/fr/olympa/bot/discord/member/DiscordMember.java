@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import fr.olympa.api.utils.Utils;
+import fr.olympa.bot.OlympaBots;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 
 public class DiscordMember {
@@ -38,6 +40,14 @@ public class DiscordMember {
 	public DiscordMember(User user) {
 		discordId = user.getIdLong();
 		name = user.getName();
+	}
+
+	private JDA getJDA() {
+		return OlympaBots.getInstance().getDiscord().getJda();
+	}
+
+	public User getUser() {
+		return getJDA().getUserById(discordId);
 	}
 
 	public long getDiscordId() {
@@ -77,7 +87,7 @@ public class DiscordMember {
 	}
 
 	public long getLastSeenTime() {
-		return lastSeen != 0 ? Utils.getCurrentTimeInSeconds() - lastSeen : 0;
+		return lastSeen == 0 ? 0 : Utils.getCurrentTimeInSeconds() - lastSeen;
 	}
 	
 	public void updateLastSeen() {

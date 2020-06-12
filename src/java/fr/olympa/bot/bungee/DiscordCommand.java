@@ -1,8 +1,11 @@
 package fr.olympa.bot.bungee;
 
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.permission.OlympaCorePermissions;
@@ -10,15 +13,21 @@ import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.api.DiscordIds;
-import fr.olympa.bot.discord.groups.DiscordGroup;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;
+import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.core.bungee.api.command.BungeeCommand;
 import fr.olympa.core.bungee.utils.BungeeUtils;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -28,11 +37,11 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
 public class DiscordCommand extends BungeeCommand implements TabExecutor {
-	
+
 	public DiscordCommand(Plugin plugin) {
 		super(plugin, "discord");
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onCommand(CommandSender sender, String[] args) {
@@ -41,45 +50,45 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			TextComponent textComponent2 = new TextComponent("[");
 			textComponent2.setColor(ChatColor.DARK_PURPLE);
 			textComponent.addExtra(textComponent2);
-			
+
 			textComponent2 = new TextComponent("Discord");
 			textComponent2.setColor(ChatColor.LIGHT_PURPLE);
 			textComponent.addExtra(textComponent2);
-			
+
 			textComponent2 = new TextComponent("] ");
 			textComponent2.setColor(ChatColor.DARK_PURPLE);
 			textComponent.addExtra(textComponent2);
-			
+
 			textComponent2 = new TextComponent("➤ ");
 			textComponent2.setColor(ChatColor.DARK_PURPLE);
 			textComponent.addExtra(textComponent2);
-			
+
 			textComponent2 = new TextComponent("discord.olympa.fr");
 			textComponent2.setColor(ChatColor.LIGHT_PURPLE);
 			textComponent2.setUnderlined(true);
 			textComponent2.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
 			textComponent2.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "discord.olympa.fr"));
 			textComponent.addExtra(textComponent2);
-			
+
 			textComponent2 = new TextComponent(". Pour relié son compte discord à Minecraft, fait ");
 			textComponent2.setColor(ChatColor.DARK_PURPLE);
 			textComponent.addExtra(textComponent2);
-			
+
 			textComponent2 = new TextComponent("/discord link");
 			textComponent2.setColor(ChatColor.LIGHT_PURPLE);
 			textComponent.addExtra(textComponent2);
-			
+
 			sender.sendMessage(textComponent);
 			return;
 		}
 		if (proxiedPlayer != null) {
 			// if (OlympaCorePermissions.DEV.hasPermission(proxiedPlayer.getUniqueId())) {
-			
+
 			// }
 		}
-		
+
 		switch (args[0].toLowerCase()) {
-		
+
 		case "link":
 			olympaPlayer = AccountProvider.get(proxiedPlayer.getUniqueId());
 			if (olympaPlayer == null) {
@@ -89,21 +98,59 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			if (olympaPlayer.getDiscordId() != 0)
 				sender.sendMessage(Prefix.DEFAULT_BAD + BungeeUtils.color("Tu as déjà un compte Discord relié."));
 			//				return;
-			
+
 			String code = LinkHandler.getCode(proxiedPlayer);
 			if (code == null)
 				code = LinkHandler.addWaiting(proxiedPlayer);
 			sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &dPour relier ton compte Discord & Olympa, envoie le code &5&l" + code + "&d en privé à &7@&5OlympaBot#5503&d."));
-			
+
 			break;
-		case "test":
-			Guild guild = DiscordIds.getStaffGuild();
+		case "info":
+		case "roles":
+			OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
+			Guild guild = olympaGuild.getGuild();
+			if (args.length > 2) {
+				proxiedPlayer = ProxyServer.getInstance().getPlayer(args[1]);
+				if (proxiedPlayer == null) {
+					sendUnknownPlayer(args[1]);
+					return;
+				}
+			}
 			olympaPlayer = AccountProvider.get(proxiedPlayer.getUniqueId());
-			String roles = DiscordGroup.get(olympaPlayer.getGroups().keySet()).stream().map(g -> g.getRole(guild).getName()).collect(Collectors.joining("&d,&5 "));
-			
-			long id = olympaPlayer.getDiscordId();
-			Member member = guild.getMemberById(id);
-			sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &dRoles de " + proxiedPlayer.getName() + " " + id + ": &5" + roles + "&d."));
+			try {
+				DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+				if (discordMember == null) {
+					if (args.length > 2)
+						sendMessage(Prefix.DEFAULT_BAD, "&4" + proxiedPlayer.getDisplayName() + "&c n'as pas lié son compte Discord et Minecraft.");
+					else
+						sendMessage(Prefix.DEFAULT_BAD, "Tu n'as pas lié ton compte Discord et Minecraft.");
+					return;
+				}
+				User user = discordMember.getUser();
+				Member member = guild.getMember(user);
+				String roles = member.getRoles().stream().map(g -> g.getName()).collect(Collectors.joining("&d,&5 "));
+				StringJoiner sj = new StringJoiner("\n");
+				sj.add("&5[&dDiscord&5] Compte Discord de " + proxiedPlayer.getDisplayName());
+				if (!member.getEffectiveName().equals(user.getName()))
+					sj.add("&7➤ &dNom: &5" + member.getEffectiveName() + "&d.");
+				sj.add("&7➤ &dTag: &5" + user.getAsTag() + "&d.");
+				sj.add("&7➤ &dRoles: &5" + roles + "&d.");
+				String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
+				String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
+				sj.add("&7➤ &dCompte discord crée: &5" + date + "&d (" + t + ").");
+				t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
+				date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE);
+				sj.add("&7➤ &dRejoint le discord le &5" + date + "&d (" + t + ").");
+				sj.add("&7➤ &dXP: &5" + String.valueOf(discordMember.getXp()) + "&d.");
+				OnlineStatus onlineStatus = member.getOnlineStatus();
+				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
+					sj.add("&7➤ &dDernière Action: &5il y a " + Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()) + "&d.");
+				else
+					sj.add("&7➤ &dStatut: &5" + Utils.capitalize(onlineStatus.name().replaceAll("_", " ")) + "&d.");
+				sendMessage(sj.toString());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 			break;
 		case "stop":
 			if (olympaPlayer != null && !OlympaCorePermissions.DEV.hasPermission(olympaPlayer)) {
@@ -115,7 +162,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &6Bot éteint."));
 			} else
 				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &cBot déjà éteint."));
-			
+
 			break;
 		case "start":
 			if (olympaPlayer != null && !OlympaCorePermissions.DEV.hasPermission(olympaPlayer)) {
@@ -133,7 +180,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			break;
 		}
 	}
-	
+
 	@Override
 	public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
 		if (args.length == 1) {
@@ -142,5 +189,5 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 		}
 		return new ArrayList<>();
 	}
-	
+
 }

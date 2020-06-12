@@ -16,34 +16,31 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class SupportChatListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Message message = event.getMessage();
 		List<User> mentions = message.getMentionedUsers();
 		SelfUser me = event.getJDA().getSelfUser();
-		if (event.getAuthor().isBot() || !mentions.contains(me)) {
+		if (event.getAuthor().isBot() || !mentions.contains(me))
 			return;
-		}
 		sendMessage(message);
 	}
-
+	
 	@Override
 	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
 		User member = event.getAuthor();
-		if (member.isBot()) {
+		if (member.isBot())
 			return;
-		}
 		Message message = event.getMessage();
 		MessageChannel channel = event.getChannel();
-		if (member.getIdLong() != 450125243592343563L && member.getIdLong() != 481941189646483456L) {
+		if (member.getIdLong() != 450125243592343563L && member.getIdLong() != 481941189646483456L)
 			sendMessage(message);
-		} else {
+		else {
 			String msg = message.getContentRaw();
 			String[] args = msg.split(" ");
-			if (args.length == 0) {
+			if (args.length == 0)
 				return;
-			}
 			String id = args[0];
 			try {
 				if (id.startsWith("@")) {
@@ -56,7 +53,7 @@ public class SupportChatListener extends ListenerAdapter {
 						}, msgFinal.length() * 100, TimeUnit.MILLISECONDS);
 					});
 					channel.sendMessage("Message envoyé à " + user.getAsMention()).queue();
-
+					
 				} else if (id.startsWith("#")) {
 					TextChannel txtCh = event.getJDA().getTextChannelById(id.substring(1));
 					String msgFinal = msg.substring(id.length() + 1);
@@ -65,29 +62,26 @@ public class SupportChatListener extends ListenerAdapter {
 						txtCh.sendMessage(msgFinal).queue();
 					}, msgFinal.length() * 200, TimeUnit.MILLISECONDS);
 					channel.sendMessage("Message envoyé dans " + txtCh.getAsMention() + " sur " + txtCh.getGuild().getName()).queue();
-
+					
 				} else if (id.startsWith("!")) {
-
-				} else {
-					channel.sendMessage("Tu dois choisir à qui envoyer le message avec #id ou @id.").queue();
+					
 				}
 			} catch (Exception e) {
 				channel.sendMessage("Mauvais format " + e.getMessage()).queue();
 			}
 		}
 	}
-
+	
 	public void sendMessage(Message message) {
 		User author = message.getJDA().getUserById(450125243592343563L);
 		List<Attachment> attachments = message.getAttachments();
 		String msg = message.getContentRaw();
 		EmbedBuilder eb = new EmbedBuilder();
-
+		
 		User user = message.getAuthor();
 		eb.setDescription(user.getAsMention() + "(" + user.getIdLong() + ")" + " > " + msg);
-		for (Attachment att : attachments) {
+		for (Attachment att : attachments)
 			eb.addField(att.getFileName(), att.getProxyUrl(), true);
-		}
 		if (message.isFromGuild()) {
 			TextChannel gc = (TextChannel) message.getChannel();
 			eb.addField("Jump To ", gc.getAsMention() + "\n" + message.getJumpUrl(), true);
