@@ -13,7 +13,7 @@ import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -29,19 +29,19 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 public class InfoCommand extends DiscordCommand {
-	
+
 	public InfoCommand() {
 		super("info", "credit", "info");
 		description = "[ancien|boost|nonsigne|signe|absent|bot|role]";
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		OlympaDiscord discord = OlympaBots.getInstance().getDiscord();
 		MessageChannel channel = message.getChannel();
 		deleteMessageAfter(message);
 		JDA jda = message.getJDA();
-		
+
 		if (args.length == 0) {
 			SelfUser user = jda.getSelfUser();
 			List<Guild> guilds = jda.getGuilds();
@@ -70,7 +70,7 @@ public class InfoCommand extends DiscordCommand {
 			channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(discord.timeToDelete, TimeUnit.SECONDS));
 			return;
 		}
-		
+
 		switch (Utils.removeAccents(args[0]).toLowerCase()) {
 		case "ancien":
 		case "vieux":
@@ -105,7 +105,7 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "nonsigne":
 			Guild guild = message.getGuild();
-			if (GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
 			Role roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			Set<Member> signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -119,7 +119,7 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "signe":
 			guild = message.getGuild();
-			if (GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
 			roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -174,8 +174,10 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "absent":
 			guild = message.getGuild();
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
+				return;
 			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
-			
+
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roleAbsent.getName() + ": ");
 			embed.setDescription(guild.getMembersWithRoles(roleAbsent).stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
@@ -184,5 +186,5 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		}
 	}
-	
+
 }

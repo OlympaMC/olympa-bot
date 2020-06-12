@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import com.vdurmont.emoji.EmojiParser;
 
 import fr.olympa.api.groups.OlympaGroup;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.entities.Guild;
@@ -108,11 +108,11 @@ public enum DiscordGroup {
 	}
 
 	public Role getRole(Guild guild) {
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() == DiscordGuildType.STAFF)
 			return guild.getRoleById(idStaff);
 		else {
-			guild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
+			guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
 			return guild.getRoleById(idPublic);
 		}
 	}

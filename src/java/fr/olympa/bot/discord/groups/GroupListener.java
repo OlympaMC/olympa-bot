@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.groups;
 
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.entities.Guild;
@@ -16,7 +16,7 @@ public class GroupListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() != DiscordGuildType.PUBLIC || user.isBot() || !DiscordGroup.isStaff(event.getRoles()))
 			return;
 		GroupHandler.update();
@@ -27,7 +27,7 @@ public class GroupListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
 		User user = member.getUser();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() != DiscordGuildType.PUBLIC || user.isBot() || !DiscordGroup.isStaff(event.getRoles()))
 			return;
 		GroupHandler.update();

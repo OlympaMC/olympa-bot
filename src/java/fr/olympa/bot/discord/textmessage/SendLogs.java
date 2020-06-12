@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.textmessage;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -10,13 +11,14 @@ import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.observer.MessageAttachement;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
+import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 public class SendLogs {
-
+	
 	public static EmbedBuilder get(String title, String titleUrl, String description, Member member) {
 		User user = member.getUser();
 		EmbedBuilder embed = new EmbedBuilder().setTitle(title, titleUrl).setDescription(description);
@@ -27,7 +29,7 @@ public class SendLogs {
 		embed.setTimestamp(OffsetDateTime.now());
 		return embed;
 	}
-	
+
 	public static void sendMessageLog(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
 		if (member.getUser().isBot())
 			return;
@@ -68,6 +70,11 @@ public class SendLogs {
 			discordMessage.getOlympaGuild().getLogChannel().sendMessage(embed.build()).queue(logMsg2 -> {
 				discordMessage.setLogMsg(logMsg2);
 				CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
+				try {
+					DiscordSQL.updateMessage(discordMessage);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			});
 	}
 }

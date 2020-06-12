@@ -9,7 +9,7 @@ import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -87,7 +87,7 @@ public class ReadyListener extends ListenerAdapter {
 		}
 		OlympaBots.getInstance().sendMessage(db.toString());
 		
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
 		
 		Guild defaultGuild = olympaGuild.getGuild();
 		Role defaultRole = DiscordGroup.PLAYER.getRole(defaultGuild);
@@ -101,7 +101,7 @@ public class ReadyListener extends ListenerAdapter {
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Bot connecté").setDescription("Je suis de retour.");
 		embed.setTimestamp(OffsetDateTime.now());
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		for (OlympaGuild olympaGuilds : GuildsHandler.guilds) {
+		for (OlympaGuild olympaGuilds : GuildHandler.guilds) {
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null)
 				continue;
@@ -130,7 +130,7 @@ public class ReadyListener extends ListenerAdapter {
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Déconnexion du bot").setDescription("Il est désormais impossible d'utiliser toutes les commandes liés au bot.");
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		embed.setTimestamp(OffsetDateTime.now());
-		for (OlympaGuild olympaGuilds : GuildsHandler.guilds) {
+		for (OlympaGuild olympaGuilds : GuildHandler.guilds) {
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null)
 				continue;

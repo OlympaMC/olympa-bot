@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 public class GroupHandler {
 
 	public static void update() {
-		Guild guild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
+		Guild guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
 		TextChannel channel = guild.getTextChannelById(558148740628611092L);
 		channel.retrieveMessageById(697756335235792907L).queue(msg -> {
 			EmbedBuilder mb = new EmbedBuilder().setTitle("Membres du Staff");

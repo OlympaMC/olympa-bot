@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,7 +23,7 @@ public class SpamListener extends ListenerAdapter {
 		Message message = event.getMessage();
 		Guild guild = message.getGuild();
 		Member member = message.getMember();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() == DiscordGuildType.STAFF || member == null || member.getUser().isBot())
 			return;
 		SpamHandler.removeAllTagMember(member);

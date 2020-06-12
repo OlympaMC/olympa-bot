@@ -2,7 +2,7 @@ package fr.olympa.bot.discord.sanctions;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -14,7 +14,7 @@ public class SanctionHandler {
 	
 	public static void mute(Member target) {
 		SelfUser me = OlympaBots.getInstance().getDiscord().getJda().getSelfUser();
-		mute(target, me, GuildsHandler.getOlympaGuild(target.getGuild()).getLogChannel());
+		mute(target, me, GuildHandler.getOlympaGuild(target.getGuild()).getLogChannel());
 	}
 	
 	public static void mute(Member target, User author, MessageChannel channel) {

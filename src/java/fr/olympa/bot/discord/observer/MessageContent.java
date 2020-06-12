@@ -8,39 +8,39 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 
 public class MessageContent {
-	
+
 	private Long time;
 	private String content;
-	private boolean deleteOrNoData;
-
+	private Boolean deleteOrNoData;
+	
 	public long getTimestamp(DiscordMessage dm) {
 		if (time != null)
 			return time + dm.getCreated();
 		return dm.getCreated();
 	}
-	
+
 	public String getContent() {
 		return content;
 	}
-
+	
 	public List<MessageAttachement> getAttachments() {
 		return attachments;
 	}
-
+	
 	public Long getTime() {
 		return time;
 	}
-	
+
 	public boolean isDeleteOrNoData() {
 		return deleteOrNoData;
 	}
-	
-	List<MessageAttachement> attachments;
 
+	List<MessageAttachement> attachments;
+	
 	public MessageContent(boolean deleteOrNoData) {
 		this.deleteOrNoData = deleteOrNoData;
 	}
-
+	
 	public MessageContent(Message message, DiscordMessage dm) {
 		content = message.getContentRaw();
 		if (message.isEdited())
@@ -49,16 +49,16 @@ public class MessageContent {
 		if (attachments.isEmpty())
 			attachments = null;
 	}
-
+	
 	public MessageContent(String content, List<Attachment> attachments) {
 		this.content = content;
 		this.attachments = attachments.stream().map(a -> new MessageAttachement(a)).collect(Collectors.toList());
 		if (attachments.isEmpty())
 			attachments = null;
 	}
-	
+
 	public boolean hasData() {
 		return content != null;
 	}
-
+	
 }

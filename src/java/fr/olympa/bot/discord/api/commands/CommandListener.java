@@ -7,7 +7,7 @@ import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -51,7 +51,7 @@ public class CommandListener extends ListenerAdapter {
 		if (message.isFromGuild())
 			member = message.getMember();
 		else
-			member = GuildsHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMember(message.getAuthor());
+			member = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMember(message.getAuthor());
 		if (member == null || !DiscordGroup.isStaff(member)) {
 			channel.sendMessage("Le bot est encore en développement, t'es pas prêt.").queue();
 			return;
