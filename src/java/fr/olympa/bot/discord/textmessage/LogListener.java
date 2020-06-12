@@ -3,14 +3,15 @@ package fr.olympa.bot.discord.textmessage;
 import java.awt.Color;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.api.DiscordMessage;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildsHandler;
@@ -19,6 +20,7 @@ import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -34,7 +36,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -61,7 +62,7 @@ public class LogListener extends ListenerAdapter {
 		if (duration < 60 * 12 * 31)
 			embed.addField("Nouveau compte", "Crée il y a `" + t + "`", true);
 		else {
-			String date = user.getTimeCreated().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG));
+			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
 			embed.addField("Création du compte", "Crée le " + date + "(" + t + ")", true);
 		}
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
@@ -71,11 +72,15 @@ public class LogListener extends ListenerAdapter {
 	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
+		User user = event.getUser();
 		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogEntries())
 			return;
 		String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
-		String desc = member.getAsMention() + " est resté `" + time + "` Nous sommes `" + DiscordUtils.getMembersSize(guild) + "`.";
+		String name = " (" + member.getEffectiveName() + ")";
+		if (member.getEffectiveName().equals(user.getName()))
+			name = new String();
+		String desc = "`" + user.getAsTag() + "`" + name + " est resté `" + time + "` Nous sommes `" + DiscordUtils.getMembersSize(guild) + "`.";
 		EmbedBuilder embed = SendLogs.get("❌ Un joueur a quitté", null, desc, member);
 		embed.setColor(Color.RED);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
@@ -94,7 +99,7 @@ public class LogListener extends ListenerAdapter {
 			return;
 		String rolesString = addedRoles.stream().map(role -> role.getAsMention()).collect(Collectors.joining(", "));
 		String s = Utils.withOrWithoutS(addedRoles.size());
-		EmbedBuilder embed = SendLogs.get("✅ Ajout d'un role", null, member.getAsMention() + " a désormais le" + s + " role" + s + " `" + rolesString + "`.", member);
+		EmbedBuilder embed = SendLogs.get("✅ Ajout d'un role", null, member.getAsMention() + " a désormais le" + s + " role" + s + " " + rolesString + ".", member);
 		embed.setColor(Color.GREEN);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
@@ -119,7 +124,7 @@ public class LogListener extends ListenerAdapter {
 			return;
 		String rolesString = removedRoles.stream().map(role -> role.getAsMention()).collect(Collectors.joining(", "));
 		String s = Utils.withOrWithoutS(removedRoles.size());
-		EmbedBuilder embed = SendLogs.get("❌ Suppression d'un role", null, member.getAsMention() + " n'a désormais plus le" + s + " role" + s + " `" + rolesString + "`.", member);
+		EmbedBuilder embed = SendLogs.get("❌ Suppression d'un role", null, member.getAsMention() + " n'a désormais plus le" + s + " role" + s + " " + rolesString + ".", member);
 		embed.setColor(Color.RED);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
@@ -133,11 +138,11 @@ public class LogListener extends ListenerAdapter {
 		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 			return;
 		try {
-			DiscordMessage discordMessage = CacheDiscordSQL.getDiscordMessage(guild.getIdLong(), channel.getIdLong(), messageId);
-			if (discordMessage == null)
+			Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(olympaGuild.getId(), channel.getIdLong(), messageId);
+			if (entry == null)
 				return;
-			discordMessage.setMessageDeleted();
-			Member member = discordMessage.getAuthor();
+			DiscordMessage discordMessage = entry.getValue();
+			Member member = discordMessage.getGuild().getMemberById(entry.getKey());
 			if (member == null || member.getUser().isBot())
 				return;
 			StringJoiner sj = new StringJoiner(".\n");
@@ -147,19 +152,28 @@ public class LogListener extends ListenerAdapter {
 			// Check ghost tag
 			MessageContent originalContent = discordMessage.getOriginalContent();
 			if (originalContent != null && originalContent.getContent() != null) {
-				String ghost = originalContent.getContent().replaceAll("\\s*<@!?\\d{18,}>\\s*", "");
-				if (ghost.isEmpty()) {
-					EmbedBuilder embed2 = new EmbedBuilder();
-					embed2.setTitle("Je te vois");
-					embed2.setDescription("Les mentions fantômes sont interdites et sont passible de mute.");
-					embed2.setColor(OlympaBots.getInstance().getDiscord().getColor());
-					channel.sendMessage(member.getAsMention()).queue(m -> channel.sendMessage(embed2.build()).queue(msg -> {
-						sj.add("😡 Suspicion de ghost tag");
-						sj.add("S'y rendre: " + msg.getJumpUrl() + ".");
-						SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
-					}));
-					return;
+				Matcher matcher = Pattern.compile("<@!?(\\d{18,})>").matcher(originalContent.getContent());
+				boolean canSee = false;
+				
+				while (matcher.find()) {
+					String userId = matcher.group(1);
+					canSee = guild.getMemberById(userId).getPermissions(channel).contains(Permission.MESSAGE_READ);
+					if (canSee)
+						break;
 				}
+				if (!canSee || !originalContent.getContent().replace(matcher.group(), "").isBlank())
+					return;
+				EmbedBuilder embed = new EmbedBuilder();
+				embed.setTitle("Je te vois");
+				embed.setDescription("Les mentions fantômes sont interdites et sont passible de mute.");
+				embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
+				channel.sendMessage(member.getAsMention()).queue(m -> channel.sendMessage(embed.build()).queue(msg -> {
+					sj.add("😡 Suspicion de ghost tag");
+					sj.add("S'y rendre: " + msg.getJumpUrl() + ".");
+					SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+				}));
+				return;
+
 			}
 			SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 		} catch (SQLException e) {
@@ -178,11 +192,11 @@ public class LogListener extends ListenerAdapter {
 		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
 		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
 			return;
-		DiscordMessage discordMessage;
 		try {
-			discordMessage = CacheDiscordSQL.getDiscordMessage(message);
-			if (discordMessage == null)
+			Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(olympaGuild, message);
+			if (entry == null)
 				return;
+			DiscordMessage discordMessage = entry.getValue();
 			StringJoiner sj = new StringJoiner(".\n");
 			sj.add(member.getAsMention() + " a modifié un message dans " + channel.getAsMention());
 			sj.add("S'y rendre: " + message.getJumpUrl());
@@ -191,6 +205,29 @@ public class LogListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
+	
+	/*@Override
+	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+		Guild guild = event.getGuild();
+		Message message = event.getMessage();
+		Member member = event.getMember();
+		User user = event.getAuthor();
+		message.getEmotesBag();
+		TextChannel channel = message.getTextChannel();
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
+			return;
+		try {
+			Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(olympaGuild, message);
+			if (entry == null)
+				return;
+			DiscordMessage discordMessage = entry.getValue();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (member.isFake())
+			return;
+	}*/
 	
 	@Override
 	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
@@ -202,36 +239,6 @@ public class LogListener extends ListenerAdapter {
 			return;
 		EmbedBuilder embed = SendLogs.get("✅ Connecté au vocal", null, member.getAsMention() + " est connecté au salon vocal `" + event.getChannelJoined().getName() + "`.", member);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
-	}
-	
-	@Override
-	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-		Guild guild = event.getGuild();
-		Message message = event.getMessage();
-		User user = event.getAuthor();
-		TextChannel channel = message.getTextChannel();
-		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
-		if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
-			return;
-		DiscordMessage discordMessage;
-		try {
-			discordMessage = CacheDiscordSQL.getDiscordMessage(message);
-			if (discordMessage == null)
-				return;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		// System.out.println("test1 " + OlympaBungee.getInstance()); null
-		//		for (Pattern regex : new SwearHandler(BungeeConfigUtils.getDefaultConfig().getStringList("chat.insult")).getRegexSwear()) {
-		//			Matcher matcher = regex.matcher(message.getContentDisplay());
-		//			if (matcher.find()) {
-		//				String desc = member.getAsMention() + " dans " + channel.getAsMention() + ": **" + matcher.group() + "**.";
-		//				EmbedBuilder embed = ObverserEmbed.get("💢 Insulte", null, desc + "\n" + message.getJumpUrl(), member.getUser());
-		//				embed.setTimestamp(message.getTimeCreated());
-		//				DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
-		//				break;
-		//			}
-		//		}
 	}
 	
 	@Override

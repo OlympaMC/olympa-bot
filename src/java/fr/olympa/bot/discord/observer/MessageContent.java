@@ -3,7 +3,7 @@ package fr.olympa.bot.discord.observer;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import fr.olympa.bot.discord.api.DiscordMessage;
+import fr.olympa.bot.discord.textmessage.DiscordMessage;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 
@@ -11,6 +11,7 @@ public class MessageContent {
 	
 	private Long time;
 	private String content;
+	private boolean deleteOrNoData;
 
 	public long getTimestamp(DiscordMessage dm) {
 		if (time != null)
@@ -26,9 +27,18 @@ public class MessageContent {
 		return attachments;
 	}
 
+	public Long getTime() {
+		return time;
+	}
+	
+	public boolean isDeleteOrNoData() {
+		return deleteOrNoData;
+	}
+	
 	List<MessageAttachement> attachments;
 
-	public MessageContent() {
+	public MessageContent(boolean deleteOrNoData) {
+		this.deleteOrNoData = deleteOrNoData;
 	}
 
 	public MessageContent(Message message, DiscordMessage dm) {

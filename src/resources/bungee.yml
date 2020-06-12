@@ -1,6 +1,6 @@
 name: OlympaBots
 website: https://olympa.fr
 main: fr.olympa.bot.OlympaBots
-author: Tristiisch
+authors: Tristiisch
 version: 0.1
 depend: OlympaBungee

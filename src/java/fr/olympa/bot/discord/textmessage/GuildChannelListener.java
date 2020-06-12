@@ -1,8 +1,8 @@
 package fr.olympa.bot.discord.textmessage;
 
 import java.sql.SQLException;
+import java.util.Map.Entry;
 
-import fr.olympa.bot.discord.api.DiscordMessage;
 import fr.olympa.bot.discord.guild.GuildsHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -21,12 +21,12 @@ public class GuildChannelListener extends ListenerAdapter {
 	@Override
 	public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
 		Guild guild = event.getGuild();
-		DiscordMessage discordMessage;
 		try {
-			discordMessage = CacheDiscordSQL.getDiscordMessage(event.getGuild().getIdLong(), event.getChannel().getIdLong(), event.getMessageIdLong());
-			if (discordMessage == null)
+			Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(guild.getIdLong(), event.getChannel().getIdLong(), event.getMessageIdLong());
+			if (entry == null)
 				return;
-			Member member = discordMessage.getAuthor();
+			DiscordMessage discordMessage = entry.getValue();
+			Member member = discordMessage.getGuild().getMemberById(entry.getKey());
 			if (member == null || member.getUser().isBot())
 				return;
 			OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
@@ -53,11 +53,15 @@ public class GuildChannelListener extends ListenerAdapter {
 			return;
 		DiscordMessage discordMessage;
 		try {
-			discordMessage = CacheDiscordSQL.getDiscordMessage(message);
-			if (discordMessage == null)
+			Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(olympaGuild, message);
+			if (entry == null)
 				return;
+			discordMessage = entry.getValue();
 			discordMessage.addEditedMessage(message);
 			DiscordSQL.updateMessage(discordMessage);
+			if (member.isFake())
+				return;
+			SwearDiscord.check(member, channel, message, olympaGuild);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -78,20 +82,12 @@ public class GuildChannelListener extends ListenerAdapter {
 			DiscordMessage discordMessage = new DiscordMessage(message);
 			DiscordSQL.addMessage(discordMessage);
 			long userId = message.getAuthor().getIdLong();
-			CacheDiscordSQL.cacheMessage.put(userId, discordMessage);
+			CacheDiscordSQL.setDiscordMessage(userId, discordMessage);
+			if (member.isFake())
+				return;
+			SwearDiscord.check(member, channel, message, olympaGuild);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		// System.out.println("test1 " + OlympaBungee.getInstance()); null
-		//		for (Pattern regex : new SwearHandler(BungeeConfigUtils.getDefaultConfig().getStringList("chat.insult")).getRegexSwear()) {
-		//			Matcher matcher = regex.matcher(message.getContentDisplay());
-		//			if (matcher.find()) {
-		//				String desc = member.getAsMention() + " dans " + channel.getAsMention() + ": **" + matcher.group() + "**.";
-		//				EmbedBuilder embed = ObverserEmbed.get("💢 Insulte", null, desc + "\n" + message.getJumpUrl(), member.getUser());
-		//				embed.setTimestamp(message.getTimeCreated());
-		//				DiscordIds.getChannelInfo().sendMessage(embed.build()).queue();
-		//				break;
-		//			}
-		//		}
 	}
 }

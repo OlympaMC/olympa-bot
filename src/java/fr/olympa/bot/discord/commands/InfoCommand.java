@@ -1,5 +1,7 @@
 package fr.olympa.bot.discord.commands;
 
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +14,8 @@ import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordIds;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.groups.DiscordGroup;
+import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -24,19 +28,19 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 public class InfoCommand extends DiscordCommand {
-	
+
 	public InfoCommand() {
 		super("info", "credit", "info");
 		description = "[ancien|boost|nonsigne|signe|absent|bot|role]";
 	}
-	
+
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		OlympaDiscord discord = OlympaBots.getInstance().getDiscord();
 		MessageChannel channel = message.getChannel();
-		message.delete().queueAfter(discord.timeToDelete, TimeUnit.SECONDS);
+		deleteMessageAfter(message);
 		JDA jda = message.getJDA();
-		
+
 		if (args.length == 0) {
 			SelfUser user = jda.getSelfUser();
 			List<Guild> guilds = jda.getGuilds();
@@ -65,7 +69,7 @@ public class InfoCommand extends DiscordCommand {
 			channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(discord.timeToDelete, TimeUnit.SECONDS));
 			return;
 		}
-		
+
 		switch (Utils.removeAccents(args[0]).toLowerCase()) {
 		case "ancien":
 		case "vieux":
@@ -126,10 +130,41 @@ public class InfoCommand extends DiscordCommand {
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
 			break;
+		case "joueur":
+		case "membre":
+			List<Member> members = message.getMentionedMembers();
+			if (members.isEmpty())
+				return;
+			Member member = members.get(0);
+			User user = member.getUser();
+			embed = new EmbedBuilder();
+			embed.setTitle("Informations ");
+			embed.setDescription(member.getAsMention());
+			embed.setImage(user.getAvatarUrl());
+			embed.setColor(discord.getColor());
+			String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
+			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
+			embed.addField("Compte crée", date + " (" + t + ")", true);
+			t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
+			date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE);
+			embed.addField("Membre depuis", date + " (" + t + ")", true);
+			DiscordMember discordMember;
+			try {
+				discordMember = CacheDiscordSQL.getDiscordMember(user);
+				embed.addField("XP", String.valueOf(discordMember.getXp()), true);
+				embed.addField("Compte Lier", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
+				OnlineStatus onlineStatus = member.getOnlineStatus();
+				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
+					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			channel.sendMessage(embed.build()).queue();
+			break;
 		case "roles":
 		case "role":
 			List<Role> roles = message.getMentionedRoles();
-			List<Member> members = message.getGuild().getMembersWithRoles(roles);
+			members = message.getGuild().getMembersWithRoles(roles);
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roles.stream().map(Role::getName).collect(Collectors.joining(", ")) + ": ");
 			embed.setDescription(members.stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
@@ -139,7 +174,7 @@ public class InfoCommand extends DiscordCommand {
 		case "absent":
 			guild = message.getGuild();
 			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
-			
+
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roleAbsent.getName() + ": ");
 			embed.setDescription(guild.getMembersWithRoles(roleAbsent).stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
@@ -148,5 +183,5 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		}
 	}
-	
+
 }

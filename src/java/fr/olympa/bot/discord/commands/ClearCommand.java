@@ -10,37 +10,36 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class ClearCommand extends DiscordCommand {
-
+	
 	public ClearCommand() {
 		super("clear", DiscordPermission.ASSISTANT);
 		minArg = 1;
 		description = "Supprime le nombre lignes en argument.";
 		usage = "<nombre>";
 	}
-
+	
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
 		Member member = message.getMember();
-
+		
 		channel = message.getChannel();
-
+		
 		// TODO CHECK INT
 		int i = Integer.parseInt(args[0]);
 		int j = 0;
-
-		message.delete().queue();
+		
+		deleteMessage(message);
 		List<Message> hists = channel.getHistoryBefore(message.getIdLong(), i).complete().getRetrievedHistory();
-		for (Message hist : hists) {
+		for (Message hist : hists)
 			try {
-				hist.delete().queue();
+				deleteMessage(hist);
 				j++;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
 		DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ " + j + "/" + hists.size() + " messages ont été supprimés.");
-
+		
 	}
-
+	
 }

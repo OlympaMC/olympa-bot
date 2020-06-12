@@ -21,12 +21,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandListener extends ListenerAdapter {
-
+	
 	private void checkMsg(GenericMessageEvent event, Message message) {
 		User user = message.getAuthor();
-
+		
 		MessageChannel channel = event.getChannel();
-
+		
 		MessageType type = message.getType();
 		if (type != MessageType.DEFAULT)
 			return;
@@ -53,7 +53,7 @@ public class CommandListener extends ListenerAdapter {
 			channel.sendMessage("Le bot est encore en développement, t'es pas prêt.").queue();
 			return;
 		}
-
+		
 		args = Arrays.copyOfRange(args, 1, args.length);
 		commandName = commandName.substring(1);
 		DiscordCommand discordCommand = DiscordCommand.getCommand(commandName);
@@ -69,7 +69,7 @@ public class CommandListener extends ListenerAdapter {
 		if (message.isFromGuild())
 			member = message.getMember();
 		else
-			member = DiscordUtils.getMember(user);
+			member = event.getGuild().getMember(user);
 		DiscordPermission permision = discordCommand.permission;
 		if (permision != null && (member == null || !permision.hasPermission(member))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
@@ -89,12 +89,12 @@ public class CommandListener extends ListenerAdapter {
 		}
 		discordCommand.onCommandSend(discordCommand, args, message);
 	}
-
+	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		checkMsg(event, event.getMessage());
 	}
-
+	
 	@Override
 	public void onMessageUpdate(MessageUpdateEvent event) {
 		checkMsg(event, event.getMessage());

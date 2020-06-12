@@ -22,6 +22,7 @@ import fr.olympa.bot.discord.invites.InviteCommand;
 import fr.olympa.bot.discord.link.LinkListener;
 import fr.olympa.bot.discord.listeners.JoinListener;
 import fr.olympa.bot.discord.listeners.ReadyListener;
+import fr.olympa.bot.discord.member.MemberListener;
 import fr.olympa.bot.discord.sanctions.MuteCommand;
 import fr.olympa.bot.discord.spam.SpamListener;
 import fr.olympa.bot.discord.sql.DiscordSQL;
@@ -39,25 +40,25 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class OlympaDiscord {
-	
+
 	public static long uptime = Utils.getCurrentTimeInSeconds();
 	public static long lastConnection;
-	
+
 	@Deprecated
 	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
 		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 	}
-	
+
 	private JDA jda;
 	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
-
+	
 	@SuppressWarnings("deprecation")
 	public void connect(Plugin plugin) {
-		
+
 		JDABuilder builder = new JDABuilder("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setStatus(OnlineStatus.IDLE);
-		
+
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
 		builder.addEventListeners(new JoinListener());
@@ -71,6 +72,7 @@ public class OlympaDiscord {
 		builder.addEventListeners(new GuildChannelListener());
 		builder.addEventListeners(new GuildsListener());
 		builder.addEventListeners(new LogListener());
+		builder.addEventListeners(new MemberListener());
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
@@ -80,7 +82,7 @@ public class OlympaDiscord {
 		new GroupCommand().register();
 		new MuteCommand().register();
 		new SettingsCommand().register();
-		
+
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {
 				GuildsHandler.guilds = DiscordSQL.selectGuilds();
@@ -90,24 +92,24 @@ public class OlympaDiscord {
 				return;
 			}
 		});
-		
+
 	}
-	
+
 	public void disconnect() {
 		if (jda != null) {
 			jda.shutdown();
 			jda = null;
 		}
 	}
-	
+
 	public Color getColor() {
 		return color;
 	}
-	
+
 	public JDA getJda() {
 		return jda;
 	}
-	
+
 	public void setColor(Color color) {
 		this.color = color;
 	}

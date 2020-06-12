@@ -3,9 +3,11 @@ package fr.olympa.bot.discord.guild;
 import java.sql.SQLException;
 import java.util.List;
 
-import fr.olympa.bot.discord.api.DiscordMember;
+import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -15,7 +17,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class GuildsListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		User user = event.getUser();
@@ -28,19 +30,34 @@ public class GuildsListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onReady(ReadyEvent event) {
+		JDA jda = event.getJDA();
 		try {
 			List<Long> membersIds = DiscordSQL.selectDiscordMembersIds();
-			for (User user : event.getJDA().getUsers())
+			for (User user : jda.getUsers()) {
+				DiscordMember discordMember;
 				if (!membersIds.contains(user.getIdLong()))
-					DiscordSQL.addMember(new DiscordMember(user));
+					discordMember = DiscordSQL.addMember(new DiscordMember(user));
+				else
+					discordMember = CacheDiscordSQL.getDiscordMember(user);
+				List<Guild> guilds = jda.getMutualGuilds(user);
+				if (guilds.isEmpty())
+					continue;
+				OnlineStatus onlineStatus = guilds.get(0).getMember(user).getOnlineStatus();
+				if (onlineStatus == OnlineStatus.OFFLINE || onlineStatus == OnlineStatus.UNKNOWN)
+					return;
+				long lastSeenTime = discordMember.getLastSeenTime();
+				discordMember.updateLastSeen();
+				if (lastSeenTime == 0 || lastSeenTime > 60 * 10)
+					DiscordSQL.updateMember(discordMember);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onShutdown(ShutdownEvent event) {
 		GuildsHandler.guilds.forEach(guild -> {
@@ -51,7 +68,7 @@ public class GuildsListener extends ListenerAdapter {
 			}
 		});
 	}
-	
+
 	@Override
 	public void onGuildReady(GuildReadyEvent event) {
 		try {

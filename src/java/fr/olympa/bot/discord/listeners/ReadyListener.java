@@ -8,8 +8,10 @@ import java.util.TimerTask;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
-import fr.olympa.bot.discord.api.DiscordIds;
 import fr.olympa.bot.discord.groups.DiscordGroup;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDA.Status;
@@ -18,7 +20,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -82,8 +83,10 @@ public class ReadyListener extends ListenerAdapter {
 			db.append("&7]");
 		}
 		OlympaBots.getInstance().sendMessage(db.toString());
-
-		Guild defaultGuild = DiscordIds.getDefaultGuild(event.getJDA());
+		
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
+		
+		Guild defaultGuild = olympaGuild.getGuild();
 		Role defaultRole = DiscordGroup.PLAYER.getRole(defaultGuild);
 		List<Member> members = defaultGuild.getMembers();
 		System.out.println("Membres : " + members.size());
@@ -95,8 +98,8 @@ public class ReadyListener extends ListenerAdapter {
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Bot connecté").setDescription("Je suis de retour.");
 		embed.setTimestamp(OffsetDateTime.now());
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		MessageChannel channel = DiscordIds.getChannelInfo();
-		channel.sendMessage(embed.build()).queue();
+		for (OlympaGuild olympaGuilds : GuildsHandler.guilds)
+			olympaGuilds.getLogChannel().sendMessage(embed.build()).queue();
 		OlympaDiscord.lastConnection = Utils.getCurrentTimeInSeconds();
 		//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
 		//			List<Message> list = historyMsg.getRetrievedHistory();
@@ -118,8 +121,8 @@ public class ReadyListener extends ListenerAdapter {
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Déconnexion du bot").setDescription("Il est désormais impossible d'utiliser toutes les commandes liés au bot.");
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		embed.setTimestamp(OffsetDateTime.now());
-		MessageChannel channel = DiscordIds.getChannelInfo();
-		channel.sendMessage(embed.build()).queue();
+		for (OlympaGuild olympaGuilds : GuildsHandler.guilds)
+			olympaGuilds.getLogChannel().sendMessage(embed.build()).queue();
 		//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
 		//			List<Message> list = historyMsg.getRetrievedHistory();
 		//			if (!list.isEmpty()) {

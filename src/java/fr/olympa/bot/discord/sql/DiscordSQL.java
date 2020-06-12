@@ -13,11 +13,10 @@ import fr.olympa.api.sql.DbConnection;
 import fr.olympa.api.sql.OlympaStatement;
 import fr.olympa.api.sql.OlympaStatement.StatementType;
 import fr.olympa.api.utils.Utils;
-import fr.olympa.bot.discord.api.DiscordMember;
-import fr.olympa.bot.discord.api.DiscordMessage;
 import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.textmessage.DiscordMessage;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 
 public class DiscordSQL {
 
@@ -144,7 +143,7 @@ public class DiscordSQL {
 		return discordMember;
 	}
 
-	private static OlympaStatement updateMemberStatement = new OlympaStatement(StatementType.UPDATE, tableMembers, "id", new String[] { "discord_name", "olympa_id" });
+	private static OlympaStatement updateMemberStatement = new OlympaStatement(StatementType.UPDATE, tableMembers, "id", new String[] { "discord_name", "olympa_id", "xp", "last_seen" });
 
 	public static void updateMember(DiscordMember discordMember) throws SQLException {
 		PreparedStatement statement = updateMemberStatement.getStatement();
@@ -152,6 +151,11 @@ public class DiscordSQL {
 		statement.setString(i++, discordMember.getName());
 		if (discordMember.getOlympaId() != 0)
 			statement.setLong(i++, discordMember.getOlympaId());
+		else
+			statement.setObject(i++, null);
+		statement.setDouble(i++, discordMember.getXp());
+		if (discordMember.getLastSeen() != 0)
+			statement.setTimestamp(i++, new Timestamp(discordMember.getLastSeen() * 1000L));
 		else
 			statement.setObject(i++, null);
 		statement.setLong(i++, discordMember.getId());
@@ -167,15 +171,11 @@ public class DiscordSQL {
 		statement.setLong(i++, discordMessage.getGuildId());
 		statement.setLong(i++, discordMessage.getChannelId());
 		statement.setLong(i++, discordMessage.getMessageId());
-		statement.setLong(i++, discordMessage.getAuthorId());
+		statement.setLong(i++, discordMessage.getOlympaAuthorId());
 		statement.setString(i++, new Gson().toJson(discordMessage.getContents()));
 		statement.setTimestamp(i++, new Timestamp(discordMessage.getCreated() * 1000L));
 		statement.executeUpdate();
 		statement.close();
-	}
-
-	public static DiscordMessage selectMessage(Message message) throws SQLException {
-		return selectMessage(message.getIdLong(), message.getChannel().getIdLong(), message.getIdLong());
 	}
 
 	private static OlympaStatement selectMessageStatement = new OlympaStatement(StatementType.SELECT, tableMessages, new String[] { "guild_discord_id", "channel_discord_id", "message_discord_id" }, "*");

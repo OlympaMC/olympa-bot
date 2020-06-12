@@ -1,7 +1,8 @@
 package fr.olympa.bot.discord.listeners;
 
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.api.DiscordUtils;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -18,7 +19,7 @@ public class JoinListener extends ListenerAdapter {
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Guild guild = event.getGuild();
-		if (!DiscordUtils.isDefaultGuild(guild))
+		if (GuildsHandler.getOlympaGuild(guild).getType() != DiscordGuildType.PUBLIC)
 			return;
 		int usersTotal = 0;
 		for (User user2 : event.getJDA().getUsers())
@@ -38,7 +39,7 @@ public class JoinListener extends ListenerAdapter {
 	@Override
 	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
 		Guild guild = event.getGuild();
-		if (!DiscordUtils.isDefaultGuild(guild))
+		if (GuildsHandler.getOlympaGuild(guild).getType() != DiscordGuildType.PUBLIC)
 			return;
 		int usersTotal = 0;
 		for (User user2 : event.getJDA().getUserCache())

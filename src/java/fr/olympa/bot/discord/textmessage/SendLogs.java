@@ -7,17 +7,16 @@ import java.util.stream.Collectors;
 
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.api.DiscordIds;
-import fr.olympa.bot.discord.api.DiscordMessage;
 import fr.olympa.bot.discord.observer.MessageAttachement;
 import fr.olympa.bot.discord.observer.MessageContent;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 public class SendLogs {
-	
+
 	public static EmbedBuilder get(String title, String titleUrl, String description, Member member) {
 		User user = member.getUser();
 		EmbedBuilder embed = new EmbedBuilder().setTitle(title, titleUrl).setDescription(description);
@@ -28,17 +27,20 @@ public class SendLogs {
 		embed.setTimestamp(OffsetDateTime.now());
 		return embed;
 	}
-
+	
 	public static void sendMessageLog(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
 		if (member.getUser().isBot())
 			return;
 		EmbedBuilder embed = get(title, titleUrl, description, member);
 		String attch = new String();
 		int i = 0;
+		MessageContent lastMContent = null;
 		for (MessageContent mContent : discordMessage.getContents()) {
 			if (!mContent.hasData())
-				embed.addField("Suppr" + " (" + Utils.timestampToDateAndHour(Utils.getCurrentTimeInSeconds()) + ")", "❌", true);
-			//				embed.addField("Orignal", "❌ *le message a été écrit il y plus de " + Utils.timestampToDuration(OlympaDiscord.uptime) + ", nous n'avons aucunes données dessus.*", true);
+				if (mContent.isDeleteOrNoData())
+					embed.addField("Suppr" + " (" + Utils.timestampToDateAndHour(Utils.getCurrentTimeInSeconds()) + ")", "❌", true);
+				else
+					embed.addField("Message", "❌ **nous n'avons aucunes données dessus.**", true);
 			else {
 				List<MessageAttachement> attachments = mContent.getAttachments();
 				if (attachments != null && !attachments.isEmpty()) {
@@ -49,8 +51,13 @@ public class SendLogs {
 				String editTime = "Original";
 				if (i != 0)
 					editTime = "Edit n°" + i;
-				embed.addField(editTime + " (" + Utils.timestampToDateAndHour(mContent.getTimestamp(discordMessage)) + ")", mContent.getContent() + attch, true);
+				String content = mContent.getContent();
+				if (lastMContent != null && lastMContent.hasData())
+					if (content.contains(lastMContent.getContent()))
+						content = content.replace(lastMContent.getContent(), "➡️");
+				embed.addField(editTime + " (" + Utils.timestampToDateAndHour(mContent.getTimestamp(discordMessage)) + ")", content + attch, true);
 			}
+			lastMContent = mContent;
 			i++;
 		}
 		embed.setTimestamp(Instant.now());
@@ -58,6 +65,9 @@ public class SendLogs {
 		if (logMsg != null)
 			logMsg.editMessage(embed.build()).queue();
 		else
-			DiscordIds.getChannelInfo().sendMessage(embed.build()).queue(logMsg2 -> discordMessage.setLogMsg(logMsg2));
+			discordMessage.getOlympaGuild().getLogChannel().sendMessage(embed.build()).queue(logMsg2 -> {
+				discordMessage.setLogMsg(logMsg2);
+				CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
+			});
 	}
 }

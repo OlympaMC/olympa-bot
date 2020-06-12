@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import com.vdurmont.emoji.EmojiParser;
 
 import fr.olympa.api.groups.OlympaGroup;
-import fr.olympa.bot.discord.api.DiscordIds;
+import fr.olympa.bot.discord.guild.GuildsHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -105,19 +107,14 @@ public enum DiscordGroup {
 		return olympaGroup;
 	}
 
-	@Deprecated
-	public Role getRole() {
-		Guild guild = DiscordIds.getStaffGuild();
-		return guild.getRoleById(idStaff);
-	}
-
 	public Role getRole(Guild guild) {
-		if (DiscordIds.getDefaultGuild().getIdLong() == guild.getIdLong()) {
-			return guild.getRoleById(idPublic);
-		} else if (DiscordIds.getStaffGuild().getIdLong() == guild.getIdLong()) {
+		OlympaGuild olympaGuild = GuildsHandler.getOlympaGuild(guild);
+		if (olympaGuild.getType() == DiscordGuildType.STAFF)
 			return guild.getRoleById(idStaff);
+		else {
+			guild = GuildsHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
+			return guild.getRoleById(idPublic);
 		}
-		return null;
 	}
 
 	public String getSupportDesc() {
