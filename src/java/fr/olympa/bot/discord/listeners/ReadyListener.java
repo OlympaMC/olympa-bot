@@ -8,7 +8,6 @@ import java.util.TimerTask;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
-import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildsHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -22,6 +21,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -110,10 +110,12 @@ public class ReadyListener extends ListenerAdapter {
 				List<Message> list = historyMsg.getRetrievedHistory();
 				if (!list.isEmpty()) {
 					Message histMessage = list.get(0);
-					if (DiscordUtils.isMe(histMessage.getAuthor())) {
-						histMessage.editMessage(embed.build()).queue();
-						return;
-					}
+					List<MessageEmbed> embeds = histMessage.getEmbeds();
+					if (!embeds.isEmpty())
+						if (histMessage.getEmbeds().get(0).getTitle().equals("Déconnexion du bot")) {
+							histMessage.editMessage(embed.build()).queue();
+							return;
+						}
 				}
 				logChannel.sendMessage(embed.build()).queue();
 			});
@@ -136,10 +138,12 @@ public class ReadyListener extends ListenerAdapter {
 				List<Message> list = historyMsg.getRetrievedHistory();
 				if (!list.isEmpty()) {
 					Message histMessage = list.get(0);
-					if (DiscordUtils.isMe(histMessage.getAuthor())) {
-						histMessage.editMessage(embed.build()).queue();
-						return;
-					}
+					List<MessageEmbed> embeds = histMessage.getEmbeds();
+					if (!embeds.isEmpty())
+						if (histMessage.getEmbeds().get(0).getTitle().equals("Bot connecté")) {
+							histMessage.editMessage(embed.build()).queue();
+							return;
+						}
 				}
 				logChannel.sendMessage(embed.build()).queue();
 			});
