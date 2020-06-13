@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.link;
 
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +54,7 @@ public class LinkHandler {
 	public static void updateGroups(Member member, OlympaPlayer olympaPlayer) {
 		Set<OlympaGroup> groups = olympaPlayer.getGroups().keySet();
 		Set<Role> roles = DiscordGroup.get(groups).stream().map(g -> g.getRole(member.getGuild())).collect(Collectors.toSet());
-		Set<Role> roleToRemoved = Set.copyOf(member.getRoles());
+		Set<Role> roleToRemoved = new HashSet<>(member.getRoles());
 		SetView<Role> communRole = /*roleToRemoved.stream().filter(r1 -> roles.stream().filter(r2 -> r1.getId() == r2.getId()).findFirst().isPresent()).collect(Collectors.toList());*/ Sets.intersection(roles, roleToRemoved);
 		roleToRemoved.removeAll(communRole);
 		roles.removeAll(communRole);

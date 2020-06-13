@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -100,7 +101,19 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 
 			String code = LinkHandler.getCode(proxiedPlayer);
 			if (code == null) code = LinkHandler.addWaiting(proxiedPlayer);
-			sendMessage("&5[&dDiscord&5] ➤ &dPour relier ton compte Discord & Olympa, envoie le code &5&l" + code + "&d en privé à &7@&5OlympaBot#5503&d.");
+			//sendMessage("&5[&dDiscord&5] ➤ &dPour relier ton compte Discord & Olympa, envoie le code &5&l" + code + "&d en privé à &7@&5OlympaBot#5503&d.");
+
+			TextComponent message = new TextComponent(TextComponent.fromLegacyText("§5[§dDiscord§5] ➤ §dPour relier ton compte Discord & Olympa, envoie le code "));
+			TextComponent codeComponent = new TextComponent(code);
+			codeComponent.setColor(ChatColor.DARK_PURPLE);
+			codeComponent.setBold(true);
+			codeComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§eClique ici pour copier le code")));
+			codeComponent.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, code));
+			message.addExtra(codeComponent);
+			for (BaseComponent baseComponent : TextComponent.fromLegacyText("§d en privé à §7@§5OlympaBot#5503§d.")) {
+				message.addExtra(baseComponent);
+			}
+			proxiedPlayer.sendMessage(message);
 
 			break;
 		case "info":
