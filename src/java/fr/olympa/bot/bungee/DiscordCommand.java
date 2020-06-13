@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import fr.olympa.api.permission.OlympaCorePermissions;
 import fr.olympa.api.provider.AccountProvider;
-import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -20,7 +19,6 @@ import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.core.bungee.api.command.BungeeCommand;
-import fr.olympa.core.bungee.utils.BungeeUtils;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -38,47 +36,47 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 
 public class DiscordCommand extends BungeeCommand implements TabExecutor {
 
+	private TextComponent message;
+
 	public DiscordCommand(Plugin plugin) {
 		super(plugin, "discord");
+		message = new TextComponent();
+		TextComponent textComponent = new TextComponent("[");
+		textComponent.setColor(ChatColor.DARK_PURPLE);
+		message.addExtra(textComponent);
+
+		textComponent = new TextComponent("Discord");
+		textComponent.setColor(ChatColor.LIGHT_PURPLE);
+		message.addExtra(textComponent);
+
+		textComponent = new TextComponent("] ");
+		textComponent.setColor(ChatColor.DARK_PURPLE);
+		message.addExtra(textComponent);
+
+		textComponent = new TextComponent("➤ ");
+		textComponent.setColor(ChatColor.DARK_PURPLE);
+		message.addExtra(textComponent);
+
+		textComponent = new TextComponent("discord.olympa.fr");
+		textComponent.setColor(ChatColor.LIGHT_PURPLE);
+		textComponent.setUnderlined(true);
+		textComponent.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
+		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "discord.olympa.fr"));
+		message.addExtra(textComponent);
+
+		textComponent = new TextComponent(". Pour relié son compte discord à Minecraft, fait ");
+		textComponent.setColor(ChatColor.DARK_PURPLE);
+		message.addExtra(textComponent);
+
+		textComponent = new TextComponent("/discord link");
+		textComponent.setColor(ChatColor.LIGHT_PURPLE);
+		message.addExtra(textComponent);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onCommand(CommandSender sender, String[] args) {
 		if (args.length == 0) {
-			TextComponent textComponent = new TextComponent();
-			TextComponent textComponent2 = new TextComponent("[");
-			textComponent2.setColor(ChatColor.DARK_PURPLE);
-			textComponent.addExtra(textComponent2);
-
-			textComponent2 = new TextComponent("Discord");
-			textComponent2.setColor(ChatColor.LIGHT_PURPLE);
-			textComponent.addExtra(textComponent2);
-
-			textComponent2 = new TextComponent("] ");
-			textComponent2.setColor(ChatColor.DARK_PURPLE);
-			textComponent.addExtra(textComponent2);
-
-			textComponent2 = new TextComponent("➤ ");
-			textComponent2.setColor(ChatColor.DARK_PURPLE);
-			textComponent.addExtra(textComponent2);
-
-			textComponent2 = new TextComponent("discord.olympa.fr");
-			textComponent2.setColor(ChatColor.LIGHT_PURPLE);
-			textComponent2.setUnderlined(true);
-			textComponent2.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
-			textComponent2.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "discord.olympa.fr"));
-			textComponent.addExtra(textComponent2);
-
-			textComponent2 = new TextComponent(". Pour relié son compte discord à Minecraft, fait ");
-			textComponent2.setColor(ChatColor.DARK_PURPLE);
-			textComponent.addExtra(textComponent2);
-
-			textComponent2 = new TextComponent("/discord link");
-			textComponent2.setColor(ChatColor.LIGHT_PURPLE);
-			textComponent.addExtra(textComponent2);
-
-			sender.sendMessage(textComponent);
+			sender.sendMessage(message);
 			return;
 		}
 		if (proxiedPlayer != null) {
@@ -87,22 +85,22 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			// }
 		}
 
+		getOlympaPlayer();
 		switch (args[0].toLowerCase()) {
 
 		case "link":
-			olympaPlayer = AccountProvider.get(proxiedPlayer.getUniqueId());
 			if (olympaPlayer == null) {
-				sender.sendMessage(Prefix.DEFAULT_BAD + BungeeUtils.color("Impossible d'accéder à tes donnés."));
+				sendError("Impossible d'accéder à tes donnés.");
 				return;
 			}
-			if (olympaPlayer.getDiscordId() != 0)
-				sender.sendMessage(Prefix.DEFAULT_BAD + BungeeUtils.color("Tu as déjà un compte Discord relié."));
-			//				return;
+			if (olympaPlayer.getDiscordId() != 0) {
+				sendError("Tu as déjà un compte Discord relié.");
+				return;
+			}
 
 			String code = LinkHandler.getCode(proxiedPlayer);
-			if (code == null)
-				code = LinkHandler.addWaiting(proxiedPlayer);
-			sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &dPour relier ton compte Discord & Olympa, envoie le code &5&l" + code + "&d en privé à &7@&5OlympaBot#5503&d."));
+			if (code == null) code = LinkHandler.addWaiting(proxiedPlayer);
+			sendMessage("&5[&dDiscord&5] ➤ &dPour relier ton compte Discord & Olympa, envoie le code &5&l" + code + "&d en privé à &7@&5OlympaBot#5503&d.");
 
 			break;
 		case "info":
@@ -121,9 +119,9 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 				DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
 				if (discordMember == null) {
 					if (args.length > 2)
-						sendMessage(Prefix.DEFAULT_BAD, "&4" + proxiedPlayer.getDisplayName() + "&c n'as pas lié son compte Discord et Minecraft.");
+						sendError("&4" + proxiedPlayer.getDisplayName() + "&c n'as pas lié son compte Discord et Minecraft.");
 					else
-						sendMessage(Prefix.DEFAULT_BAD, "Tu n'as pas lié ton compte Discord et Minecraft.");
+						sendError("Tu n'as pas lié ton compte Discord et Minecraft.");
 					return;
 				}
 				User user = discordMember.getUser();
@@ -159,9 +157,9 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			}
 			if (OlympaBots.getInstance().getDiscord().getJda() != null) {
 				OlympaBots.getInstance().getDiscord().disconnect();
-				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &6Bot éteint."));
+				sendMessage("&5[&dDiscord&5] ➤ &6Bot éteint.");
 			} else
-				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &cBot déjà éteint."));
+				sendMessage("&5[&dDiscord&5] ➤ &cBot déjà éteint.");
 
 			break;
 		case "start":
@@ -171,9 +169,9 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			}
 			if (OlympaBots.getInstance().getDiscord().getJda() == null) {
 				OlympaBots.getInstance().getDiscord().connect(OlympaBots.getInstance());
-				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &aBot allumé."));
+				sendMessage("&5[&dDiscord&5] ➤ &aBot allumé.");
 			} else
-				sender.sendMessage(BungeeUtils.color("&5[&dDiscord&5] ➤ &cBot déjà allumé."));
+				sendMessage("&5[&dDiscord&5] ➤ &cBot déjà allumé.");
 			break;
 		default:
 			sendUsage();
