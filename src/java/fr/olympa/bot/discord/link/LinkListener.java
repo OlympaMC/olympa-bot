@@ -34,7 +34,7 @@ public class LinkListener extends ListenerAdapter {
 
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
-			embed.setDescription("Pour relier ton compte Olympa et ton compte Discord, fait **/discord link** sur Minecraft et donne moi ici le code obtenu.");
+			embed.setDescription("Pour relier ton compte Olympa et ton compte Discord, fais **/discord link** sur Minecraft et donne moi ici le code obtenu.");
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
@@ -44,7 +44,7 @@ public class LinkListener extends ListenerAdapter {
 		if (member == null) {
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
-			embed.setDescription("Tu dois rejoindre le discord avant de vouloir liée ton compte. http:///discord.olympa.fr");
+			embed.setDescription("Tu dois rejoindre le discord avant de pouloir lier ton compte. http:///discord.olympa.fr");
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}

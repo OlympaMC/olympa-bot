@@ -64,7 +64,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "discord.olympa.fr"));
 		message.addExtra(textComponent);
 
-		textComponent = new TextComponent(". Pour relié son compte discord à Minecraft, fait ");
+		textComponent = new TextComponent(". Pour relier ton compte discord à Minecraft, fais ");
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
 
