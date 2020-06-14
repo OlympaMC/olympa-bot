@@ -13,16 +13,16 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class SwearDiscord {
 	static SwearHandler swearHandler = new SwearHandler(OlympaBungee.getInstance().getConfig().getStringList("chat.insult"));
-
+	
 	public static void check(Member member, TextChannel channel, Message message, OlympaGuild olympaGuild) {
 		String messageRaw = swearHandler.testAndReplace(message.getContentRaw(), "**", "**");
 		if (messageRaw == null) {
 			message.clearReactions("☢️");
 			return;
 		}
-		message.addReaction("☢️").queue();
+		message.addReaction("⚠️").queue();
 		String desc = member.getAsMention() + " dans " + channel.getAsMention() + ".";
-		EmbedBuilder embed = SendLogs.get("☢️ Insulte", null, desc + "\n" + message.getJumpUrl(), member);
+		EmbedBuilder embed = SendLogs.get("⚠️ Insulte", null, desc + "\n" + message.getJumpUrl(), member);
 		embed.addField("Message", messageRaw, true);
 		embed.setTimestamp(message.getTimeCreated());
 		embed.setColor(Color.MAGENTA);
