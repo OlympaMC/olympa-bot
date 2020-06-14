@@ -41,7 +41,7 @@ import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class LogListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Guild guild = event.getGuild();
@@ -63,11 +63,11 @@ public class LogListener extends ListenerAdapter {
 			embed.addField("Nouveau compte", "Crée il y a `" + t + "`", true);
 		else {
 			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-			embed.addField("Création du compte", "Crée le " + date + "(" + t + ")", true);
+			embed.addField("Création du compte", "Crée le " + date + " (" + t + ")", true);
 		}
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
 		Guild guild = event.getGuild();
@@ -85,7 +85,7 @@ public class LogListener extends ListenerAdapter {
 		embed.setColor(Color.RED);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
 		Guild guild = event.getGuild();
@@ -103,7 +103,7 @@ public class LogListener extends ListenerAdapter {
 		embed.setColor(Color.GREEN);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
 		Guild guild = event.getGuild();
@@ -128,7 +128,7 @@ public class LogListener extends ListenerAdapter {
 		embed.setColor(Color.RED);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
 		Guild guild = event.getGuild();
@@ -148,13 +148,13 @@ public class LogListener extends ListenerAdapter {
 			StringJoiner sj = new StringJoiner(".\n");
 			sj.add(member.getAsMention() + " a supprimé un message dans " + channel.getAsMention());
 			sj.add("S'y rendre: " + discordMessage.getJumpUrl());
-
+			
 			// Check ghost tag
 			MessageContent originalContent = discordMessage.getOriginalContent();
 			if (originalContent != null && originalContent.getContent() != null) {
 				Matcher matcher = Pattern.compile("<@!?(\\d{18,})>").matcher(originalContent.getContent());
 				boolean canSee = false;
-				
+
 				while (matcher.find()) {
 					String userId = matcher.group(1);
 					canSee = guild.getMemberById(userId).getPermissions(channel).contains(Permission.MESSAGE_READ);
@@ -173,15 +173,15 @@ public class LogListener extends ListenerAdapter {
 					SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 				}));
 				return;
-
+				
 			}
 			SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
 	}
-
+	
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		Guild guild = event.getGuild();
@@ -205,7 +205,7 @@ public class LogListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/*@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Guild guild = event.getGuild();
@@ -228,7 +228,7 @@ public class LogListener extends ListenerAdapter {
 		if (member.isFake())
 			return;
 	}*/
-	
+
 	@Override
 	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
 		Guild guild = event.getGuild();
@@ -240,7 +240,7 @@ public class LogListener extends ListenerAdapter {
 		EmbedBuilder embed = SendLogs.get("✅ Connecté au vocal", null, member.getAsMention() + " est connecté au salon vocal `" + event.getChannelJoined().getName() + "`.", member);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
 		Guild guild = event.getGuild();
@@ -252,7 +252,7 @@ public class LogListener extends ListenerAdapter {
 		EmbedBuilder embed = SendLogs.get("❌ Déconnecté du vocal", null, member.getAsMention() + " est déconnecté du salon vocal `" + event.getChannelLeft().getName() + "`.", member);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
 		Guild guild = event.getGuild();
@@ -266,7 +266,7 @@ public class LogListener extends ListenerAdapter {
 		embed.addField("Apres", "`" + event.getChannelJoined().getName() + "`", true);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onUserUpdateName(UserUpdateNameEvent event) {
 		User user = event.getUser();
@@ -282,7 +282,7 @@ public class LogListener extends ListenerAdapter {
 			olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 		}
 	}
-	
+
 	@Override
 	public void onGuildMemberUpdateNickname(GuildMemberUpdateNicknameEvent event) {
 		Guild guild = event.getGuild();
@@ -296,5 +296,5 @@ public class LogListener extends ListenerAdapter {
 		embed.addField("Apres", "`" + event.getNewNickname() + "`", true);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 }

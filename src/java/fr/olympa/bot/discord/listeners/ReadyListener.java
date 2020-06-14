@@ -86,9 +86,9 @@ public class ReadyListener extends ListenerAdapter {
 			db.append("&7]");
 		}
 		OlympaBots.getInstance().sendMessage(db.toString());
-
+		
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
-
+		
 		Guild defaultGuild = olympaGuild.getGuild();
 		Role defaultRole = DiscordGroup.PLAYER.getRole(defaultGuild);
 		List<Member> members = defaultGuild.getMembers();
@@ -97,7 +97,7 @@ public class ReadyListener extends ListenerAdapter {
 			defaultGuild.addRoleToMember(member, defaultRole).queue();
 			OlympaBots.getInstance().sendMessage("&c" + member.getUser().getAsTag() + " n'avait pas de roles.");
 		});
-
+		
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Bot connecté").setDescription("Je suis de retour.");
 		embed.setTimestamp(OffsetDateTime.now());
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
@@ -105,17 +105,19 @@ public class ReadyListener extends ListenerAdapter {
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null)
 				continue;
-
+			
 			logChannel.getHistoryFromBeginning(1).queue(historyMsg -> {
 				List<Message> list = historyMsg.getRetrievedHistory();
 				if (!list.isEmpty()) {
 					Message histMessage = list.get(0);
 					List<MessageEmbed> embeds = histMessage.getEmbeds();
-					if (!embeds.isEmpty())
-						if (histMessage.getEmbeds().get(0).getTitle().equals("Déconnexion du bot")) {
+					if (!embeds.isEmpty()) {
+						MessageEmbed em = histMessage.getEmbeds().get(0);
+						if (em != null && em.getTitle() != null && histMessage.getEmbeds().get(0).getTitle().equals("Déconnexion du bot")) {
 							histMessage.editMessage(embed.build()).queue();
 							return;
 						}
+					}
 				}
 				logChannel.sendMessage(embed.build()).queue();
 			});
