@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class GuildChannelListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
 		Guild guild = event.getGuild();
@@ -35,7 +35,7 @@ public class GuildChannelListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		Guild guild = event.getGuild();
@@ -52,6 +52,7 @@ public class GuildChannelListener extends ListenerAdapter {
 				return;
 			discordMessage = entry.getValue();
 			discordMessage.addEditedMessage(message);
+			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
 			if (member.isFake())
 				return;
 			SwearDiscord.check(member, channel, message, olympaGuild);
@@ -59,7 +60,7 @@ public class GuildChannelListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Guild guild = event.getGuild();
