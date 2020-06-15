@@ -70,7 +70,7 @@ public class SendLogs {
 			discordMessage.getOlympaGuild().getLogChannel().sendMessage(embed.build()).queue(logMsg2 -> {
 				DiscordMessage discordMessage2 = null;
 				try {
-					discordMessage2 = CacheDiscordSQL.getDiscordMessage(discordMessage.getOlympaGuild(), discordMessage.getMessage()).getValue();
+					discordMessage2 = CacheDiscordSQL.getDiscordMessage(discordMessage.getOlympaGuild().getId(), discordMessage.getChannelId(), discordMessage.getMessageId()).getValue();
 					discordMessage2.setLogMsg(logMsg2);
 					DiscordSQL.updateMessage(discordMessage);
 					CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
