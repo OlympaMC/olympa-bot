@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.link;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 import fr.olympa.api.groups.OlympaGroup;
 import fr.olympa.api.player.OlympaPlayer;
@@ -52,8 +54,8 @@ public class LinkHandler {
 	public static void updateGroups(Member member, OlympaPlayer olympaPlayer) {
 		Set<OlympaGroup> groups = olympaPlayer.getGroups().keySet();
 		Set<Role> roles = DiscordGroup.get(groups).stream().map(g -> g.getRole(member.getGuild())).collect(Collectors.toSet());
-		List<Role> roleToRemoved = member.getRoles();
-		List<Role> communRole = roleToRemoved.stream().filter(r1 -> roles.stream().filter(r2 -> r1.getId() == r2.getId()).findFirst().isPresent()).collect(Collectors.toList());
+		Set<Role> roleToRemoved = new HashSet<>(member.getRoles());
+		SetView<Role> communRole = /*roleToRemoved.stream().filter(r1 -> roles.stream().filter(r2 -> r1.getId() == r2.getId()).findFirst().isPresent()).collect(Collectors.toList());*/ Sets.intersection(roles, roleToRemoved);
 		roleToRemoved.removeAll(communRole);
 		roles.removeAll(communRole);
 		

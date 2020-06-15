@@ -145,7 +145,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setColor(discord.getColor());
 			String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
 			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-			embed.addField("Compte crée", date + " (" + t + ")", true);
+			embed.addField("Compte créé", date + " (" + t + ")", true);
 			t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
 			date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE);
 			embed.addField("Membre depuis", date + " (" + t + ")", true);
@@ -153,7 +153,7 @@ public class InfoCommand extends DiscordCommand {
 			try {
 				discordMember = CacheDiscordSQL.getDiscordMember(user);
 				embed.addField("XP", String.valueOf(discordMember.getXp()), true);
-				embed.addField("Compte Lier", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
+				embed.addField("Compte lié", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
 				OnlineStatus onlineStatus = member.getOnlineStatus();
 				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
 					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
