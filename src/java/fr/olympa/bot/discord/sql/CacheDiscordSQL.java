@@ -61,7 +61,8 @@ public class CacheDiscordSQL {
 			if (discordMessage != null) {
 				DiscordMember discordMember = getDiscordMemberByOlympaId(discordMessage.getOlympaAuthorId());
 				entry = new AbstractMap.SimpleEntry<>(discordMember.getDiscordId(), discordMessage);
-				cacheMessage.put(entry.getKey(), entry.getValue());
+				if (entry != null)
+					cacheMessage.put(entry.getKey(), entry.getValue());
 			}
 		}
 		return entry;

@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.managers.Presence;
 import net.md_5.bungee.api.ProxyServer;
 
 public class ReadyListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onReady(ReadyEvent event) {
 		JDA jda = event.getJDA();
@@ -111,18 +111,20 @@ public class ReadyListener extends ListenerAdapter {
 				if (!list.isEmpty()) {
 					Message histMessage = list.get(0);
 					List<MessageEmbed> embeds = histMessage.getEmbeds();
-					if (!embeds.isEmpty())
-						if (histMessage.getEmbeds().get(0).getTitle().equals("Déconnexion du bot")) {
+					if (!embeds.isEmpty()) {
+						MessageEmbed em = histMessage.getEmbeds().get(0);
+						if (em != null && em.getTitle() != null && histMessage.getEmbeds().get(0).getTitle().equals("Déconnexion du bot")) {
 							histMessage.editMessage(embed.build()).queue();
 							return;
 						}
+					}
 				}
 				logChannel.sendMessage(embed.build()).queue();
 			});
 		}
 		OlympaDiscord.lastConnection = Utils.getCurrentTimeInSeconds();
 	}
-
+	
 	@Override
 	public void onStatusChange(StatusChangeEvent event) {
 		if (!event.getNewStatus().equals(Status.SHUTTING_DOWN))
@@ -134,19 +136,19 @@ public class ReadyListener extends ListenerAdapter {
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null)
 				continue;
-			logChannel.getHistoryFromBeginning(1).queue(historyMsg -> {
-				List<Message> list = historyMsg.getRetrievedHistory();
-				if (!list.isEmpty()) {
-					Message histMessage = list.get(0);
-					List<MessageEmbed> embeds = histMessage.getEmbeds();
-					if (!embeds.isEmpty())
-						if (histMessage.getEmbeds().get(0).getTitle().equals("Bot connecté")) {
-							histMessage.editMessage(embed.build()).queue();
-							return;
-						}
-				}
-				logChannel.sendMessage(embed.build()).queue();
-			});
+			//			logChannel.getHistoryFromBeginning(1).queue(historyMsg -> {
+			//				List<Message> list = historyMsg.getRetrievedHistory();
+			//				if (!list.isEmpty()) {
+			//					Message histMessage = list.get(0);
+			//					List<MessageEmbed> embeds = histMessage.getEmbeds();
+			//					if (!embeds.isEmpty())
+			//						if (histMessage.getEmbeds().get(0).getTitle().equals("Bot connecté")) {
+			//							histMessage.editMessage(embed.build()).queue();
+			//							return;
+			//						}
+			//				}
+			logChannel.sendMessage(embed.build()).queue();
+			//			});
 		}
 		//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
 		//			List<Message> list = historyMsg.getRetrievedHistory();
