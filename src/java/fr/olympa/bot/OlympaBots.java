@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.api.SwearHandler;
 import fr.olympa.api.provider.RedisAccess;
 import fr.olympa.bot.bungee.DiscordCommand;
 import fr.olympa.bot.bungee.LinkBungeListener;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.bungee.utils.BungeeUtils;
-import fr.olympa.core.spigot.chat.SwearHandler;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;

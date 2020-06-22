@@ -3,9 +3,9 @@ package fr.olympa.bot.discord.commands;
 import java.awt.Color;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -56,14 +56,14 @@ public class RefreshServersMessage extends ReactionDiscord {
 	public static MessageEmbed getEmbed() {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
-		Set<MonitorInfo> info = MonitorServers.getLastServerInfo();
+		Collection<MonitorInfo> info = MonitorServers.getServers();
 		for (MonitorInfo serverInfo : info) {
 			ServerStatus status = serverInfo.getStatus();
 			StringJoiner sb = new StringJoiner(" ");
 			sb.add("__" + status.getName() + "__");
 			sb.add("**" + serverInfo.getName() + ":**");
-			if (serverInfo.getOnlinePlayer() != null)
-				sb.add(serverInfo.getOnlinePlayer() + "/" + serverInfo.getMaxPlayers());
+			if (serverInfo.getOnlinePlayers() != null)
+				sb.add(serverInfo.getOnlinePlayers() + "/" + serverInfo.getMaxPlayers());
 			if (serverInfo.getTps() != null)
 				sb.add(serverInfo.getTps() + "tps");
 			if (serverInfo.getPing() != null)

@@ -2,10 +2,10 @@ package fr.olympa.bot.discord.textmessage;
 
 import java.awt.Color;
 
+import fr.olympa.api.SwearHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
 import fr.olympa.core.bungee.OlympaBungee;
-import fr.olympa.core.spigot.chat.SwearHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
