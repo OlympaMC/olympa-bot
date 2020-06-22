@@ -14,7 +14,6 @@ import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 public class SendLogs {
@@ -63,9 +62,8 @@ public class SendLogs {
 			i++;
 		}
 		embed.setTimestamp(Instant.now());
-		Message logMsg = discordMessage.getLogMsg();
-		if (logMsg != null)
-			logMsg.editMessage(embed.build()).queue();
+		if (discordMessage.getLogMessageId() != 0)
+			discordMessage.getLogMsg().queue(logMsg -> logMsg.editMessage(embed.build()).queue());
 		else
 			discordMessage.getOlympaGuild().getLogChannel().sendMessage(embed.build()).queue(logMsg2 -> {
 				try {
