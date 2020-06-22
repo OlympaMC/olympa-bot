@@ -34,7 +34,7 @@ import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
 import fr.olympa.bot.discord.support.chat.SupportChatListener;
-import fr.olympa.bot.discord.textmessage.GuildChannelListener;
+import fr.olympa.bot.discord.textmessage.TextChannelListener;
 import fr.olympa.bot.discord.textmessage.LogListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -74,7 +74,7 @@ public class OlympaDiscord {
 		builder.addEventListeners(new SpamListener());
 		builder.addEventListeners(new ReactionListener());
 		builder.addEventListeners(new SupportChatListener());
-		builder.addEventListeners(new GuildChannelListener());
+		builder.addEventListeners(new TextChannelListener());
 		builder.addEventListeners(new GuildsListener());
 		builder.addEventListeners(new LogListener());
 		builder.addEventListeners(new MemberListener());
