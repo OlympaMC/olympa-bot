@@ -231,7 +231,7 @@ public class DiscordSQL {
 		statement.setLong(i++, discordMessage.getGuildId());
 		statement.setLong(i++, discordMessage.getChannelId());
 		statement.setLong(i++, discordMessage.getMessageId());
-		statement.setLong(i++, discordMessage.getOlympaAuthorId());
+		statement.setLong(i++, discordMessage.getOlympaDiscordAuthorId());
 		statement.setString(i++, new Gson().toJson(discordMessage.getContents()));
 		statement.setTimestamp(i++, new Timestamp(discordMessage.getCreated() * 1000L));
 		statement.executeUpdate();

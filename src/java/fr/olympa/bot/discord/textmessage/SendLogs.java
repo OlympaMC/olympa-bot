@@ -72,8 +72,8 @@ public class SendLogs {
 				try {
 					discordMessage2 = CacheDiscordSQL.getDiscordMessage(discordMessage.getOlympaGuild().getId(), discordMessage.getChannelId(), discordMessage.getMessageId()).getValue();
 					discordMessage2.setLogMsg(logMsg2);
-					DiscordSQL.updateMessage(discordMessage);
-					CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
+					DiscordSQL.updateMessage(discordMessage2);
+					CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage2);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class DiscordMessage {
 
-	final long olympaGuildId, channelId, messageId, olympaAuthorId, created;
+	final long olympaGuildId, channelId, messageId, olympaDiscordAuthorId, created;
 	long logMessageId;
 	List<MessageContent> contents;
 
@@ -41,17 +41,17 @@ public class DiscordMessage {
 		olympaGuildId = GuildHandler.getOlympaGuild(message.getGuild()).getId();
 		messageId = message.getIdLong();
 		channelId = message.getChannel().getIdLong();
-		olympaAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
+		olympaDiscordAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
 		created = message.getTimeCreated().toEpochSecond();
 		contents = new ArrayList<>();
 		addEditedMessage(message);
 	}
 
-	public DiscordMessage(long olympaGuildId, long channelId, long messageId, long authorId, List<MessageContent> contents, Timestamp created, long logMessageId) {
+	public DiscordMessage(long olympaGuildId, long channelId, long messageId, long olympaDiscordAuthorId, List<MessageContent> contents, Timestamp created, long logMessageId) {
 		this.olympaGuildId = olympaGuildId;
 		this.channelId = channelId;
 		this.messageId = messageId;
-		olympaAuthorId = authorId;
+		this.olympaDiscordAuthorId = olympaDiscordAuthorId;
 		this.contents = contents;
 		this.created = created.getTime() / 1000L;
 		this.logMessageId = logMessageId;
@@ -73,8 +73,8 @@ public class DiscordMessage {
 		return logMessageId;
 	}
 
-	public long getOlympaAuthorId() {
-		return olympaAuthorId;
+	public long getOlympaDiscordAuthorId() {
+		return olympaDiscordAuthorId;
 	}
 
 	public long getCreated() {
