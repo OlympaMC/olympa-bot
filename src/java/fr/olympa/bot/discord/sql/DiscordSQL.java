@@ -254,10 +254,15 @@ public class DiscordSQL {
 		return discordMessage;
 	}
 
-	private static OlympaStatement updateMessageStatement = new OlympaStatement(StatementType.UPDATE, tableMessages, new String[] { "guild_discord_id", "channel_discord_id", "message_discord_id" }, "contents", "log_msg_discord_id");
+	private static OlympaStatement updateMessageStatement = new OlympaStatement(StatementType.UPDATE, tableMessages, new String[] { "guild_discord_id", "channel_discord_id", "message_discord_id" }, "contents");
+	private static OlympaStatement updateMessageStatement2 = new OlympaStatement(StatementType.UPDATE, tableMessages, new String[] { "guild_discord_id", "channel_discord_id", "message_discord_id" }, "contents", "log_msg_discord_id");
 
 	public static void updateMessage(DiscordMessage discordMessage) throws SQLException {
-		PreparedStatement statement = updateMessageStatement.getStatement();
+		PreparedStatement statement;
+		if (discordMessage.getLogMessageId() == 0)
+			statement = updateMessageStatement.getStatement();
+		else
+			statement = updateMessageStatement2.getStatement();
 		int i = 1;
 		statement.setString(i++, new Gson().toJson(discordMessage.getContents()));
 		statement.setLong(i++, discordMessage.getGuildId());
@@ -265,8 +270,6 @@ public class DiscordSQL {
 		statement.setLong(i++, discordMessage.getMessageId());
 		if (discordMessage.getLogMessageId() != 0)
 			statement.setLong(i++, discordMessage.getLogMessageId());
-		else
-			statement.setObject(i++, null);
 		statement.executeUpdate();
 		statement.close();
 	}
