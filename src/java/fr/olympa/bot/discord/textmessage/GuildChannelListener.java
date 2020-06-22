@@ -53,6 +53,7 @@ public class GuildChannelListener extends ListenerAdapter {
 			discordMessage = entry.getValue();
 			discordMessage.addEditedMessage(message);
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
+			System.out.println("update msg 1");
 			if (member.isFake())
 				return;
 			SwearDiscord.check(member, channel, message, olympaGuild);
