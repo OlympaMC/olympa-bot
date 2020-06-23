@@ -8,6 +8,7 @@ import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
+import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -18,7 +19,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class LinkListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
 		User user = event.getAuthor();
@@ -28,19 +29,19 @@ public class LinkListener extends ListenerAdapter {
 		MessageChannel channel = message.getChannel();
 		String msg = message.getContentRaw();
 		String code = msg.split(" ")[0];
-
+		
 		ProxiedPlayer player = LinkHandler.getPlayer(code);
 		if ((player == null || !player.isConnected()) && !channel.hasLatestMessage()) {
-
+			
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
 			embed.setDescription("Pour relier ton compte Olympa et ton compte Discord, fais **/discord link** sur Minecraft et donne moi ici le code obtenu.");
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
-
+		
 		Member member = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(user.getIdLong());
-
+		
 		if (member == null) {
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
@@ -48,11 +49,12 @@ public class LinkListener extends ListenerAdapter {
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
-		
+
 		try {
 			OlympaPlayer olympaPlayer = new AccountProvider(player.getUniqueId()).getFromRedis();
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.setOlympaId(olympaPlayer.getId());
+			DiscordSQL.updateMember(discordMember);
 			member.modifyNickname(olympaPlayer.getName()).queue();
 			LinkHandler.updateGroups(member, olympaPlayer);
 			EmbedBuilder embed = new EmbedBuilder();
@@ -62,7 +64,7 @@ public class LinkListener extends ListenerAdapter {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
 	}
-
+	
 }
