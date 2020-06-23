@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -13,26 +14,26 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class GroupCommand extends DiscordCommand {
-
+	
 	public GroupCommand() {
-		super("groupe");
+		super("groupe", DiscordPermission.HIGH_DEV);
 	}
-
+	
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		MessageChannel channel = message.getChannel();
 		message.delete().queue(null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
-
+		
 		if (args.length < 1)
 			return;
-		
+
 		OlympaPlayer olympaTarget = null;
 		try {
 			olympaTarget = AccountProvider.getFromDatabase(args[0]);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
 		if (olympaTarget == null) {
 			channel.sendMessage("Le joueur **" + args[0] + "** est introuvable.");
 			return;

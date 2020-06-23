@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -29,19 +30,19 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 public class InfoCommand extends DiscordCommand {
-
+	
 	public InfoCommand() {
-		super("info", "credit", "info");
+		super("info", DiscordPermission.ASSISTANT, "credit", "info");
 		description = "[ancien|boost|nonsigne|signe|absent|bot|role]";
 	}
-
+	
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
 		OlympaDiscord discord = OlympaBots.getInstance().getDiscord();
 		MessageChannel channel = message.getChannel();
 		deleteMessageAfter(message);
 		JDA jda = message.getJDA();
-
+		
 		if (args.length == 0) {
 			SelfUser user = jda.getSelfUser();
 			List<Guild> guilds = jda.getGuilds();
@@ -70,7 +71,7 @@ public class InfoCommand extends DiscordCommand {
 			channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(discord.timeToDelete, TimeUnit.SECONDS));
 			return;
 		}
-
+		
 		switch (Utils.removeAccents(args[0]).toLowerCase()) {
 		case "ancien":
 		case "vieux":
@@ -177,7 +178,7 @@ public class InfoCommand extends DiscordCommand {
 			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
 			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
-
+			
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roleAbsent.getName() + ": ");
 			embed.setDescription(guild.getMembersWithRoles(roleAbsent).stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
@@ -186,5 +187,5 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		}
 	}
-
+	
 }

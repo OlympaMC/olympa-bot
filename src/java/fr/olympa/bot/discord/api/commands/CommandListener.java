@@ -6,7 +6,6 @@ import java.util.List;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
-import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -52,10 +51,6 @@ public class CommandListener extends ListenerAdapter {
 			member = message.getMember();
 		else
 			member = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMember(message.getAuthor());
-		if (member == null || !DiscordGroup.isStaff(member)) {
-			channel.sendMessage("Le bot est encore en développement, t'es pas prêt.").queue();
-			return;
-		}
 		
 		args = Arrays.copyOfRange(args, 1, args.length);
 		commandName = commandName.substring(1);
@@ -69,10 +64,6 @@ public class CommandListener extends ListenerAdapter {
 			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande est impossible en priver.").queue();
 			return;
 		}
-		if (message.isFromGuild())
-			member = message.getMember();
-		else
-			member = event.getGuild().getMember(user);
 		DiscordPermission permision = discordCommand.permission;
 		if (permision != null && (member == null || !permision.hasPermission(member))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
