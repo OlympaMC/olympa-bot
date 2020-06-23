@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class GuildsListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		User user = event.getUser();
@@ -30,7 +30,7 @@ public class GuildsListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onReady(ReadyEvent event) {
 		JDA jda = event.getJDA();
@@ -57,7 +57,7 @@ public class GuildsListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void onShutdown(ShutdownEvent event) {
 		GuildHandler.guilds.forEach(guild -> {
@@ -68,7 +68,7 @@ public class GuildsListener extends ListenerAdapter {
 			}
 		});
 	}
-
+	
 	@Override
 	public void onGuildReady(GuildReadyEvent event) {
 		try {

@@ -4,6 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import fr.olympa.bot.discord.groups.DiscordGroup;
+import fr.olympa.bot.discord.guild.GuildHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -33,7 +37,12 @@ public enum DiscordPermission {
 	public boolean hasPermission(Member member) {
 		return allow.stream().anyMatch(a -> {
 			Role role = a.getRole(member.getGuild());
-			return role != null ? member.getRoles().contains(role) : false;
+			if (role != null)
+				return member.getRoles().contains(role);
+			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(member.getGuild());
+			if (olympaGuild != null && olympaGuild.getType() == DiscordGuildType.OTHER)
+				return member.hasPermission(Permission.ADMINISTRATOR);
+			return false;
 		});
 		
 	}
