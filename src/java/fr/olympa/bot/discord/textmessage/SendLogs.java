@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 
 public class SendLogs {
-	
+
 	public static EmbedBuilder get(String title, String titleUrl, String description, Member member) {
 		User user = member.getUser();
 		EmbedBuilder embed = new EmbedBuilder().setTitle(title, titleUrl).setDescription(description);
@@ -28,7 +28,7 @@ public class SendLogs {
 		embed.setTimestamp(OffsetDateTime.now());
 		return embed;
 	}
-
+	
 	public static void sendMessageLog(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
 		if (member.getUser().isBot())
 			return;
@@ -68,7 +68,6 @@ public class SendLogs {
 			discordMessage.getOlympaGuild().getLogChannel().sendMessage(embed.build()).queue(logMsg2 -> {
 				try {
 					DiscordMessage discordMessage2 = CacheDiscordSQL.getDiscordMessage(discordMessage.getGuildId(), discordMessage.getChannelId(), discordMessage.getMessageId()).getValue();
-					System.out.println("update msg 3 ");
 					discordMessage2.setLogMsg(logMsg2);
 					CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage2);
 					DiscordSQL.updateMessageLogMsgId(discordMessage2);
