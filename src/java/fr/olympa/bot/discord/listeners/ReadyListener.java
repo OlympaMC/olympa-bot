@@ -24,7 +24,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -32,7 +31,7 @@ import net.dv8tion.jda.api.managers.Presence;
 import net.md_5.bungee.api.ProxyServer;
 
 public class ReadyListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onReady(ReadyEvent event) {
 		JDA jda = event.getJDA();
@@ -57,11 +56,9 @@ public class ReadyListener extends ListenerAdapter {
 			public void run() {
 				int usersConnected = 0;
 				int usersTotal = 0;
-				for (User user2 : jda.getUserCache())
-					if (!user2.isBot()) {
-						Guild firstGuild = user2.getMutualGuilds().get(0);
-						Member member2 = firstGuild.getMember(user2);
-						if (member2.getOnlineStatus() != OnlineStatus.OFFLINE)
+				for (Member member : GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMembers())
+					if (!member.getUser().isBot()) {
+						if (member.getOnlineStatus() != OnlineStatus.OFFLINE)
 							usersConnected++;
 						usersTotal++;
 					}
@@ -86,9 +83,9 @@ public class ReadyListener extends ListenerAdapter {
 			db.append("&7]");
 		}
 		OlympaBots.getInstance().sendMessage(db.toString());
-		
+
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
-		
+
 		Guild defaultGuild = olympaGuild.getGuild();
 		Role defaultRole = DiscordGroup.PLAYER.getRole(defaultGuild);
 		List<Member> members = defaultGuild.getMembers();
@@ -97,7 +94,7 @@ public class ReadyListener extends ListenerAdapter {
 			defaultGuild.addRoleToMember(member, defaultRole).queue();
 			OlympaBots.getInstance().sendMessage("&c" + member.getUser().getAsTag() + " n'avait pas de roles.");
 		});
-		
+
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Bot connecté").setDescription("Je suis de retour.");
 		embed.setTimestamp(OffsetDateTime.now());
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
@@ -105,7 +102,7 @@ public class ReadyListener extends ListenerAdapter {
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null)
 				continue;
-			
+
 			logChannel.getHistoryFromBeginning(1).queue(historyMsg -> {
 				List<Message> list = historyMsg.getRetrievedHistory();
 				if (!list.isEmpty()) {
@@ -124,7 +121,7 @@ public class ReadyListener extends ListenerAdapter {
 		}
 		OlympaDiscord.lastConnection = Utils.getCurrentTimeInSeconds();
 	}
-	
+
 	@Override
 	public void onStatusChange(StatusChangeEvent event) {
 		if (!event.getNewStatus().equals(Status.SHUTTING_DOWN))

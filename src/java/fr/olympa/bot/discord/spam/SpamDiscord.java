@@ -27,7 +27,7 @@ public class SpamDiscord {
 			TextChannel channel = olympaGuild.getLogChannel();
 			// TODO better mute
 			if (channel != null)
-				channel.sendMessage("?mute " + member.getUser().getAsTag() + " 1h Spam Mention").queue();
+				channel.sendMessage("$mute " + channel.getGuild().getMemberById(userId).getUser().getAsTag() + " 1h Spam Mention").queue();
 		}
 		return i > 1;
 	}

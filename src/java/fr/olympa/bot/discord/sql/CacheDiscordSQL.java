@@ -34,7 +34,7 @@ public class CacheDiscordSQL {
 	}
 	
 	public static DiscordMember getDiscordMemberByOlympaId(long olympaId) throws SQLException {
-		DiscordMember discordMember = cacheMembers.asMap().values().stream().filter(dm -> olympaId != 0 && dm.getOlympaId() == olympaId).findFirst().orElse(null);
+		DiscordMember discordMember = cacheMembers.asMap().values().stream().filter(dm -> dm.getOlympaId() == olympaId).findFirst().orElse(null);
 		if (discordMember == null) {
 			discordMember = DiscordSQL.selectMemberByOlympaId(olympaId);
 			if (discordMember != null)
@@ -55,11 +55,11 @@ public class CacheDiscordSQL {
 	}
 	
 	public static Entry<Long, DiscordMessage> getDiscordMessage(long olympaGuildId, long channelDiscordId, long messageDiscordId) throws SQLException {
-		Entry<Long, DiscordMessage> entry = cacheMessage.asMap().entrySet().stream().filter(e -> messageDiscordId != 0 && e.getValue().getMessageId() == messageDiscordId).findFirst().orElse(null);
+		Entry<Long, DiscordMessage> entry = cacheMessage.asMap().entrySet().stream().filter(e -> e.getValue().getMessageId() == messageDiscordId).findFirst().orElse(null);
 		if (entry == null) {
 			DiscordMessage discordMessage = DiscordSQL.selectMessage(olympaGuildId, channelDiscordId, messageDiscordId);
 			if (discordMessage != null) {
-				DiscordMember discordMember = getDiscordMemberByOlympaId(discordMessage.getOlympaAuthorId());
+				DiscordMember discordMember = getDiscordMember(discordMessage.getOlympaDiscordAuthorId());
 				entry = new AbstractMap.SimpleEntry<>(discordMember.getDiscordId(), discordMessage);
 				if (entry != null)
 					cacheMessage.put(entry.getKey(), entry.getValue());

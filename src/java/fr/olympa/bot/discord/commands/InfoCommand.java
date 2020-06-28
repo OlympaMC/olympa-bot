@@ -1,6 +1,7 @@
 package fr.olympa.bot.discord.commands;
 
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.stream.Stream;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -31,7 +33,7 @@ import net.dv8tion.jda.api.entities.User;
 public class InfoCommand extends DiscordCommand {
 
 	public InfoCommand() {
-		super("info", "credit", "info");
+		super("info", DiscordPermission.ASSISTANT, "credit", "info");
 		description = "[ancien|boost|nonsigne|signe|absent|bot|role]";
 	}
 
@@ -152,7 +154,8 @@ public class InfoCommand extends DiscordCommand {
 			DiscordMember discordMember;
 			try {
 				discordMember = CacheDiscordSQL.getDiscordMember(user);
-				embed.addField("XP", String.valueOf(discordMember.getXp()), true);
+				DecimalFormat df = new DecimalFormat("##.##");
+				embed.addField("XP", df.format(discordMember.getXp()), true);
 				embed.addField("Compte lié", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
 				OnlineStatus onlineStatus = member.getOnlineStatus();
 				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)

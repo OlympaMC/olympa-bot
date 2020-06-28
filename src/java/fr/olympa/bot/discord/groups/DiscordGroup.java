@@ -111,10 +111,11 @@ public enum DiscordGroup {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() == DiscordGuildType.STAFF)
 			return guild.getRoleById(idStaff);
-		else {
+		else if (olympaGuild.getType() == DiscordGuildType.PUBLIC) {
 			guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
 			return guild.getRoleById(idPublic);
-		}
+		} else
+			return null;
 	}
 
 	public String getSupportDesc() {

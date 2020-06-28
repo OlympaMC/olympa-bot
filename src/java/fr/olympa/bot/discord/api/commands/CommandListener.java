@@ -2,11 +2,11 @@ package fr.olympa.bot.discord.api.commands;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
-import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,27 +35,20 @@ public class CommandListener extends ListenerAdapter {
 		if (args.length == 0)
 			return;
 		String commandName = args[0];
-		if (commandName.startsWith(DiscordCommand.prefix + DiscordCommand.prefix))
-			return;
-		if (!commandName.startsWith(DiscordCommand.prefix)) {
-			List<User> mentions = message.getMentionedUsers();
-			if (mentions.contains(event.getJDA().getSelfUser())) {
-				EmbedBuilder eb = new EmbedBuilder();
-				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
-				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " pour te servir. Le prefix est `" + DiscordCommand.prefix + "`" + ".");
-				channel.sendMessage(eb.build()).queue();
-			}
-			return;
+		List<User> mentions = message.getMentionedUsers();
+		if (mentions.contains(event.getJDA().getSelfUser())) {
+			EmbedBuilder eb = new EmbedBuilder();
+			eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
+			eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " mon prefix est `" + DiscordCommand.prefix + "`" + ".");
+			channel.sendMessage(eb.build()).queue();
 		}
+		if (!Pattern.compile("^\\" + DiscordCommand.prefix + "\\w").matcher(commandName).find())
+			return;
 		Member member = null;
 		if (message.isFromGuild())
 			member = message.getMember();
 		else
 			member = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMember(message.getAuthor());
-		if (member == null || !DiscordGroup.isStaff(member)) {
-			channel.sendMessage("Le bot est encore en développement, t'es pas prêt.").queue();
-			return;
-		}
 		
 		args = Arrays.copyOfRange(args, 1, args.length);
 		commandName = commandName.substring(1);
@@ -70,10 +63,6 @@ public class CommandListener extends ListenerAdapter {
 			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande est impossible en privé.").queue();
 			return;
 		}
-		if (message.isFromGuild())
-			member = message.getMember();
-		else
-			member = event.getGuild().getMember(user);
 		DiscordPermission permision = discordCommand.permission;
 		if (permision != null && (member == null || !permision.hasPermission(member))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
