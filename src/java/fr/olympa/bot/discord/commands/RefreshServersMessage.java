@@ -45,7 +45,7 @@ public class RefreshServersMessage extends ReactionDiscord {
 	@Override
 	public boolean onReactAdd(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
 		if ("refresh".equalsIgnoreCase(getData(messageReaction)))
-			messageChannel.getHistory().getMessageById(messageId).editMessage(getEmbed()).queue();
+			messageChannel.retrieveMessageById(messageId).queue(x -> x.editMessage(getEmbed()).queue());
 		return false;
 	}
 	
@@ -61,16 +61,16 @@ public class RefreshServersMessage extends ReactionDiscord {
 			ServerStatus status = serverInfo.getStatus();
 			StringJoiner sb = new StringJoiner(" ");
 			sb.add("__" + status.getName() + "__");
-			sb.add("**" + serverInfo.getName() + ":**");
+			sb.add("**" + serverInfo.getName() + ":**\u200B");
 			if (serverInfo.getOnlinePlayers() != null)
-				sb.add(serverInfo.getOnlinePlayers() + "/" + serverInfo.getMaxPlayers());
+				sb.add("**Joueurs :** " + serverInfo.getOnlinePlayers() + "/" + serverInfo.getMaxPlayers() + "\u200B");
 			if (serverInfo.getTps() != null)
-				sb.add(serverInfo.getTps() + "tps");
+				sb.add("**TPS :** " + serverInfo.getTps() + "\u200B");
 			if (serverInfo.getPing() != null)
-				sb.add(serverInfo.getPing() + "ms");
+				sb.add("**Ping :** " + serverInfo.getPing() + "ms\u200B");
 			if (serverInfo.getError() != null)
-				sb.add("Erreur: *" + serverInfo.getError() + "*");
-			embedBuilder.addField(serverInfo.getName(), sb.toString(), true);
+				sb.add("Erreur : *" + serverInfo.getError() + "*");
+			embedBuilder.addField(serverInfo.getOlympaServer().getNameCaps(), sb.toString(), true);
 		}
 		List<ServerStatus> statuss = info.stream().map(si -> si.getStatus()).collect(Collectors.toList());
 		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
