@@ -2,6 +2,7 @@ package fr.olympa.bot.discord.api.commands;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
@@ -34,18 +35,15 @@ public class CommandListener extends ListenerAdapter {
 		if (args.length == 0)
 			return;
 		String commandName = args[0];
-		if (commandName.startsWith(DiscordCommand.prefix + DiscordCommand.prefix))
-			return;
-		if (!commandName.startsWith(DiscordCommand.prefix)) {
-			List<User> mentions = message.getMentionedUsers();
-			if (mentions.contains(event.getJDA().getSelfUser())) {
-				EmbedBuilder eb = new EmbedBuilder();
-				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
-				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " pour te servir. Le prefix est `" + DiscordCommand.prefix + "`" + ".");
-				channel.sendMessage(eb.build()).queue();
-			}
-			return;
+		List<User> mentions = message.getMentionedUsers();
+		if (mentions.contains(event.getJDA().getSelfUser())) {
+			EmbedBuilder eb = new EmbedBuilder();
+			eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
+			eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " mon prefix est `" + DiscordCommand.prefix + "`" + ".");
+			channel.sendMessage(eb.build()).queue();
 		}
+		if (!Pattern.compile("^\\" + DiscordCommand.prefix + "\\w").matcher(commandName).find())
+			return;
 		Member member = null;
 		if (message.isFromGuild())
 			member = message.getMember();
@@ -56,12 +54,12 @@ public class CommandListener extends ListenerAdapter {
 		commandName = commandName.substring(1);
 		DiscordCommand discordCommand = DiscordCommand.getCommand(commandName);
 		if (discordCommand == null) {
-			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande n'existe pas.").queue();
+			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande n'existe pas.").queue();
 			return;
 		}
 		boolean privateChannel = discordCommand.privateChannel;
 		if (!privateChannel && !message.isFromGuild()) {
-			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande est impossible en priver.").queue();
+			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande est impossible en priver.").queue();
 			return;
 		}
 		DiscordPermission permision = discordCommand.permission;

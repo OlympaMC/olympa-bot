@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class ServerHandler {
-
+	
 	public static void action(String action, String serverName, Message message) {
 		new Thread((Runnable) () -> {
 			MessageChannel channel = message.getChannel();
@@ -24,7 +24,7 @@ public class ServerHandler {
 				StringBuilder sb = new StringBuilder();
 				while ((s = br.readLine()) != null)
 					sb.append(s);
-				String out = sb.toString().replaceAll("\\[\\]", "").replace("[0m", "").replace("[32m", "**").replace("[36m", "**").replace("[36m", "**").replace("[0;36m", "**").replace("[31m", "**").replace("[0;31m", "**");
+				String out = sb.toString().replaceAll("(\\[\\]|)", "").replace("[0m", "").replace("[32m", "**").replace("[36m", "**").replace("[36m", "**").replace("[0;36m", "**").replace("[31m", "**").replace("[0;31m", "**");
 				channel.sendMessage(member.getAsMention() + " " + out).queue();
 				OlympaBungee.getInstance().sendMessage("§c[§4OUT§c] §c" + out);
 				p.waitFor();
