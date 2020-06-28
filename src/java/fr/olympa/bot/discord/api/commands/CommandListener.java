@@ -59,14 +59,15 @@ public class CommandListener extends ListenerAdapter {
 		
 		args = Arrays.copyOfRange(args, 1, args.length);
 		commandName = commandName.substring(1);
+		if (commandName.isEmpty()) return;
 		DiscordCommand discordCommand = DiscordCommand.getCommand(commandName);
 		if (discordCommand == null) {
-			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande n'existe pas.").queue();
+			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande n'existe pas.").queue();
 			return;
 		}
 		boolean privateChannel = discordCommand.privateChannel;
 		if (!privateChannel && !message.isFromGuild()) {
-			channel.sendMessage("Désoler " + user.getAsMention() + " mais cette commande est impossible en priver.").queue();
+			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande est impossible en privé.").queue();
 			return;
 		}
 		if (message.isFromGuild())
@@ -87,7 +88,7 @@ public class CommandListener extends ListenerAdapter {
 		Integer minArg = discordCommand.minArg;
 		if (minArg != null && minArg > args.length) {
 			DiscordUtils.deleteTempMessage(message);
-			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Usage: !" + commandName + " " + discordCommand.usage);
+			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Syntaxe : " + DiscordCommand.prefix + commandName + " " + discordCommand.usage);
 			return;
 		}
 		discordCommand.onCommandSend(discordCommand, args, message);
