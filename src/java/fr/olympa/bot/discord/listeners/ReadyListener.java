@@ -56,7 +56,7 @@ public class ReadyListener extends ListenerAdapter {
 			public void run() {
 				int usersConnected = 0;
 				int usersTotal = 0;
-				for (Member member : GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMembers())
+				for (Member member : GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberCache())
 					if (!member.getUser().isBot()) {
 						if (member.getOnlineStatus() != OnlineStatus.OFFLINE)
 							usersConnected++;

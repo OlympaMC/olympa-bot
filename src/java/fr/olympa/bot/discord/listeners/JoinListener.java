@@ -15,19 +15,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class JoinListener extends ListenerAdapter {
-
+	
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Guild guild = event.getGuild();
 		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.PUBLIC)
 			return;
-		int usersTotal = 0;
-		for (User user2 : event.getJDA().getUsers())
-			if (!user2.isBot())
-				usersTotal++;
+		int usersTotal = guild.getMemberCount();
 		GuildChannel membersChannel = guild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
 		membersChannel.getManager().setName("Membres : " + usersTotal).queue();
-
+		
 		Member member = event.getMember();
 		EmbedBuilder em = new EmbedBuilder();
 		em.setTitle("Bienvenue sur notre discord " + member.getEffectiveName() + " !");
@@ -35,7 +32,7 @@ public class JoinListener extends ListenerAdapter {
 		em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		member.getUser().openPrivateChannel().queue(ch -> ch.sendMessage(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 	}
-
+	
 	@Override
 	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
 		Guild guild = event.getGuild();
