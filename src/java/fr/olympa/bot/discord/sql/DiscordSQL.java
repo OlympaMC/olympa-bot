@@ -188,11 +188,25 @@ public class DiscordSQL {
 		resultSet.close();
 		return discordMember;
 	}
-
+	
 	private static OlympaStatement selectMemberDiscordIdStatement = new OlympaStatement(StatementType.SELECT, tableMembers, "discord_id", null);
-
+	
 	public static DiscordMember selectMemberByDiscordId(long discordId) throws SQLException {
 		PreparedStatement statement = selectMemberDiscordIdStatement.getStatement();
+		DiscordMember discordMember = null;
+		int i = 1;
+		statement.setLong(i++, discordId);
+		ResultSet resultSet = statement.executeQuery();
+		if (resultSet.next())
+			discordMember = DiscordMember.createObject(resultSet);
+		resultSet.close();
+		return discordMember;
+	}
+
+	private static OlympaStatement selectMemberOlympaDiscordIdStatement = new OlympaStatement(StatementType.SELECT, tableMembers, "id", null);
+
+	public static DiscordMember selectMemberByDiscordOlympaId(long discordId) throws SQLException {
+		PreparedStatement statement = selectMemberOlympaDiscordIdStatement.getStatement();
 		DiscordMember discordMember = null;
 		int i = 1;
 		statement.setLong(i++, discordId);
