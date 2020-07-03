@@ -122,7 +122,7 @@ public class TextChannelListener extends ListenerAdapter {
 				if (canSee && originalContent.getContent().replace(matcher.group(), "").isBlank()) {
 					EmbedBuilder embed = new EmbedBuilder();
 					embed.setTitle("Je te vois");
-					embed.setDescription("Les mentions fantômes sont interdites et sont passible de mute.");
+					embed.setDescription("Les mentions fantômes sont interdites et sont passibles de mute.");
 					embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 					channel.sendMessage(member.getAsMention()).queue(m -> channel.sendMessage(embed.build()).queue(msg -> {
 						sj.add("😡 Suspicion de ghost tag");
