@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -15,16 +14,13 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class JoinListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Guild guild = event.getGuild();
 		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.PUBLIC)
 			return;
-		int usersTotal = guild.getMemberCount();
-		GuildChannel membersChannel = guild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
-		membersChannel.getManager().setName("Membres : " + usersTotal).queue();
-		
+		long usersTotal = updateChannelMember(guild);
 		Member member = event.getMember();
 		EmbedBuilder em = new EmbedBuilder();
 		em.setTitle("Bienvenue sur notre discord " + member.getEffectiveName() + " !");
@@ -32,17 +28,22 @@ public class JoinListener extends ListenerAdapter {
 		em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		member.getUser().openPrivateChannel().queue(ch -> ch.sendMessage(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 	}
-	
+
 	@Override
 	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
 		Guild guild = event.getGuild();
 		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.PUBLIC)
 			return;
+		updateChannelMember(guild);
+	}
+
+	public long updateChannelMember(Guild defaultGuild) {
 		int usersTotal = 0;
-		for (User user2 : event.getJDA().getUserCache())
-			if (!user2.isBot())
+		for (Member user2 : defaultGuild.getMembers())
+			if (!user2.getUser().isBot())
 				usersTotal++;
-		GuildChannel membersChannel = guild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
+		GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
 		membersChannel.getManager().setName("Membres : " + usersTotal).queue();
+		return usersTotal;
 	}
 }
