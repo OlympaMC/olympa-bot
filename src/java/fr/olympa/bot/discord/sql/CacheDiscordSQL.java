@@ -18,11 +18,11 @@ public class CacheDiscordSQL {
 
 	// <discordId, DiscordMember>
 	private static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
-	
+
 	public static DiscordMember getDiscordMember(User user) throws SQLException {
 		return getDiscordMember(user.getIdLong());
 	}
-	
+
 	public static DiscordMember getDiscordMember(long userDiscordId) throws SQLException {
 		DiscordMember discordMember = cacheMembers.asMap().get(userDiscordId);
 		if (discordMember == null) {
@@ -32,7 +32,7 @@ public class CacheDiscordSQL {
 		}
 		return discordMember;
 	}
-	
+
 	public static DiscordMember getDiscordMemberByDiscordOlympaId(long discordOlympaId) throws SQLException {
 		DiscordMember discordMember = cacheMembers.asMap().values().stream().filter(dm -> dm.getId() == discordOlympaId).findFirst().orElse(null);
 		if (discordMember == null) {
@@ -52,14 +52,14 @@ public class CacheDiscordSQL {
 		}
 		return discordMember;
 	}
-	
+
 	private static void setDiscordMember(long userDiscordId, DiscordMember discordMember) {
 		cacheMembers.put(userDiscordId, discordMember);
 	}
-	
+
 	// <discordId, DiscordMember>
 	public static Cache<Long, DiscordMessage> cacheMessage = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
-	
+
 	public static Entry<Long, DiscordMessage> getDiscordMessage(OlympaGuild olympaGuild, Message message) throws SQLException {
 		return getDiscordMessage(olympaGuild.getId(), message.getTextChannel().getIdLong(), message.getIdLong());
 	}
@@ -69,7 +69,7 @@ public class CacheDiscordSQL {
 		if (entry == null) {
 			DiscordMessage discordMessage = DiscordSQL.selectMessage(olympaGuildId, channelDiscordId, messageDiscordId);
 			if (discordMessage != null) {
-				DiscordMember discordMember = getDiscordMember(discordMessage.getOlympaDiscordAuthorId());
+				DiscordMember discordMember = getDiscordMemberByDiscordOlympaId(discordMessage.getOlympaDiscordAuthorId());
 				entry = new AbstractMap.SimpleEntry<>(discordMember.getDiscordId(), discordMessage);
 				if (entry != null)
 					cacheMessage.put(entry.getKey(), entry.getValue());
@@ -77,7 +77,7 @@ public class CacheDiscordSQL {
 		}
 		return entry;
 	}
-	
+
 	public static void setDiscordMessage(long userDiscordId, DiscordMessage discordMessage) {
 		cacheMessage.put(userDiscordId, discordMessage);
 	}
