@@ -9,14 +9,14 @@ import net.dv8tion.jda.api.entities.Message;
 public class RestartCommand extends DiscordCommand {
 
 	public RestartCommand() {
-		super("restart", DiscordPermission.DEV);
+		super("restart", DiscordPermission.BUILDER);
 		description = "[serveurs]";
 		minArg = 1;
 	}
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
-		message.delete();
+		message.delete().queue();
 		OlympaRuntime.action("restart", args[0], out -> {
 			message.getChannel().sendMessage(new EmbedBuilder().setDescription(message.getAuthor().getAsMention() + " " + out).build()).queue(m -> deleteMessageAfter(m));
 		}).start();

@@ -89,9 +89,11 @@
     <maven.compiler.debug>true</maven.compiler.debug>
     <mainClass>x.Main</mainClass>
     <failOnMissingWebXml>false</failOnMissingWebXml>
+    <maven.build.timestamp.format>yyMMdd_HHmm</maven.build.timestamp.format>
     <maven.compiler.source>11</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.debuglevel>lines,vars,source</maven.compiler.debuglevel>
+    <buildNumber>${maven.build.timestamp}</buildNumber>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
   </properties>

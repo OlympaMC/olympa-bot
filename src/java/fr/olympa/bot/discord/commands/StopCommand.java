@@ -16,7 +16,7 @@ public class StopCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
-		message.delete();
+		message.delete().queue();
 		OlympaRuntime.action("stop", args[0], out -> {
 			message.getChannel().sendMessage(new EmbedBuilder().setDescription(message.getAuthor().getAsMention() + " " + out).build()).queue(m -> deleteMessageAfter(m));
 		}).start();
