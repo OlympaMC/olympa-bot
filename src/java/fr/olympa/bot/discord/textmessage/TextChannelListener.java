@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class TextChannelListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Guild guild = event.getGuild();
@@ -42,12 +42,14 @@ public class TextChannelListener extends ListenerAdapter {
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
 			if (user.isBot() || member.isFake())
 				return;
+			if (olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
+				return;
 			SwearDiscord.check(member, channel, message, olympaGuild);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		Guild guild = event.getGuild();
@@ -68,9 +70,10 @@ public class TextChannelListener extends ListenerAdapter {
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
 			if (member.getUser().isBot() || member.isFake())
 				return;
+			if (olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
+				return;
 			SwearDiscord.check(member, channel, message, olympaGuild);
-			
-			if (!olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
+			if (!olympaGuild.isLogMsg())
 				return;
 			StringJoiner sj = new StringJoiner(".\n");
 			sj.add(member.getAsMention() + " a modifié un message dans " + channel.getAsMention());
@@ -103,13 +106,13 @@ public class TextChannelListener extends ListenerAdapter {
 			StringJoiner sj = new StringJoiner(".\n");
 			sj.add(member.getAsMention() + " a supprimé un message dans " + channel.getAsMention());
 			sj.add("S'y rendre: " + discordMessage.getJumpUrl());
-			
+
 			// Check ghost tag
 			MessageContent originalContent = discordMessage.getOriginalContent();
 			if (originalContent != null && originalContent.getContent() != null) {
 				Matcher matcher = Pattern.compile("<@!?(\\d{18,})>").matcher(originalContent.getContent());
 				boolean canSee = false;
-				
+
 				while (matcher.find()) {
 					String userId = matcher.group(1);
 					canSee = guild.getMemberById(userId).getPermissions(channel).contains(Permission.MESSAGE_READ);

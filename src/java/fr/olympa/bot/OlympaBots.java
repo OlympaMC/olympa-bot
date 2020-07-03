@@ -1,21 +1,16 @@
 package fr.olympa.bot;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.SwearHandler;
 import fr.olympa.api.provider.RedisAccess;
 import fr.olympa.bot.bungee.DiscordCommand;
 import fr.olympa.bot.bungee.LinkBungeListener;
 import fr.olympa.bot.discord.OlympaDiscord;
-import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.bungee.utils.BungeeUtils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 
-public class OlympaBots extends Plugin implements LinkSpigotBungee {
+public class OlympaBots extends Plugin {
 
 	private static OlympaBots instance;
 
@@ -25,11 +20,6 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 
 	private OlympaDiscord olympaDiscord;
 	private SwearHandler swearHandler;
-
-	@Override
-	public Connection getDatabase() throws SQLException {
-		return OlympaBungee.getInstance().getDatabase();
-	}
 
 	public OlympaDiscord getDiscord() {
 		return olympaDiscord;
@@ -44,11 +34,6 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 	}
 
 	@Override
-	public void launchAsync(Runnable run) {
-		OlympaBungee.getInstance().launchAsync(run);
-	}
-
-	@Override
 	public void onDisable() {
 		olympaDiscord.disconnect();
 		sendMessage("§4" + getDescription().getName() + "§c (" + getDescription().getVersion() + ") est désactivé.");
@@ -57,17 +42,17 @@ public class OlympaBots extends Plugin implements LinkSpigotBungee {
 	@Override
 	public void onEnable() {
 		instance = this;
-		
+
 		RedisAccess.init("bungeeBot").connect();
 		PluginManager pluginManager = getProxy().getPluginManager();
 		// swearHandler = new SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
 		pluginManager.registerListener(this, new LinkBungeListener());
-		
+
 		new DiscordCommand(this).register();
-		
+
 		olympaDiscord = new OlympaDiscord();
 		olympaDiscord.connect(this);
-		
+
 		//new TwitterAPI(this).connect();
 		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
 	}

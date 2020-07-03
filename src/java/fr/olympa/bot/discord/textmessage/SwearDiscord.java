@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class SwearDiscord {
 	static SwearHandler swearHandler = new SwearHandler(OlympaBungee.getInstance().getConfig().getStringList("chat.insult"));
-	
+
 	public static void check(Member member, TextChannel channel, Message message, OlympaGuild olympaGuild) {
 		String messageRaw = swearHandler.testAndReplace(message.getContentRaw(), "**", "**");
 		if (messageRaw == null) {
