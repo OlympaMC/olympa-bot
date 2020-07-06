@@ -9,9 +9,10 @@ import fr.olympa.core.bungee.staffchat.StaffChatEvent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-public class StaffListenerBungee {
+public class StaffListenerBungee implements Listener {
 
 	@EventHandler
 	public void onStaffChat(StaffChatEvent event) {

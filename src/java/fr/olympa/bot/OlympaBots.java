@@ -5,6 +5,7 @@ import fr.olympa.api.provider.RedisAccess;
 import fr.olympa.bot.bungee.DiscordCommand;
 import fr.olympa.bot.bungee.LinkBungeListener;
 import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.discord.staff.StaffListenerBungee;
 import fr.olympa.core.bungee.utils.BungeeUtils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -47,6 +48,7 @@ public class OlympaBots extends Plugin {
 		PluginManager pluginManager = getProxy().getPluginManager();
 		// swearHandler = new SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
 		pluginManager.registerListener(this, new LinkBungeListener());
+		pluginManager.registerListener(this, new StaffListenerBungee());
 
 		new DiscordCommand(this).register();
 
