@@ -25,9 +25,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 
 public class WebHookHandler {
-	
+
 	public static String defaultName = "OlympaBot";
-	
+
 	private static WebhookClient sendWebhook(TextChannel channel, Consumer<? super Webhook> success) {
 		channel.retrieveWebhooks().queue(wbs -> {
 			Webhook webhook = wbs.stream().filter(wb -> wb.getName().equals(defaultName)).findFirst().orElse(null);
@@ -38,7 +38,7 @@ public class WebHookHandler {
 		});
 		return null;
 	}
-	
+
 	private static WebhookClient getClient(Webhook webhook) {
 		WebhookClientBuilder clientBuilder = new WebhookClientBuilder(webhook.getUrl());
 		clientBuilder.setThreadFactory((job) -> {
@@ -83,9 +83,9 @@ public class WebHookHandler {
 			for (Field field : oldFields)
 				webhookEmbed.addField(new EmbedField(field.isInline(), field.getName(), field.getValue()));
 		return webhookEmbed.build();
-		
+
 	}
-	
+
 	public static void send(MessageEmbed messageEmbed, TextChannel channel, Member member) {
 		Consumer<? super Webhook> success = webhook -> {
 			WebhookClient client = getClient(webhook);
@@ -97,14 +97,14 @@ public class WebHookHandler {
 		};
 		sendWebhook(channel, success);
 	}
-	
+
 	public static void send(String content, TextChannel channel, Member member) {
 		Consumer<? super Webhook> success = webhook -> {
 			WebhookClient client = getClient(webhook);
 			WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
 			messageBuilder.setUsername(member.getEffectiveName());
 			messageBuilder.setAvatarUrl(member.getUser().getAvatarUrl());
-			messageBuilder.append(content);
+			messageBuilder.setContent(content);
 			client.send(messageBuilder.build());
 		};
 		sendWebhook(channel, success);
