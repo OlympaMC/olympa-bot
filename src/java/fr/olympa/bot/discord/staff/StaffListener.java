@@ -11,6 +11,7 @@ import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.core.bungee.staffchat.StaffChatHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -58,6 +59,9 @@ public class StaffListener extends ListenerAdapter {
 			olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
 		if (olympaPlayer == null)
 			return;
-		StaffChatHandler.sendMessage(olympaPlayer, null, event.getMessage().getContentDisplay());
+		Message message = event.getMessage();
+		StringBuilder out = new StringBuilder(message.getContentDisplay());
+		message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
+		StaffChatHandler.sendMessage(olympaPlayer, null, out.toString());
 	}
 }
