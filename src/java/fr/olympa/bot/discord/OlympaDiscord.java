@@ -31,6 +31,7 @@ import fr.olympa.bot.discord.reaction.ReactionListener;
 import fr.olympa.bot.discord.sanctions.MuteCommand;
 import fr.olympa.bot.discord.spam.SpamListener;
 import fr.olympa.bot.discord.sql.DiscordSQL;
+import fr.olympa.bot.discord.staff.StaffListener;
 import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
 import fr.olympa.bot.discord.support.chat.SupportChatListener;
@@ -77,6 +78,7 @@ public class OlympaDiscord {
 		builder.addEventListeners(new GuildsListener());
 		builder.addEventListeners(new LogListener());
 		builder.addEventListeners(new MemberListener());
+		builder.addEventListeners(new StaffListener());
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
