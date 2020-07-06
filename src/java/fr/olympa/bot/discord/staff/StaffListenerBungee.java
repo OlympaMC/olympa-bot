@@ -1,9 +1,13 @@
 package fr.olympa.bot.discord.staff;
 
+import java.sql.SQLException;
+
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
 import fr.olympa.core.bungee.staffchat.StaffChatEvent;
 import net.dv8tion.jda.api.entities.Guild;
@@ -21,7 +25,17 @@ public class StaffListenerBungee implements Listener {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
 		Guild guild = olympaGuild.getGuild();
 		if (olympaPlayer != null) {
-			Member member = guild.getMembersByEffectiveName(olympaPlayer.getName(), true).get(0);
+			Member member = null;
+			try {
+				DiscordMember dm = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+				if (dm != null)
+					member = guild.getMemberById(dm.getDiscordId());
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return;
+			}
+			if (member == null)
+				member = guild.getMembersByEffectiveName(olympaPlayer.getName(), true).get(0);
 			if (member != null)
 				WebHookHandler.send(message, guild.getTextChannelById(729534637466189955L), member);
 		} else

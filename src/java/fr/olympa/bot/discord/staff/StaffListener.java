@@ -1,9 +1,13 @@
 package fr.olympa.bot.discord.staff;
 
+import java.sql.SQLException;
+
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.sql.MySQL;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.core.bungee.staffchat.StaffChatHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,12 +39,23 @@ public class StaffListener extends ListenerAdapter {
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
-		if (member.isFake() || member.getUser().isBot())
+		if (member == null || member.isFake() || member.getUser().isBot())
 			return;
 		TextChannel channel = event.getChannel();
 		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.STAFF && channel.getIdLong() != 729534637466189955L)
 			return;
-		OlympaPlayer olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
+		DiscordMember dm;
+		try {
+			dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+		OlympaPlayer olympaPlayer;
+		if (dm.getOlympaId() == 0)
+			olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
+		else
+			olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
 		if (olympaPlayer == null)
 			return;
 		StaffChatHandler.sendMessage(olympaPlayer, null, event.getMessage().getContentDisplay());
