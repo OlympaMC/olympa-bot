@@ -20,10 +20,11 @@ public class StaffListenerBungee implements Listener {
 
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
 		Guild guild = olympaGuild.getGuild();
-		Member member = guild.getMembersByEffectiveName(olympaPlayer.getName(), true).get(0);
-		if (member == null)
-			WebHookHandler.send(message, guild.getTextChannelById(729534637466189955L), member);
-		else
+		if (olympaPlayer != null) {
+			Member member = guild.getMembersByEffectiveName(olympaPlayer.getName(), true).get(0);
+			if (member != null)
+				WebHookHandler.send(message, guild.getTextChannelById(729534637466189955L), member);
+		} else
 			WebHookHandler.send(message, guild.getTextChannelById(729534637466189955L), event.getSender().getName(), "https://c7.uihere.com/files/250/925/132/computer-terminal-linux-console-computer-icons-command-line-interface-linux.jpg");
 	}
 }

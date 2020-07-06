@@ -35,6 +35,8 @@ public class StaffListener extends ListenerAdapter {
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
+		if (member.isFake() || member.getUser().isBot())
+			return;
 		TextChannel channel = event.getChannel();
 		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.STAFF && channel.getIdLong() != 729534637466189955L)
 			return;
