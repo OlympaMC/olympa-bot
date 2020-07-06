@@ -51,7 +51,8 @@ public class CommandListener extends ListenerAdapter {
 			member = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMember(message.getAuthor());
 
 		args = Arrays.copyOfRange(args, 1, args.length);
-		label = label.substring(1);
+		if (label.length() > 1)
+			label = label.substring(1);
 		if (label.isEmpty())
 			return;
 		DiscordCommand discordCommand = DiscordCommand.getCommand(label);

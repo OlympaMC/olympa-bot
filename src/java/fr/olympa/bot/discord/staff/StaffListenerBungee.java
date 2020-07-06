@@ -20,7 +20,7 @@ public class StaffListenerBungee implements Listener {
 		String message = event.getMessage();
 		CommandSender sender = event.getSender();
 
-		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
 		Guild guild = olympaGuild.getGuild();
 		Member member = guild.getMembersByEffectiveName(olympaPlayer.getName(), true).get(0);
 		WebHookHandler.send(message, guild.getTextChannelById(729534637466189955L), member);
