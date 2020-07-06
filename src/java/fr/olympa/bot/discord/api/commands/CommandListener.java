@@ -26,7 +26,7 @@ public class CommandListener extends ListenerAdapter {
 	private void checkMsg(GenericMessageEvent event, Message message) {
 		User user = message.getAuthor();
 		MessageChannel channel = event.getChannel();
-		if (user.isFake())
+		if (user.isFake() || message.getJDA().getSelfUser().getIdLong() == message.getAuthor().getIdLong())
 			return;
 
 		MessageType type = message.getType();
@@ -37,7 +37,7 @@ public class CommandListener extends ListenerAdapter {
 			return;
 		String label = args[0];
 		List<User> mentions = message.getMentionedUsers();
-		if (Pattern.compile("^\\" + DiscordCommand.prefix + "[a-zA-Z]+$").matcher(label).find()) {
+		if (!Pattern.compile("^\\" + DiscordCommand.prefix + "[a-zA-Z]+$").matcher(label).find()) {
 			if (mentions.contains(event.getJDA().getSelfUser())) {
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
