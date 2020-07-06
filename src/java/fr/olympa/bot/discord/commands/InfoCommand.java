@@ -38,7 +38,7 @@ public class InfoCommand extends DiscordCommand {
 	}
 
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		OlympaDiscord discord = OlympaBots.getInstance().getDiscord();
 		MessageChannel channel = message.getChannel();
 		deleteMessageAfter(message);

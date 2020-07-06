@@ -22,38 +22,39 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandListener extends ListenerAdapter {
-	
+
 	private void checkMsg(GenericMessageEvent event, Message message) {
 		User user = message.getAuthor();
-		
 		MessageChannel channel = event.getChannel();
-		
+
 		MessageType type = message.getType();
 		if (type != MessageType.DEFAULT)
 			return;
 		String[] args = message.getContentDisplay().split(" ");
 		if (args.length == 0)
 			return;
-		String commandName = args[0];
+		String label = args[0];
 		List<User> mentions = message.getMentionedUsers();
-		if (mentions.contains(event.getJDA().getSelfUser())) {
-			EmbedBuilder eb = new EmbedBuilder();
-			eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
-			eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " mon prefix est `" + DiscordCommand.prefix + "`" + ".");
-			channel.sendMessage(eb.build()).queue();
-		}
-		if (!Pattern.compile("^\\" + DiscordCommand.prefix + "\\w").matcher(commandName).find())
+		if (Pattern.compile("^\\" + DiscordCommand.prefix + "[a-zA-Z]+$").matcher(label).find()) {
+			if (mentions.contains(event.getJDA().getSelfUser())) {
+				EmbedBuilder eb = new EmbedBuilder();
+				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
+				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " mon prefix est `" + DiscordCommand.prefix + "`" + ".");
+				channel.sendMessage(eb.build()).queue();
+			}
 			return;
+		}
 		Member member = null;
 		if (message.isFromGuild())
 			member = message.getMember();
 		else
 			member = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMember(message.getAuthor());
-		
+
 		args = Arrays.copyOfRange(args, 1, args.length);
-		commandName = commandName.substring(1);
-		if (commandName.isEmpty()) return;
-		DiscordCommand discordCommand = DiscordCommand.getCommand(commandName);
+		label = label.substring(1);
+		if (label.isEmpty())
+			return;
+		DiscordCommand discordCommand = DiscordCommand.getCommand(label);
 		if (discordCommand == null) {
 			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande n'existe pas.").queue();
 			return;
@@ -77,17 +78,17 @@ public class CommandListener extends ListenerAdapter {
 		Integer minArg = discordCommand.minArg;
 		if (minArg != null && minArg > args.length) {
 			DiscordUtils.deleteTempMessage(message);
-			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Syntaxe : " + DiscordCommand.prefix + commandName + " " + discordCommand.usage);
+			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Syntaxe : " + DiscordCommand.prefix + label + " " + discordCommand.usage);
 			return;
 		}
-		discordCommand.onCommandSend(discordCommand, args, message);
+		discordCommand.onCommandSend(discordCommand, args, message, label);
 	}
-	
+
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		checkMsg(event, event.getMessage());
 	}
-	
+
 	@Override
 	public void onMessageUpdate(MessageUpdateEvent event) {
 		checkMsg(event, event.getMessage());

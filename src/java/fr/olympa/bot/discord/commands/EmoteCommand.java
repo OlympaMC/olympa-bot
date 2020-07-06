@@ -20,7 +20,7 @@ public class EmoteCommand extends DiscordCommand {
 	}
 
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
 		deleteMessage(message);
 

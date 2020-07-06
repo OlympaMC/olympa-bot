@@ -11,11 +11,10 @@ import fr.olympa.bot.discord.api.commands.CommandListener;
 import fr.olympa.bot.discord.commands.AnnonceCommand;
 import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
+import fr.olympa.bot.discord.commands.HelpCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
-import fr.olympa.bot.discord.commands.RestartCommand;
 import fr.olympa.bot.discord.commands.ServersCommand;
-import fr.olympa.bot.discord.commands.StartCommand;
-import fr.olympa.bot.discord.commands.StopCommand;
+import fr.olympa.bot.discord.commands.StartStopCommand;
 import fr.olympa.bot.discord.commands.UsurpCommand;
 import fr.olympa.bot.discord.groups.GroupCommand;
 import fr.olympa.bot.discord.groups.GroupListener;
@@ -57,7 +56,7 @@ public class OlympaDiscord {
 	private JDA jda;
 	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
-	
+
 	@SuppressWarnings("deprecation")
 	public void connect(Plugin plugin) {
 
@@ -88,10 +87,9 @@ public class OlympaDiscord {
 		new MuteCommand().register();
 		new SettingsCommand().register();
 		new UsurpCommand().register();
-		new StopCommand().register();
-		new StartCommand().register();
-		new RestartCommand().register();
+		new StartStopCommand().register();
 		new ServersCommand().register();
+		new HelpCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {

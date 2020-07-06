@@ -29,7 +29,7 @@ public class MuteCommand extends DiscordCommand {
 	}
 
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		if (args.length == 0)
 			return;
 

@@ -14,9 +14,9 @@ public class ServersCommand extends DiscordCommand {
 	public ServersCommand() {
 		super("server", "servers");
 	}
-	
+
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		Member member = message.getMember();
 		TextChannel channel = message.getTextChannel();
 

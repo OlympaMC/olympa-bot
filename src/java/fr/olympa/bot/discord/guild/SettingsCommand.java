@@ -20,14 +20,14 @@ public class SettingsCommand extends DiscordCommand {
 	}
 
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		message.delete().queue();
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		EmbedBuilder embed = new EmbedBuilder().setTitle("🔧 Paramètres");
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		
+
 		if (args.length == 0) {
 			embed.setDescription(description);
 			embed.addField("Logs msg", olympaGuild.isLogMsg() ? "✅" : "❌", true);

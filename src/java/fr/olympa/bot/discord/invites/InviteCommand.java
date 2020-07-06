@@ -23,23 +23,23 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class InviteCommand extends DiscordCommand {
-	
+
 	public InviteCommand() {
 		super("invite", DiscordPermission.DEV);
 		description = "Donnes des stats concernant les invitations.";
 	}
-	
+
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
 		message.delete().queue(null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
-		
+
 		if (args.length != 0 && args[0].equalsIgnoreCase("show")) {
 			EmbedBuilder em = new EmbedBuilder();
 			List<Invite> invites = guild.retrieveInvites().complete();
 			Set<Long> invitesPeruser = invites.stream().map(invite -> invite.getInviter().getIdLong()).collect(Collectors.toSet());
-			
+
 			em.setTitle("💌 Invitations");
 			em.setDescription("Il y a " + invites.size() + " invations par " + invitesPeruser.size() + " membres.\n");
 			for (Invite invite : invites) {
@@ -60,7 +60,7 @@ public class InviteCommand extends DiscordCommand {
 				int uses = invite.getUses();
 				maxInvite = invite.getMaxUses();
 				String timeCreated = invite.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-				
+
 				smallSb.append("Utilisé " + uses + " fois ");
 				if (maxInvite != 0 || maxAge != 0) {
 					smallSb.append("Valable ");
@@ -120,7 +120,7 @@ public class InviteCommand extends DiscordCommand {
 				}
 				channel.sendMessage(em.build()).queue();
 			});
-			
+
 		}
 	}
 }

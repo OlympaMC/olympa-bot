@@ -12,13 +12,12 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class HelpCommand extends DiscordCommand {
 
 	public HelpCommand() {
-		super("help", DiscordPermission.DEV);
-		minArg = 1;
+		super("help");
 		description = "Listes des commandes";
 	}
 
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
 		Member member = message.getMember();
 		EmbedBuilder em = new EmbedBuilder();
