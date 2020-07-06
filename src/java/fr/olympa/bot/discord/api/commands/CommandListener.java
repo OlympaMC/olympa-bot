@@ -26,6 +26,8 @@ public class CommandListener extends ListenerAdapter {
 	private void checkMsg(GenericMessageEvent event, Message message) {
 		User user = message.getAuthor();
 		MessageChannel channel = event.getChannel();
+		if (user.isFake())
+			return;
 
 		MessageType type = message.getType();
 		if (type != MessageType.DEFAULT)
