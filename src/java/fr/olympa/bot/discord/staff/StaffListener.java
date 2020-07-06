@@ -43,25 +43,25 @@ public class StaffListener extends ListenerAdapter {
 		if (member == null || member.isFake() || member.getUser().isBot())
 			return;
 		TextChannel channel = event.getChannel();
-		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.STAFF && channel.getIdLong() != 729534637466189955L)
-			return;
-		DiscordMember dm;
-		try {
-			dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return;
+		if (GuildHandler.getOlympaGuild(guild).getType() == DiscordGuildType.STAFF && channel.getIdLong() == 729534637466189955L) {
+			DiscordMember dm;
+			try {
+				dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return;
+			}
+			OlympaPlayer olympaPlayer;
+			if (dm.getOlympaId() == 0)
+				olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
+			else
+				olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
+			if (olympaPlayer == null)
+				return;
+			Message message = event.getMessage();
+			StringBuilder out = new StringBuilder(message.getContentDisplay());
+			message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
+			StaffChatHandler.sendMessage(olympaPlayer, null, out.toString());
 		}
-		OlympaPlayer olympaPlayer;
-		if (dm.getOlympaId() == 0)
-			olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
-		else
-			olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
-		if (olympaPlayer == null)
-			return;
-		Message message = event.getMessage();
-		StringBuilder out = new StringBuilder(message.getContentDisplay());
-		message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
-		StaffChatHandler.sendMessage(olympaPlayer, null, out.toString());
 	}
 }
