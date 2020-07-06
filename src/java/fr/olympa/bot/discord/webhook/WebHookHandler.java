@@ -99,11 +99,15 @@ public class WebHookHandler {
 	}
 
 	public static void send(String content, TextChannel channel, Member member) {
+		send(content, channel, member.getEffectiveName(), member.getUser().getAvatarUrl());
+	}
+
+	public static void send(String content, TextChannel channel, String name, String avatarUrl) {
 		Consumer<? super Webhook> success = webhook -> {
 			WebhookClient client = getClient(webhook);
 			WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
-			messageBuilder.setUsername(member.getEffectiveName());
-			messageBuilder.setAvatarUrl(member.getUser().getAvatarUrl());
+			messageBuilder.setUsername(name);
+			messageBuilder.setAvatarUrl(avatarUrl);
 			messageBuilder.setContent(content);
 			client.send(messageBuilder.build());
 		};
