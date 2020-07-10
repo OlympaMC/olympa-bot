@@ -36,6 +36,7 @@ public class SettingsCommand extends DiscordCommand {
 			embed.addField("Logs rôles", olympaGuild.isLogRoles() ? "✅" : "❌", true);
 			embed.addField("Logs pseudo", olympaGuild.isLogUsername() ? "✅" : "❌", true);
 			embed.addField("Logs channel vocal", olympaGuild.isLogVoice() ? "✅" : "❌", true);
+			embed.addField("Logs insultes", olympaGuild.isLogInsult() ? "✅" : "❌", true);
 			String s = "❌";
 			if (olympaGuild.getLogChannelId() != 0)
 				s = guild.getTextChannelById(olympaGuild.getLogChannelId()).getAsMention();
