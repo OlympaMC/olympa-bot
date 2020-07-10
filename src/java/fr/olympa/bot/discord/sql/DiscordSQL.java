@@ -16,6 +16,7 @@ import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.reaction.ReactionDiscord;
+import fr.olympa.bot.discord.sanctions.DiscordSanction;
 import fr.olympa.bot.discord.textmessage.DiscordMessage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -29,9 +30,42 @@ public class DiscordSQL {
 	static String tableMembers = "discord.members";
 	static String tableMessages = "discord.messages";
 	static String tableReaction = "discord.reactions";
-	
+	static String tableSanction = "discord.sanctions";
+
+	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, tableMessages, "target_id", "author_id", "type", "reason", "expire");
+
+	public static void addSanction(DiscordSanction discordSanction) throws SQLException {
+		PreparedStatement statement = insertSanctionStatement.getStatement();
+		int i = 1;
+		statement.setLong(i++, discordSanction.getTargetOlympaDiscordId());
+		statement.setLong(i++, discordSanction.getAuthorOlympaDiscordId());
+		statement.setLong(i++, discordSanction.getType().getId());
+		statement.setString(i++, discordSanction.getReason());
+		Long expire = discordSanction.getExpire();
+		if (expire != null)
+			statement.setTimestamp(i++, new Timestamp(expire * 1000L));
+		else
+			statement.setTimestamp(i++, null);
+		statement.executeUpdate();
+		statement.close();
+	}
+
+	private static OlympaStatement selectSanctionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, "id", null);
+
+	public static DiscordSanction selectSanction(long id) throws SQLException {
+		PreparedStatement statement = selectSanctionStatement.getStatement();
+		DiscordSanction sanction = null;
+		int i = 1;
+		statement.setLong(i++, id);
+		ResultSet resultSet = statement.executeQuery();
+		if (resultSet.next())
+			sanction = DiscordSanction.createObject(resultSet);
+		resultSet.close();
+		return sanction;
+	}
+
 	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction, new String[] { "message_id", "allowed_users_ids", "data", "can_multiple", "guild_id" });
-	
+
 	public static OlympaGuild addReaction(ReactionDiscord reaction) throws SQLException {
 		PreparedStatement statement = insertReactionStatement.getStatement();
 		OlympaGuild olympaGuild = null;
@@ -49,7 +83,7 @@ public class DiscordSQL {
 		statement.close();
 		return olympaGuild;
 	}
-	
+
 	private static OlympaStatement selectReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, "message_id", null);
 
 	public static ReactionDiscord selectReaction(long messageId) throws SQLException {
@@ -63,20 +97,20 @@ public class DiscordSQL {
 				@Override
 				public void onReactRemove(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
 				}
-				
+
 				@Override
 				public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
 				}
-				
+
 				@Override
 				public void onReactModClearAll(long messageId, MessageChannel messageChannel) {
 				}
-				
+
 				@Override
 				public boolean onReactAdd(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
 					return false;
 				}
-				
+
 				@Override
 				public void onBotStop(long messageId) {
 				}
@@ -86,7 +120,7 @@ public class DiscordSQL {
 	}
 
 	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, new String[] { "guild_id", "guild_name" });
-	
+
 	public static OlympaGuild addGuild(Guild guild) throws SQLException {
 		PreparedStatement statement = insertGuildStatement.getStatement();
 		OlympaGuild olympaGuild = null;
@@ -115,7 +149,7 @@ public class DiscordSQL {
 		resultSet.close();
 		return olympaGuild;
 	}
-	
+
 	private static OlympaStatement selectGuildsIdStatement = new OlympaStatement(StatementType.SELECT, tableGuild, (String[]) null, (String[]) null);
 
 	public static List<OlympaGuild> selectGuilds() throws SQLException {
@@ -129,7 +163,7 @@ public class DiscordSQL {
 	}
 
 	private static OlympaStatement updateGuildStatement = new OlympaStatement(StatementType.UPDATE, tableGuild, "id", new String[] {
-			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_channel_id", "exclude_channels_ids", "guild_type" });
+			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_channel_id", "log_insult", "exclude_channels_ids", "guild_type" });
 
 	public static void updateGuild(OlympaGuild olympaGuild) throws SQLException {
 		PreparedStatement statement = updateGuildStatement.getStatement();
@@ -141,6 +175,7 @@ public class DiscordSQL {
 		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogAttachment()));
 		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogRoles()));
 		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogEntries()));
+		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogInsult()));
 		if (olympaGuild.getLogChannelId() != 0)
 			statement.setLong(i++, olympaGuild.getLogChannelId());
 		else
@@ -154,7 +189,7 @@ public class DiscordSQL {
 		statement.executeUpdate();
 		statement.close();
 	}
-	
+
 	private static OlympaStatement insertPlayerStatement = new OlympaStatement(StatementType.INSERT, tableMembers, new String[] { "discord_id", "discord_name", "olympa_id" });
 
 	public static DiscordMember addMember(DiscordMember discordMember) throws SQLException {
@@ -188,9 +223,9 @@ public class DiscordSQL {
 		resultSet.close();
 		return discordMember;
 	}
-	
+
 	private static OlympaStatement selectMemberDiscordIdStatement = new OlympaStatement(StatementType.SELECT, tableMembers, "discord_id", null);
-	
+
 	public static DiscordMember selectMemberByDiscordId(long discordId) throws SQLException {
 		PreparedStatement statement = selectMemberDiscordIdStatement.getStatement();
 		DiscordMember discordMember = null;
@@ -269,7 +304,7 @@ public class DiscordSQL {
 	}
 
 	private static OlympaStatement updateMessageStatement = new OlympaStatement(StatementType.UPDATE, tableMessages, new String[] { "guild_discord_id", "channel_discord_id", "message_discord_id" }, "contents");
-	
+
 	public static void updateMessageContent(DiscordMessage discordMessage) throws SQLException {
 		PreparedStatement statement = updateMessageStatement.getStatement();
 		int i = 1;
@@ -280,9 +315,9 @@ public class DiscordSQL {
 		statement.executeUpdate();
 		statement.close();
 	}
-	
+
 	private static OlympaStatement updateMessageStatement2 = new OlympaStatement(StatementType.UPDATE, tableMessages, new String[] { "guild_discord_id", "channel_discord_id", "message_discord_id" }, "log_msg_discord_id");
-	
+
 	public static void updateMessageLogMsgId(DiscordMessage discordMessage) throws SQLException {
 		PreparedStatement statement = updateMessageStatement2.getStatement();
 		int i = 1;
@@ -305,6 +340,5 @@ public class DiscordSQL {
 		resultSet.close();
 		return membersIds;
 	}
-	
 	// https://stackoverflow.com/questions/14096429/how-to-delete-a-mysql-record-after-a-certain-time
 }

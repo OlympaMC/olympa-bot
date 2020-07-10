@@ -1,6 +1,7 @@
 package fr.olympa.bot.discord.textmessage;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -12,6 +13,7 @@ import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
+import fr.olympa.bot.discord.webhook.WebHookHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -19,6 +21,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
@@ -85,6 +88,37 @@ public class TextChannelListener extends ListenerAdapter {
 	}
 
 	@Override
+	public void onMessageBulkDelete(MessageBulkDeleteEvent event) {
+		Guild guild = event.getGuild();
+		List<String> messageIds = event.getMessageIds();
+		TextChannel channel = event.getChannel();
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
+		messageIds.forEach(messageId -> {
+
+			try {
+				Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(guild.getIdLong(), channel.getIdLong(), Integer.parseInt(messageId));
+				if (entry == null)
+					return;
+				DiscordMessage discordMessage = entry.getValue();
+				Member member = discordMessage.getGuild().getMemberById(entry.getKey());
+				if (member == null)
+					return;
+				discordMessage.setMessageDeleted();
+				CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
+				DiscordSQL.updateMessageContent(discordMessage);
+				if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
+					return;
+				StringJoiner sj = new StringJoiner(".\n");
+				sj.add(member.getAsMention() + " a supprimé un message dans " + channel.getAsMention());
+				sj.add("S'y rendre: " + discordMessage.getJumpUrl());
+				SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	@Override
 	public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
 		Guild guild = event.getGuild();
 		long messageId = event.getMessageIdLong();
@@ -105,33 +139,33 @@ public class TextChannelListener extends ListenerAdapter {
 				return;
 			StringJoiner sj = new StringJoiner(".\n");
 			sj.add(member.getAsMention() + " a supprimé un message dans " + channel.getAsMention());
-			sj.add("S'y rendre: " + discordMessage.getJumpUrl());
 
 			// Check ghost tag
 			MessageContent originalContent = discordMessage.getOriginalContent();
 			if (originalContent != null && originalContent.getContent() != null) {
 				Matcher matcher = Pattern.compile("<@!?(\\d{18,})>").matcher(originalContent.getContent());
-				boolean canSee = false;
-
+				Member target = null;
 				while (matcher.find()) {
 					String userId = matcher.group(1);
-					canSee = guild.getMemberById(userId).getPermissions(channel).contains(Permission.MESSAGE_READ);
-					if (canSee)
-						break;
+					target = guild.getMemberById(userId);
+					if (!target.getPermissions(channel).contains(Permission.MESSAGE_READ))
+						target = null;
 				}
-				if (canSee && originalContent.getContent().replace(matcher.group(), "").isBlank()) {
+				if (target != null && originalContent.getContent().replace(matcher.group(), "").isBlank()) {
+					sj.add("😡 Suspicion de ghost tag");
+					Member t = target;
 					EmbedBuilder embed = new EmbedBuilder();
-					embed.setTitle("Je te vois");
-					embed.setDescription("Les mentions fantômes sont interdites et sont passibles de mute.");
+					//					embed.setTitle("Je te vois");
+					embed.setDescription(member.getAsMention() + " Abuses pas des mentions fantômes stp, c'est interdit.");
 					embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-					channel.sendMessage(member.getAsMention()).queue(m -> channel.sendMessage(embed.build()).queue(msg -> {
-						sj.add("😡 Suspicion de ghost tag");
-						sj.add("S'y rendre: " + msg.getJumpUrl() + ".");
+					WebHookHandler.send(embed.build(), channel, t, t1 -> {
+						sj.add("S'y rendre: https://discord.com/channels/" + channel.getGuild().getId() + "/" + channel.getId() + "/" + t1.getId() + ".");
 						SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
-					}));
+					});
 					return;
 				}
 			}
+			sj.add("S'y rendre: " + discordMessage.getJumpUrl());
 			SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 		} catch (SQLException e) {
 			e.printStackTrace();

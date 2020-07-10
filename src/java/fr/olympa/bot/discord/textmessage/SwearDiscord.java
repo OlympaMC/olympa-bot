@@ -15,6 +15,8 @@ public class SwearDiscord {
 	static SwearHandler swearHandler = new SwearHandler(OlympaBungee.getInstance().getConfig().getStringList("chat.insult"));
 
 	public static void check(Member member, TextChannel channel, Message message, OlympaGuild olympaGuild) {
+		if (!olympaGuild.isLogInsult())
+			return;
 		String messageRaw = swearHandler.testAndReplace(message.getContentRaw(), "**", "**");
 		if (messageRaw == null) {
 			message.clearReactions("☢️");

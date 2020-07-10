@@ -63,6 +63,7 @@ public class OlympaDiscord {
 
 		JDABuilder builder = new JDABuilder("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
 		builder.setStatus(OnlineStatus.IDLE);
+		builder.setBulkDeleteSplittingEnabled(true);
 
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
