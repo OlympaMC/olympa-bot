@@ -1,6 +1,7 @@
 package fr.olympa.bot.discord.commands;
 
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
@@ -13,7 +14,7 @@ public class HelpCommand extends DiscordCommand {
 
 	public HelpCommand() {
 		super("help");
-		description = "Listes des commandes";
+		description = "Affiche la liste des commandes.";
 	}
 
 	@Override
@@ -22,11 +23,12 @@ public class HelpCommand extends DiscordCommand {
 		Member member = message.getMember();
 		EmbedBuilder em = new EmbedBuilder();
 		em.setTitle("Les commandes:");
-		em.setDescription(DiscordCommand.getCommands().entrySet().stream().filter(entry -> DiscordPermission.hasPermission(entry.getValue().getPermission(), member)).map(entry -> {
-			String n = entry.getKey();
-			DiscordCommand dc = entry.getValue();
-			return DiscordCommand.prefix + n + " " + dc.getDescription();
-		}).collect(Collectors.joining("\n")));
+		DiscordCommand.getCommands().values().stream().filter(x -> DiscordPermission.hasPermission(x.getPermission(), member)).forEach(x -> {
+			List<String> names = new ArrayList<>(3);
+			names.add(x.getName());
+			if (x.getAliases() != null) names.addAll(x.getAliases());
+			em.addField(DiscordCommand.prefix + String.join(", ", names), x.getDescription() == null ? "Pas de description." : x.getDescription(), false);
+		});
 		channel.sendMessage(em.build()).queue();
 	}
 

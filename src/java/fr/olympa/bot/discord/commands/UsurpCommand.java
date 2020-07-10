@@ -13,7 +13,7 @@ public class UsurpCommand extends DiscordCommand {
 	public UsurpCommand() {
 		super("usurper", DiscordPermission.HIGH_STAFF);
 		minArg = 3;
-		description = "Usurpe un membre.";
+		description = "Usurpe un membre en écrivant un message à sa place.";
 	}
 
 	@Override

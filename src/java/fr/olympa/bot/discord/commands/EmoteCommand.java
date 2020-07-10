@@ -17,6 +17,7 @@ public class EmoteCommand extends DiscordCommand {
 	public EmoteCommand() {
 		super("emote", DiscordPermission.HIGH_DEV);
 		minArg = 1;
+		description = "Permet de tester un emote.";
 	}
 
 	@Override

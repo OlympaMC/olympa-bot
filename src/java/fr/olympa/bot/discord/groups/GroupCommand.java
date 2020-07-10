@@ -17,6 +17,7 @@ public class GroupCommand extends DiscordCommand {
 
 	public GroupCommand() {
 		super("groupe", DiscordPermission.HIGH_DEV);
+		description = "Donne des infos sur un joueur Olympa.";
 	}
 
 	@Override

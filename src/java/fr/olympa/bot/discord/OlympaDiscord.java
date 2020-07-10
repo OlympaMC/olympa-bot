@@ -13,6 +13,7 @@ import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.HelpCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
+import fr.olympa.bot.discord.commands.PlayersCommand;
 import fr.olympa.bot.discord.commands.ServersCommand;
 import fr.olympa.bot.discord.commands.StartStopCommand;
 import fr.olympa.bot.discord.commands.UsurpCommand;
@@ -93,6 +94,7 @@ public class OlympaDiscord {
 		new StartStopCommand().register();
 		new ServersCommand().register();
 		new HelpCommand().register();
+		new PlayersCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {

@@ -20,6 +20,7 @@ public class SupportCommand extends DiscordCommand {
 
 	public SupportCommand() {
 		super("support", DiscordPermission.DEV, "aide", "ticket", "ticket", "tiket", "help");
+		description = "Permet de créer un ticket d'aide.";
 	}
 
 	@Override

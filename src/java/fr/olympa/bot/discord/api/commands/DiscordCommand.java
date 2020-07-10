@@ -22,7 +22,7 @@ public abstract class DiscordCommand implements CommandEvent {
 		String commandName = nameOrAliase.toLowerCase();
 		DiscordCommand command = commands.get(commandName);
 		if (command == null)
-			command = commands.values().stream().filter(commands -> commands.aliases != null && commands.aliases.contains(commandName)).findFirst().orElse(null);
+			command = commands.values().stream().filter(commands -> commands.getAliases() != null && commands.getAliases().contains(commandName)).findFirst().orElse(null);
 		return command;
 	}
 	
@@ -62,8 +62,16 @@ public abstract class DiscordCommand implements CommandEvent {
 		this.aliases = Arrays.asList(aliases);
 	}
 	
+	public String getName() {
+		return name;
+	}
+	
 	public String getDescription() {
 		return description;
+	}
+
+	public List<String> getAliases() {
+		return aliases;
 	}
 
 	public void deleteMessage(Message message) {

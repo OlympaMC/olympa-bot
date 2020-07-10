@@ -74,13 +74,13 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>LATEST</version>
+			<version>4.2.0_175</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>club.minnced</groupId>
 			<artifactId>discord-webhooks</artifactId>
-			<version>LATEST</version>
+			<version>0.3.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
