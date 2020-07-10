@@ -13,6 +13,7 @@ public class StartStopCommand extends DiscordCommand {
 		super("stop", DiscordPermission.BUILDER, "restart", "start");
 		description = "[serveurs]";
 		minArg = 1;
+		description = "Effectue une action (stop/start/restart) sur un serveur.";
 	}
 
 	@Override

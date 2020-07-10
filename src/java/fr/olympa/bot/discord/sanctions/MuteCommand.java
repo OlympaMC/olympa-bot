@@ -26,6 +26,7 @@ public class MuteCommand extends DiscordCommand {
 		super("mute", DiscordPermission.ASSISTANT);
 		minArg = 1;
 		usage = "<nom|surnom|tag|id>";
+		description = "Permet de mute un membre.";
 	}
 
 	@Override

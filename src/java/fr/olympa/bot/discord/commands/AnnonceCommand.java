@@ -12,7 +12,7 @@ public class AnnonceCommand extends DiscordCommand {
 	public AnnonceCommand() {
 		super("annonce", DiscordPermission.HIGH_STAFF);
 		minArg = 1;
-		description = "Ecrire une annonce par le bot, et @everyone. Message en argument.";
+		description = "Écrit une annonce par le bot, et tag everyone.";
 	}
 
 	@Override

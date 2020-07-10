@@ -13,6 +13,7 @@ public class ServersCommand extends DiscordCommand {
 
 	public ServersCommand() {
 		super("server", "servers");
+		description = "Affiche la liste des serveurs et leur état.";
 	}
 
 	@Override
