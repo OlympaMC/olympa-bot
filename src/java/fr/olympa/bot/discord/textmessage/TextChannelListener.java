@@ -153,7 +153,7 @@ public class TextChannelListener extends ListenerAdapter {
 					if (mentionned.getPermissions(channel).contains(Permission.MESSAGE_READ))
 						mentionneds.add(mentionned);
 				}
-				if (!mentionneds.isEmpty() && originalContent.getContent().replaceAll("<@!?(\\\\d{18,})>", "").isBlank()) {
+				if (!mentionneds.isEmpty() && originalContent.getContent().replaceAll("<@!?(\\d{18,})>", "").isBlank()) {
 					sj.add("😡 Suspicion de ghost tag sur " + mentionneds.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 					EmbedBuilder embed = new EmbedBuilder();
 					embed.setDescription(member.getAsMention() + " Abuses pas des mentions fantômes stp, c'est interdit.");
