@@ -160,8 +160,8 @@ public class TextChannelListener extends ListenerAdapter {
 					embed.setDescription("N'abuses pas des mentions fantômes stp, c'est interdit.");
 					embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 					WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
-					messageBuilder.setContent(member.getAsMention());
 					messageBuilder.addEmbeds(WebHookHandler.convertEmbed(embed.build()));
+					messageBuilder.append(member.getAsMention());
 					WebHookHandler.send(embed.build(), channel, mentionneds.get(0), t1 -> {
 						sj.add("S'y rendre: https://discord.com/channels/" + channel.getGuild().getId() + "/" + channel.getId() + "/" + t1.getId() + ".");
 						SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
