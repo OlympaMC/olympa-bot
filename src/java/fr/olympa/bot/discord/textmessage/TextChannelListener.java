@@ -1,11 +1,13 @@
 package fr.olympa.bot.discord.textmessage;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -144,21 +146,19 @@ public class TextChannelListener extends ListenerAdapter {
 			MessageContent originalContent = discordMessage.getOriginalContent();
 			if (originalContent != null && originalContent.getContent() != null) {
 				Matcher matcher = Pattern.compile("<@!?(\\d{18,})>").matcher(originalContent.getContent());
-				Member target = null;
+				List<Member> mentionneds = new ArrayList<>();
 				while (matcher.find()) {
 					String userId = matcher.group(1);
-					target = guild.getMemberById(userId);
-					if (!target.getPermissions(channel).contains(Permission.MESSAGE_READ))
-						target = null;
+					Member mentionned = guild.getMemberById(userId);
+					if (mentionned.getPermissions(channel).contains(Permission.MESSAGE_READ))
+						mentionneds.add(mentionned);
 				}
-				if (target != null && originalContent.getContent().replace(matcher.group(), "").isBlank()) {
-					sj.add("😡 Suspicion de ghost tag");
-					Member t = target;
+				if (!mentionneds.isEmpty() && originalContent.getContent().replaceAll("<@!?(\\\\d{18,})>", "").isBlank()) {
+					sj.add("😡 Suspicion de ghost tag sur " + mentionneds.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 					EmbedBuilder embed = new EmbedBuilder();
-					//					embed.setTitle("Je te vois");
 					embed.setDescription(member.getAsMention() + " Abuses pas des mentions fantômes stp, c'est interdit.");
 					embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-					WebHookHandler.send(embed.build(), channel, t, t1 -> {
+					WebHookHandler.send(embed.build(), channel, mentionneds.get(0), t1 -> {
 						sj.add("S'y rendre: https://discord.com/channels/" + channel.getGuild().getId() + "/" + channel.getId() + "/" + t1.getId() + ".");
 						SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 					});
