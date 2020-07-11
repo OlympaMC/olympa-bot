@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -156,8 +157,11 @@ public class TextChannelListener extends ListenerAdapter {
 				if (!mentionneds.isEmpty() && originalContent.getContent().replaceAll("<@!?(\\d{18,})>", "").isBlank()) {
 					sj.add("😡 Suspicion de ghost tag sur " + mentionneds.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 					EmbedBuilder embed = new EmbedBuilder();
-					embed.setDescription(member.getAsMention() + " Abuses pas des mentions fantômes stp, c'est interdit.");
+					embed.setDescription("N'abuses pas des mentions fantômes stp, c'est interdit.");
 					embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
+					WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
+					messageBuilder.setContent(member.getAsMention());
+					messageBuilder.addEmbeds(WebHookHandler.convertEmbed(embed.build()));
 					WebHookHandler.send(embed.build(), channel, mentionneds.get(0), t1 -> {
 						sj.add("S'y rendre: https://discord.com/channels/" + channel.getGuild().getId() + "/" + channel.getId() + "/" + t1.getId() + ".");
 						SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
