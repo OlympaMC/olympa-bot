@@ -9,14 +9,14 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class SpamDiscord {
-	
+
 	final long userId;
 	Map<Member, Integer> data = new HashMap<>();
-	
+
 	public SpamDiscord(long userId) {
 		this.userId = userId;
 	}
-	
+
 	public boolean addMention(Member member) {
 		int i = 0;
 		if (data.containsKey(member))
@@ -27,27 +27,27 @@ public class SpamDiscord {
 			TextChannel channel = olympaGuild.getLogChannel();
 			// TODO better mute
 			if (channel != null)
-				channel.sendMessage("$mute " + channel.getGuild().getMemberById(userId).getUser().getAsTag() + " 1h Spam Mention").queue();
+				channel.sendMessage("$mute " + channel.getGuild().getMemberById(userId).getIdLong() + " 1h Spam Mention").queue();
 		}
 		return i > 1;
 	}
-	
+
 	public void delMention(Member member) {
 		data.remove(member);
 	}
-	
+
 	public Map<Member, Integer> getData() {
 		return data;
 	}
-	
+
 	public Integer getData(Member member) {
 		return data.get(member);
 	}
-	
+
 	public long getUserId() {
 		return userId;
 	}
-	
+
 	public void remove(Member member) {
 		data.remove(member);
 	}
