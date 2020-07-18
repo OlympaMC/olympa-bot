@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class GuildsListener extends ListenerAdapter {
 
 	List<Long> allUsers = null;
-	
+
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		User user = event.getUser();
@@ -31,12 +31,12 @@ public class GuildsListener extends ListenerAdapter {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void onReady(ReadyEvent event) {
 		allUsers = null;
 	}
-	
+
 	@Override
 	public void onShutdown(ShutdownEvent event) {
 		GuildHandler.guilds.forEach(guild -> {
@@ -47,7 +47,7 @@ public class GuildsListener extends ListenerAdapter {
 			}
 		});
 	}
-	
+
 	@Override
 	public void onGuildReady(GuildReadyEvent event) {
 		try {
@@ -59,6 +59,10 @@ public class GuildsListener extends ListenerAdapter {
 				olympaGuild = DiscordSQL.addGuild(guild);
 				if (olympaGuild != null)
 					GuildHandler.guilds.add(olympaGuild);
+			}
+			if (olympaGuild.getName().equals(guild.getName())) {
+				olympaGuild.setName(guild.getName());
+				DiscordSQL.updateGuild(olympaGuild);
 			}
 			for (Member membre : guild.getMembers())
 				if (!allUsers.contains(membre.getIdLong())) {
