@@ -45,7 +45,7 @@ public class ReadyListener extends ListenerAdapter {
 				int count = ProxyServer.getInstance().getOnlineCount();
 				String s = count > 1 ? "s" : new String();
 				if (count > 0)
-					presence.setActivity(Activity.playing("🚧 " + count + " joueur%s connecté%s".replaceAll("%s", s)));
+					presence.setActivity(Activity.playing("🚧 " + count + " joueur%s connecté%s".replace("%s", s)));
 				else
 					presence.setActivity(Activity.playing("🚧 En développement"));
 				presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
@@ -56,7 +56,7 @@ public class ReadyListener extends ListenerAdapter {
 			public void run() {
 				int usersConnected = 0;
 				int usersTotal = 0;
-				for (Member member : GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberCache())
+				for (Member member : GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMembers())
 					if (!member.getUser().isBot()) {
 						if (member.getOnlineStatus() != OnlineStatus.OFFLINE)
 							usersConnected++;

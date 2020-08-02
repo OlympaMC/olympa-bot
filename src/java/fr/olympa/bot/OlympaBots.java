@@ -49,7 +49,6 @@ public class OlympaBots extends Plugin {
 		// swearHandler = new SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
 		pluginManager.registerListener(this, new LinkBungeListener());
 		pluginManager.registerListener(this, new StaffListenerBungee());
-
 		new DiscordCommand(this).register();
 
 		olympaDiscord = new OlympaDiscord();
