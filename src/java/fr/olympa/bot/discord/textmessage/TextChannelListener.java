@@ -157,7 +157,7 @@ public class TextChannelListener extends ListenerAdapter {
 				if (!mentionneds.isEmpty() && originalContent.getContent().replaceAll("<@!?(\\d{18,})>", "").isBlank()) {
 					sj.add("😡 Suspicion de ghost tag sur " + mentionneds.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 					EmbedBuilder embed = new EmbedBuilder();
-					embed.setDescription("N'abuses pas des mentions fantômes stp, c'est interdit.");
+					embed.setDescription(member.getAsMention() + ", n'abuses pas des mentions fantômes, c'est interdit.");
 					embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 					WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
 					messageBuilder.addEmbeds(WebHookHandler.convertEmbed(embed.build()));

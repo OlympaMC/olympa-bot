@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.staff;
 
+import java.awt.Color;
 import java.sql.SQLException;
 
 import fr.olympa.api.player.OlympaPlayer;
@@ -59,6 +60,7 @@ public class StaffListenerBungee implements Listener {
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setAuthor(player.getName(), null, "https://minotar.net/avatar/" + player.getName());
 		eb.setDescription(player.getName() + " s'est connecté au serveur " + player.getServer().getInfo().getName() + ".");
+		eb.setColor(Color.GREEN);
 		channelStaffDiscord.sendMessage(eb.build()).queue();
 	}
 
@@ -71,6 +73,7 @@ public class StaffListenerBungee implements Listener {
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setAuthor(player.getName(), null, "https://minotar.net/avatar/" + player.getName());
 		eb.setDescription(player.getName() + " s'est déconnecté du serveur.");
+		eb.setColor(Color.RED);
 		channelStaffDiscord.sendMessage(eb.build()).queue();
 	}
 }
