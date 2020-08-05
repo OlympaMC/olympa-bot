@@ -163,7 +163,7 @@ public class DiscordSQL {
 	}
 
 	private static OlympaStatement updateGuildStatement = new OlympaStatement(StatementType.UPDATE, tableGuild, "id", new String[] {
-			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_channel_id", "log_insult", "exclude_channels_ids", "guild_type" });
+			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_insult", "log_channel_id", "exclude_channels_ids", "guild_type" });
 
 	public static void updateGuild(OlympaGuild olympaGuild) throws SQLException {
 		PreparedStatement statement = updateGuildStatement.getStatement();
