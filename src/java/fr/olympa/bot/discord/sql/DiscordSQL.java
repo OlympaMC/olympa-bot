@@ -263,7 +263,7 @@ public class DiscordSQL {
 		else
 			statement.setObject(i++, null);
 		statement.setDouble(i++, discordMember.getXp());
-		if (discordMember.getLastSeen() != 0)
+		if (discordMember.getLastSeen() != -1)
 			statement.setTimestamp(i++, new Timestamp(discordMember.getLastSeen() * 1000L));
 		else
 			statement.setObject(i++, null);

@@ -23,7 +23,7 @@ public class DiscordMember {
 	long olympaId;
 	String name;
 	double xp;
-	long lastSeen;
+	long lastSeen = -1;
 
 	public static List<Member> get(Guild guild, String name, List<Member> mentionned) {
 		if (mentionned != null && !mentionned.isEmpty())
@@ -117,7 +117,7 @@ public class DiscordMember {
 	}
 
 	public long getLastSeenTime() {
-		return lastSeen == 0 ? 0 : Utils.getCurrentTimeInSeconds() - lastSeen;
+		return lastSeen == -1 ? -1 : Utils.getCurrentTimeInSeconds() - lastSeen;
 	}
 
 	public void updateLastSeen() {
