@@ -29,7 +29,13 @@ public class StaffListenerBungee implements Listener {
 	public void onPlayerDisconnect(PlayerDisconnectEvent event) {
 		ProxiedPlayer player = event.getPlayer();
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		OlympaPlayer olympaPlayer = AccountProvider.get(player.getUniqueId());
+		OlympaPlayer olympaPlayer = null;
+		try {
+			olympaPlayer = new AccountProvider(player.getUniqueId()).get();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
 		DiscordMember discordMember = null;
 		String playerName = player.getName();
 		try {
@@ -52,11 +58,16 @@ public class StaffListenerBungee implements Listener {
 
 	@EventHandler
 	public void onPostLogin(ServerSwitchEvent event) {
-		if (event.getFrom() != null) {
+		if (event.getFrom() != null)
+			return;
+		ProxiedPlayer player = event.getPlayer();
+		OlympaPlayer olympaPlayer = null;
+		try {
+			olympaPlayer = new AccountProvider(player.getUniqueId()).get();
+		} catch (SQLException e) {
+			e.printStackTrace();
 			return;
 		}
-		ProxiedPlayer player = event.getPlayer();
-		OlympaPlayer olympaPlayer = AccountProvider.get(player.getUniqueId());
 		DiscordMember discordMember = null;
 		String playerName = player.getName();
 		try {
@@ -90,21 +101,17 @@ public class StaffListenerBungee implements Listener {
 			Member member = null;
 			try {
 				DiscordMember dm = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
-				if (dm != null) {
+				if (dm != null)
 					member = guild.getMemberById(dm.getDiscordId());
-				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return;
 			}
-			if (member == null) {
+			if (member == null)
 				member = guild.getMembersByEffectiveName(olympaPlayer.getName(), true).get(0);
-			}
-			if (member != null) {
+			if (member != null)
 				WebHookHandler.send(message, channelStaffDiscord, member);
-			}
-		} else {
+		} else
 			WebHookHandler.send(message, channelStaffDiscord, event.getSender().getName(), "https://c7.uihere.com/files/250/925/132/computer-terminal-linux-console-computer-icons-command-line-interface-linux.jpg");
-		}
 	}
 }
