@@ -24,14 +24,15 @@ public class ReactionListener extends ListenerAdapter {
 			User user = event.getUser();
 			MessageReaction react = event.getReaction();
 			ReactionDiscord reaction = AwaitReaction.get(messageId);
-			if (reaction == null || user.isBot())
+			if (reaction == null || user.isBot()) {
 				return;
+			}
 			long nb = 0;
 			if (!reaction.canMultiple()) {
 				Message messages = event.getTextChannel().retrieveMessageById(messageId).complete();
 				nb = messages.getReactions().stream().filter(r -> !r.retrieveUsers().complete().contains(user)).count();
 			}
-			if (!reaction.canInteract(user) || nb > 1 || !reaction.onReactAdd(messageId, event.getChannel(), react, user)) {
+			if (!reaction.canInteract(user) || nb > 1 || !reaction.onReactAdd(messageId, event.getChannel(), user, react, reaction.getData(react))) {
 				react.removeReaction(user).queue();
 				return;
 			}
@@ -43,8 +44,9 @@ public class ReactionListener extends ListenerAdapter {
 		long messageId = event.getMessageIdLong();
 		User user = event.getUser();
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
-		if (reaction == null || user.isBot())
+		if (reaction == null || user.isBot()) {
 			return;
+		}
 		reaction.onReactRemove(messageId, event.getChannel(), event.getReaction(), user);
 	}
 
@@ -52,8 +54,9 @@ public class ReactionListener extends ListenerAdapter {
 	public void onMessageReactionRemoveAll(MessageReactionRemoveAllEvent event) {
 		long messageId = event.getMessageIdLong();
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
-		if (reaction == null)
+		if (reaction == null) {
 			return;
+		}
 		reaction.onReactModClearAll(messageId, event.getChannel());
 	}
 
@@ -61,18 +64,21 @@ public class ReactionListener extends ListenerAdapter {
 	public void onMessageReactionRemoveEmote(MessageReactionRemoveEmoteEvent event) {
 		long messageId = event.getMessageIdLong();
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
-		if (reaction == null)
+		if (reaction == null) {
 			return;
+		}
 		reaction.onReactModDeleteOne(messageId, event.getChannel());
 	}
 
 	@Override
 	public void onStatusChange(StatusChangeEvent event) {
-		if (!event.getNewStatus().equals(Status.SHUTTING_DOWN))
+		if (!event.getNewStatus().equals(Status.SHUTTING_DOWN)) {
 			return;
+		}
 		ConcurrentMap<Long, ReactionDiscord> reactions = AwaitReaction.getAll();
-		if (reactions == null || reactions.isEmpty())
+		if (reactions == null || reactions.isEmpty()) {
 			return;
+		}
 		reactions.entrySet().forEach(entry -> entry.getValue().onBotStop(entry.getKey()));
 	}
 }

@@ -39,23 +39,26 @@ public class SanctionHandler {
 		DiscordSanction discordSanction = new DiscordSanction(targetMember.getId(), authorMember.getId(), type, reason, expire);
 		EmbedBuilder em = new EmbedBuilder();
 		em.setTitle(type.getName());
-		em.setDescription(target.getAsMention() + " a été mute par " + author.getAsMention() + " pour **" + reason + "**");
-		if (expire != null)
+		em.setDescription(target.getAsMention() + " a été " + type.getNameLowerCase() + " par " + author.getAsMention() + " pour **" + reason + "**");
+		if (expire != null) {
 			em.appendDescription(" pendant **" + Utils.timestampToDuration(expire) + "**");
+		}
 		em.appendDescription(".");
 		olympaGuild.getLogChannel().sendMessage(em.build()).queue();
 
 		if (discordSanction.getType() == DiscordSanctionType.MUTE) {
-			if (expire != null)
+			if (expire != null) {
 				new Timer().schedule(new TimerTask() {
 					@Override
 					public void run() {
 						guild.removeRoleFromMember(target, DiscordGroup.MUTED.getRole(guild)).queue();
 					}
 				}, new Date(expire * 1000L));
+			}
 			guild.addRoleToMember(target, DiscordGroup.MUTED.getRole(guild)).queue();
-		} else
-			guild.kick(target, reason);
+		} else {
+			guild.kick(target, "Ban par " + author.getAsTag() + " pour " + reason).queue();
+		}
 	}
 
 	public static void addSanctionFromMsg(Member target, Message message, DiscordSanctionType type) throws SQLException {

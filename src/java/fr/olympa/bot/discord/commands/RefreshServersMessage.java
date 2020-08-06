@@ -21,11 +21,11 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 
 public class RefreshServersMessage extends ReactionDiscord {
-	
+
 	public RefreshServersMessage(ResultSet resultSet) throws SQLException {
 		super(resultSet.getString("data"), resultSet.getString("allowed_users_ids"), resultSet.getInt("can_multiple") == 1, resultSet.getInt("guild_id"), resultSet.getLong("message_id"));
 	}
-	
+
 	public RefreshServersMessage(Map<String, String> map, Message msg, long guildOlympaId, long... canReactUserIds) {
 		super(map, msg.getIdLong(), guildOlympaId, canReactUserIds);
 	}
@@ -33,26 +33,27 @@ public class RefreshServersMessage extends ReactionDiscord {
 	@Override
 	public void onReactRemove(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
 	}
-	
+
 	@Override
 	public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
 	}
-	
+
 	@Override
 	public void onReactModClearAll(long messageId, MessageChannel messageChannel) {
 	}
-	
+
 	@Override
-	public boolean onReactAdd(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
-		if ("refresh".equalsIgnoreCase(getData(messageReaction)))
+	public boolean onReactAdd(long messageId, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
+		if ("refresh".equalsIgnoreCase(getData(messageReaction))) {
 			messageChannel.retrieveMessageById(messageId).queue(x -> x.editMessage(getEmbed()).queue());
+		}
 		return false;
 	}
-	
+
 	@Override
 	public void onBotStop(long messageId) {
 	}
-	
+
 	public static MessageEmbed getEmbed() {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
@@ -62,23 +63,28 @@ public class RefreshServersMessage extends ReactionDiscord {
 			StringJoiner sb = new StringJoiner(" ");
 			sb.add("__" + status.getName() + "__");
 			sb.add("**" + serverInfo.getName() + ":**\u200B");
-			if (serverInfo.getOnlinePlayers() != null)
+			if (serverInfo.getOnlinePlayers() != null) {
 				sb.add("**Joueurs :** " + serverInfo.getOnlinePlayers() + "/" + serverInfo.getMaxPlayers() + "\u200B");
-			if (serverInfo.getTps() != null)
+			}
+			if (serverInfo.getTps() != null) {
 				sb.add("**TPS :** " + serverInfo.getTps() + "\u200B");
-			if (serverInfo.getPing() != null)
+			}
+			if (serverInfo.getPing() != null) {
 				sb.add("**Ping :** " + serverInfo.getPing() + "ms\u200B");
-			if (serverInfo.getError() != null)
+			}
+			if (serverInfo.getError() != null) {
 				sb.add("Erreur : *" + serverInfo.getError() + "*");
+			}
 			embedBuilder.addField(serverInfo.getOlympaServer().getNameCaps(), sb.toString(), true);
 		}
 		List<ServerStatus> statuss = info.stream().map(si -> si.getStatus()).collect(Collectors.toList());
-		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
+		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN)) {
 			embedBuilder.setColor(Color.GREEN);
-		else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE))
+		} else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE)) {
 			embedBuilder.setColor(Color.RED);
-		else
+		} else {
 			embedBuilder.setColor(Color.ORANGE);
+		}
 		return embedBuilder.build();
 	}
 }
