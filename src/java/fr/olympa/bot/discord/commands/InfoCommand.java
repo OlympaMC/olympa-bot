@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -151,10 +152,10 @@ public class InfoCommand extends DiscordCommand {
 			embed.setImage(user.getAvatarUrl());
 			embed.setColor(discord.getColor());
 			String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
-			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE).replace("-", "\\");
+			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE.localizedBy(Locale.FRANCE));
 			embed.addField("Compte créé", date + " (" + t + ")", true);
 			t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
-			date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE).replace("-", "\\");
+			date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE.localizedBy(Locale.FRANCE));
 			embed.addField("Membre depuis", date + " (" + t + ")", true);
 			DiscordMember discordMember;
 			try {
