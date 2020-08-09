@@ -10,6 +10,7 @@ import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.commands.CommandListener;
 import fr.olympa.bot.discord.commands.AnnonceCommand;
 import fr.olympa.bot.discord.commands.ClearCommand;
+import fr.olympa.bot.discord.commands.DeployCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.HelpCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
@@ -95,6 +96,7 @@ public class OlympaDiscord {
 		new ServersCommand().register();
 		new HelpCommand().register();
 		new PlayersCommand().register();
+		new DeployCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {
