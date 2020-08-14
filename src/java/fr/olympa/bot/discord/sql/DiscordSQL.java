@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.sql;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -252,12 +253,14 @@ public class DiscordSQL {
 		return discordMember;
 	}
 
-	private static OlympaStatement updateMemberStatement = new OlympaStatement(StatementType.UPDATE, tableMembers, "id", new String[] { "discord_name", "olympa_id", "xp", "last_seen" });
+	private static OlympaStatement updateMemberStatement = new OlympaStatement(StatementType.UPDATE, tableMembers, "id",
+			new String[] { "discord_name", "discord_tag", "olympa_id", "xp", "last_seen", "join_date", "leave_date", "old_names" });
 
 	public static void updateMember(DiscordMember discordMember) throws SQLException {
 		PreparedStatement statement = updateMemberStatement.getStatement();
 		int i = 1;
 		statement.setString(i++, discordMember.getName());
+		statement.setString(i++, discordMember.getTag());
 		if (discordMember.getOlympaId() != 0)
 			statement.setLong(i++, discordMember.getOlympaId());
 		else
@@ -267,9 +270,22 @@ public class DiscordSQL {
 			statement.setTimestamp(i++, new Timestamp(discordMember.getLastSeen() * 1000L));
 		else
 			statement.setObject(i++, null);
+		if (discordMember.getJoinTime() != -1)
+			statement.setDate(i++, new Date(discordMember.getJoinTime() * 1000L));
+		else
+			statement.setObject(i++, null);
+		if (discordMember.getLeaveTime() != -1)
+			statement.setDate(i++, new Date(discordMember.getLeaveTime() * 1000L));
+		else
+			statement.setObject(i++, null);
+		if (!discordMember.getOldNames().isEmpty())
+			statement.setString(i++, new Gson().toJson(discordMember.getOldNames()));
+		else
+			statement.setObject(i++, null);
 		statement.setLong(i++, discordMember.getId());
 		statement.executeUpdate();
 		statement.close();
+		System.out.println("[DEBUG] discordMember update: " + discordMember.getName() + new Gson().toJson(discordMember));
 	}
 
 	private static OlympaStatement insertMessageStatement = new OlympaStatement(StatementType.INSERT, tableMessages, "guild_discord_id", "channel_discord_id", "message_discord_id", "author_id", "contents", "created");

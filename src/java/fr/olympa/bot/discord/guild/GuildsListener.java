@@ -20,19 +20,6 @@ public class GuildsListener extends ListenerAdapter {
 	List<Long> allUsers = null;
 
 	@Override
-	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-		User user = event.getUser();
-		DiscordMember discordMembers;
-		try {
-			discordMembers = CacheDiscordSQL.getDiscordMember(user);
-			if (discordMembers == null)
-				DiscordSQL.addMember(new DiscordMember(user));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
 	public void onReady(ReadyEvent event) {
 		allUsers = null;
 	}
@@ -49,10 +36,28 @@ public class GuildsListener extends ListenerAdapter {
 	}
 
 	@Override
+	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+		Member member = event.getMember();
+		User user = event.getUser();
+		DiscordMember discordMembers;
+		try {
+			discordMembers = CacheDiscordSQL.getDiscordMember(user);
+			if (discordMembers == null) {
+				DiscordMember joinTime = new DiscordMember(user);
+				joinTime.updateJoinTime(member.getTimeJoined().toEpochSecond());
+				DiscordSQL.addMember(joinTime);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
 	public void onGuildReady(GuildReadyEvent event) {
 		try {
 			if (allUsers == null)
 				allUsers = DiscordSQL.selectDiscordMembersIds();
+			System.out.println("Debug taille des users: " + allUsers.size());
 			Guild guild = event.getGuild();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			if (olympaGuild == null) {
@@ -60,15 +65,23 @@ public class GuildsListener extends ListenerAdapter {
 				if (olympaGuild != null)
 					GuildHandler.guilds.add(olympaGuild);
 			}
-			if (olympaGuild.getName().equals(guild.getName())) {
+			if (!olympaGuild.getName().equals(guild.getName())) {
 				olympaGuild.setName(guild.getName());
 				DiscordSQL.updateGuild(olympaGuild);
 			}
-			for (Member membre : guild.getMembers())
-				if (!allUsers.contains(membre.getIdLong())) {
+			for (Member membre : guild.getMembers()) {
+				DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(membre.getUser());
+				if (discordMember == null)
 					DiscordSQL.addMember(new DiscordMember(membre));
-					allUsers.add(membre.getIdLong());
+				else if (discordMember.getTag() == null) {
+					discordMember.updateName(membre.getUser());
+					DiscordSQL.updateMember(discordMember);
 				}
+			}
+			//				if (!allUsers.contains(membre.getIdLong())) {
+			//			DiscordSQL.addMember(new DiscordMember(membre));
+			//			allUsers.add(membre.getIdLong());
+			//				}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

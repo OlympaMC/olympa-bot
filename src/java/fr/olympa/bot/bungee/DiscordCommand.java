@@ -36,54 +36,54 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
 public class DiscordCommand extends BungeeCommand implements TabExecutor {
-	
+
 	private TextComponent message;
-	
+
 	public DiscordCommand(Plugin plugin) {
 		super(plugin, "discord");
 		message = new TextComponent();
 		TextComponent textComponent = new TextComponent("[");
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
-		
+
 		textComponent = new TextComponent("Discord");
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
 		message.addExtra(textComponent);
-		
+
 		textComponent = new TextComponent("] ");
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
-		
+
 		textComponent = new TextComponent("➤ ");
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
-		
+
 		textComponent = new TextComponent("discord.olympa.fr");
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
 		textComponent.setUnderlined(true);
 		textComponent.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
 		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "discord.olympa.fr"));
 		message.addExtra(textComponent);
-		
+
 		textComponent = new TextComponent(". Pour relier ton compte discord à Minecraft, fais ");
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
-		
+
 		textComponent = new TextComponent("/discord link");
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
 		message.addExtra(textComponent);
 	}
-	
+
 	@Override
 	public void onCommand(CommandSender sender, String[] args) {
 		if (args.length == 0) {
 			sender.sendMessage(message);
 			return;
 		}
-		
+
 		getOlympaPlayer();
 		switch (args[0].toLowerCase()) {
-		
+
 		case "link":
 			if (olympaPlayer == null) {
 				sendError("Impossible d'accéder à tes donnés.");
@@ -93,12 +93,12 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 				sendError("Tu as déjà un compte Discord relié.");
 				return;
 			}
-			
+
 			String code = LinkHandler.getCode(proxiedPlayer);
 			if (code == null)
 				code = LinkHandler.addWaiting(proxiedPlayer);
 			//sendMessage("&5[&dDiscord&5] ➤ &dPour relier ton compte Discord & Olympa, envoie le code &5&l" + code + "&d en privé à &7@&5OlympaBot#5503&d.");
-			
+
 			TextComponent message = new TextComponent(TextComponent.fromLegacyText("§5[§dDiscord§5] ➤ §dPour relier ton compte Discord & Olympa, envoie le code "));
 			TextComponent codeComponent = new TextComponent(code);
 			codeComponent.setColor(ChatColor.DARK_PURPLE);
@@ -109,7 +109,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			for (BaseComponent baseComponent : TextComponent.fromLegacyText("§d en privé à §7@§5OlympaBot#5503§d."))
 				message.addExtra(baseComponent);
 			proxiedPlayer.sendMessage(message);
-			
+
 			break;
 		case "info":
 		case "roles":
@@ -159,7 +159,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			}
 			break;
 		case "stop":
-			if (olympaPlayer != null && !OlympaCorePermissions.DEV.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_BOT.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}
@@ -168,10 +168,10 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 				sendMessage("&5[&dDiscord&5] ➤ &6Bot éteint.");
 			} else
 				sendMessage("&5[&dDiscord&5] ➤ &cBot déjà éteint.");
-			
+
 			break;
 		case "start":
-			if (olympaPlayer != null && !OlympaCorePermissions.DEV.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_BOT.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}
@@ -186,7 +186,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			break;
 		}
 	}
-	
+
 	@Override
 	public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
 		if (args.length == 1) {
@@ -195,5 +195,5 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 		}
 		return new ArrayList<>();
 	}
-	
+
 }

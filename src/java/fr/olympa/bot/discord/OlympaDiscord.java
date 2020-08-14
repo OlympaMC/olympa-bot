@@ -24,7 +24,6 @@ import fr.olympa.bot.discord.guild.GuildsListener;
 import fr.olympa.bot.discord.guild.SettingsCommand;
 import fr.olympa.bot.discord.invites.InviteCommand;
 import fr.olympa.bot.discord.link.LinkListener;
-import fr.olympa.bot.discord.listeners.JoinListener;
 import fr.olympa.bot.discord.listeners.ReadyListener;
 import fr.olympa.bot.discord.member.MemberListener;
 import fr.olympa.bot.discord.observer.LogListener;
@@ -68,7 +67,6 @@ public class OlympaDiscord {
 
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
-		builder.addEventListeners(new JoinListener());
 		builder.addEventListeners(new SupportListener());
 		//builder.addEventListeners(new ObserverListener());
 		builder.addEventListeners(new LinkListener());

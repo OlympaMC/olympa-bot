@@ -1,11 +1,17 @@
 package fr.olympa.bot.discord.member;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import fr.olympa.api.utils.Matcher;
 import fr.olympa.api.utils.Utils;
@@ -22,8 +28,25 @@ public class DiscordMember {
 	final long discordId;
 	long olympaId;
 	String name;
+	String tag;
 	double xp;
 	long lastSeen = -1;
+	long joinTime = -1;
+	long leaveTime = -1;
+
+	public long getJoinTime() {
+		return joinTime;
+	}
+
+	public long getLeaveTime() {
+		return leaveTime;
+	}
+
+	public Map<Long, String> getOldNames() {
+		return oldNames;
+	}
+
+	Map<Long, String> oldNames = new HashMap<>();
 
 	public static List<Member> get(Guild guild, String name, List<Member> mentionned) {
 		if (mentionned != null && !mentionned.isEmpty())
@@ -48,28 +71,40 @@ public class DiscordMember {
 				resultSet.getLong("discord_id"),
 				resultSet.getLong("olympa_id"),
 				resultSet.getString("discord_name"),
+				resultSet.getString("discord_tag"),
 				resultSet.getDouble("xp"),
-				resultSet.getTimestamp("last_seen"));
+				resultSet.getTimestamp("last_seen"),
+				resultSet.getDate("join_date"),
+				resultSet.getDate("leave_date"),
+				resultSet.getString("old_names"));
 	}
 
-	public DiscordMember(long id, long discordId, long olympaId, String name, double xp, Timestamp lastSeen) {
+	public DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames) {
 		this.id = id;
 		this.discordId = discordId;
 		this.olympaId = olympaId;
 		this.name = name;
+		this.tag = tag;
 		this.xp = xp;
 		if (lastSeen != null)
 			this.lastSeen = lastSeen.getTime() / 1000L;
+		if (joinDate != null)
+			joinTime = joinDate.getTime() / 1000L;
+		if (leaveDate != null)
+			leaveTime = leaveDate.getTime() / 1000L;
+		if (oldNames != null)
+			this.oldNames = new Gson().fromJson(oldNames, new TypeToken<Map<Long, String>>() {
+			}.getType());
 	}
 
 	public DiscordMember(Member member) {
 		discordId = member.getIdLong();
-		name = member.getUser().getName();
+		updateName(member.getUser());
 	}
 
 	public DiscordMember(User user) {
 		discordId = user.getIdLong();
-		name = user.getName();
+		updateName(user);
 	}
 
 	private JDA getJDA() {
@@ -100,12 +135,24 @@ public class DiscordMember {
 		this.id = id;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void updateName(User user) {
+		java.util.regex.Matcher matcher = User.USER_TAG.matcher(user.getAsTag());
+		if (!matcher.find())
+			return;
+		String newName = matcher.group(1);
+		if (!newName.equals(name)) {
+			oldNames.put(Utils.getCurrentTimeInSeconds(), name);
+			name = newName;
+		}
+		tag = matcher.group(2);
 	}
 
 	public void setOlympaId(long olympaId) {
 		this.olympaId = olympaId;
+	}
+
+	public String getTag() {
+		return tag;
 	}
 
 	public double getXp() {
@@ -122,5 +169,13 @@ public class DiscordMember {
 
 	public void updateLastSeen() {
 		lastSeen = Utils.getCurrentTimeInSeconds();
+	}
+
+	public void updateJoinTime(long joinTime) {
+		this.joinTime = joinTime;
+	}
+
+	public void updateLeaveTime(long joinTime) {
+		this.joinTime = joinTime;
 	}
 }
