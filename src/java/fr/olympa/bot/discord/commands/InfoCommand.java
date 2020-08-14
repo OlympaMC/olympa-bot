@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -49,14 +50,16 @@ public class InfoCommand extends DiscordCommand {
 			List<Guild> guilds = jda.getGuilds();
 			int usersConnected = 0;
 			int usersTotal = 0;
-			for (User user2 : jda.getUsers())
+			for (User user2 : jda.getUsers()) {
 				if (!user2.isBot()) {
 					Guild firstGuild = user2.getMutualGuilds().get(0);
 					Member member2 = firstGuild.getMember(user2);
-					if (member2.getOnlineStatus() != OnlineStatus.OFFLINE)
+					if (member2.getOnlineStatus() != OnlineStatus.OFFLINE) {
 						usersConnected++;
+					}
 					usersTotal++;
 				}
+			}
 			User author = jda.getUserById(450125243592343563L);
 			EmbedBuilder embed = new EmbedBuilder()
 					.setTitle("Informations")
@@ -107,8 +110,9 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "nonsigne":
 			Guild guild = message.getGuild();
-			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong()) {
 				return;
+			}
 			Role roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			Set<Member> signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
 			Set<Member> noSigned = guild.getMemberCache().asSet().stream().filter(m -> !signed.contains(m) && DiscordGroup.isStaff(m) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -121,8 +125,9 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "signe":
 			guild = message.getGuild();
-			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong()) {
 				return;
+			}
 			roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
 			noSigned = guild.getMemberCache().asSet().stream().filter(m -> !signed.contains(m) && DiscordGroup.isStaff(m) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -136,8 +141,9 @@ public class InfoCommand extends DiscordCommand {
 		case "joueur":
 		case "membre":
 			List<Member> members = message.getMentionedMembers();
-			if (members.isEmpty())
+			if (members.isEmpty()) {
 				return;
+			}
 			Member member = members.get(0);
 			User user = member.getUser();
 			embed = new EmbedBuilder();
@@ -146,10 +152,10 @@ public class InfoCommand extends DiscordCommand {
 			embed.setImage(user.getAvatarUrl());
 			embed.setColor(discord.getColor());
 			String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
-			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
+			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE.localizedBy(Locale.FRANCE));
 			embed.addField("Compte créé", date + " (" + t + ")", true);
 			t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
-			date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE);
+			date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE.localizedBy(Locale.FRANCE));
 			embed.addField("Membre depuis", date + " (" + t + ")", true);
 			DiscordMember discordMember;
 			try {
@@ -158,8 +164,9 @@ public class InfoCommand extends DiscordCommand {
 				embed.addField("XP", df.format(discordMember.getXp()), true);
 				embed.addField("Compte lié", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
 				OnlineStatus onlineStatus = member.getOnlineStatus();
-				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
+				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0) {
 					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -177,8 +184,9 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "absent":
 			guild = message.getGuild();
-			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong()) {
 				return;
+			}
 			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
 
 			embed = new EmbedBuilder();

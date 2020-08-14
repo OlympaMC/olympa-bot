@@ -108,7 +108,7 @@ public class DiscordSQL {
 				}
 
 				@Override
-				public boolean onReactAdd(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
+				public boolean onReactAdd(long messageId, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
 					return false;
 				}
 

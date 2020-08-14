@@ -85,11 +85,15 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 		switch (args[0].toLowerCase()) {
 
 		case "link":
-			if (olympaPlayer == null) {
-				sendError("Impossible d'accéder à tes donnés.");
+			DiscordMember discordMember;
+			try {
+				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+			} catch (SQLException e) {
+				e.printStackTrace();
+				sendError();
 				return;
 			}
-			if (olympaPlayer.getDiscordId() != 0) {
+			if (discordMember != null) {
 				sendError("Tu as déjà un compte Discord relié.");
 				return;
 			}
@@ -124,7 +128,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			}
 			olympaPlayer = AccountProvider.get(proxiedPlayer.getUniqueId());
 			try {
-				DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
 				if (discordMember == null) {
 					if (args.length > 2)
 						sendError("&4" + proxiedPlayer.getDisplayName() + "&c n'as pas lié son compte Discord et Minecraft.");

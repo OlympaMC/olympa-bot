@@ -13,6 +13,10 @@ public enum DiscordSanctionType {
 		return Utils.capitalize(name());
 	}
 
+	public String getNameLowerCase() {
+		return name().toLowerCase();
+	}
+
 	public long getId() {
 		return ordinal();
 	}

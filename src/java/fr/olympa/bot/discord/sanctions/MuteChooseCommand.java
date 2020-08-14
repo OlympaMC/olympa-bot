@@ -24,8 +24,7 @@ public class MuteChooseCommand extends ReactionDiscord {
 	}
 
 	@Override
-	public boolean onReactAdd(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
-		String data = getData(messageReaction);
+	public boolean onReactAdd(long messageId, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
 		Member target = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(data);
 
 		EmbedBuilder em = new EmbedBuilder();
