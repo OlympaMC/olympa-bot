@@ -57,7 +57,6 @@ public class GuildsListener extends ListenerAdapter {
 		try {
 			if (allUsers == null)
 				allUsers = DiscordSQL.selectDiscordMembersIds();
-			System.out.println("Debug taille des users: " + allUsers.size());
 			Guild guild = event.getGuild();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			if (olympaGuild == null) {
