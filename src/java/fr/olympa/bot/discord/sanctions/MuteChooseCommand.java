@@ -19,6 +19,10 @@ public class MuteChooseCommand extends ReactionDiscord {
 		super(data, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId(), canReactUserIds);
 	}
 
+	public MuteChooseCommand() {
+		super();
+	}
+
 	@Override
 	public void onBotStop(long messageId) {
 	}

@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 
@@ -17,12 +19,10 @@ import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.reaction.ReactionDiscord;
+import fr.olympa.bot.discord.reaction.ReactionHandler;
 import fr.olympa.bot.discord.sanctions.DiscordSanction;
 import fr.olympa.bot.discord.textmessage.DiscordMessage;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.entities.User;
 
 public class DiscordSQL {
 
@@ -33,7 +33,7 @@ public class DiscordSQL {
 	static String tableReaction = "discord.reactions";
 	static String tableSanction = "discord.sanctions";
 
-	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, tableMessages, "target_id", "author_id", "type", "reason", "expire");
+	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, tableSanction, "target_id", "author_id", "type", "reason", "expire");
 
 	public static void addSanction(DiscordSanction discordSanction) throws SQLException {
 		PreparedStatement statement = insertSanctionStatement.getStatement();
@@ -51,7 +51,7 @@ public class DiscordSQL {
 		statement.close();
 	}
 
-	private static OlympaStatement selectSanctionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, "id", null);
+	private static OlympaStatement selectSanctionStatement = new OlympaStatement(StatementType.SELECT, tableSanction, "id", null);
 
 	public static DiscordSanction selectSanction(long id) throws SQLException {
 		PreparedStatement statement = selectSanctionStatement.getStatement();
@@ -65,12 +65,13 @@ public class DiscordSQL {
 		return sanction;
 	}
 
-	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction, new String[] { "message_id", "allowed_users_ids", "data", "can_multiple", "guild_id" });
+	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction, new String[] { "class_name", "message_id", "allowed_users_ids", "data", "can_multiple", "guild_id" });
 
-	public static OlympaGuild addReaction(ReactionDiscord reaction) throws SQLException {
+	public static OlympaGuild addReaction(ReactionDiscord reaction) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		PreparedStatement statement = insertReactionStatement.getStatement();
 		OlympaGuild olympaGuild = null;
 		int i = 1;
+		statement.setString(i++, ReactionHandler.toString(reaction));
 		statement.setLong(i++, reaction.getMessageId());
 		statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
 		statement.setString(i++, new Gson().toJson(reaction.getDatas()));
@@ -87,37 +88,34 @@ public class DiscordSQL {
 
 	private static OlympaStatement selectReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, "message_id", null);
 
-	public static ReactionDiscord selectReaction(long messageId) throws SQLException {
+	public static ReactionDiscord selectReaction(long messageId) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		PreparedStatement statement = selectReactionStatement.getStatement();
 		ReactionDiscord reaction = null;
 		int i = 1;
 		statement.setLong(i++, messageId);
 		ResultSet resultSet = statement.executeQuery();
-		if (resultSet.next())
-			reaction = new ReactionDiscord(resultSet.getString("data"), resultSet.getString("allowed_users_ids"), resultSet.getInt("can_multiple") == 1, resultSet.getLong("message_id"), resultSet.getLong("guild_id")) {
-				@Override
-				public void onReactRemove(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
-				}
-
-				@Override
-				public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
-				}
-
-				@Override
-				public void onReactModClearAll(long messageId, MessageChannel messageChannel) {
-				}
-
-				@Override
-				public boolean onReactAdd(long messageId, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
-					return false;
-				}
-
-				@Override
-				public void onBotStop(long messageId) {
-				}
-			};
+		if (resultSet.next()) {
+			reaction = ReactionHandler.getByName(resultSet.getString("class_name"));
+			reaction.createObject(resultSet);
+		}
 		resultSet.close();
 		return reaction;
+	}
+
+	private static OlympaStatement selectAllReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, (String) null, null);
+
+	public static Set<ReactionDiscord> selectAllReactions() throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		PreparedStatement statement = selectAllReactionStatement.getStatement();
+		Set<ReactionDiscord> reactions = new HashSet<>();
+		ReactionDiscord reaction;
+		ResultSet resultSet = statement.executeQuery();
+		while (resultSet.next()) {
+			reaction = ReactionHandler.getByName(resultSet.getString("class_name"));
+			reaction.createObject(resultSet);
+			reactions.add(reaction);
+		}
+		resultSet.close();
+		return reactions;
 	}
 
 	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, new String[] { "guild_id", "guild_name" });

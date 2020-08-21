@@ -12,6 +12,7 @@ import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import fr.olympa.bot.discord.reaction.ReactionHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDA.Status;
@@ -120,6 +121,8 @@ public class ReadyListener extends ListenerAdapter {
 			});
 		}
 		OlympaDiscord.lastConnection = Utils.getCurrentTimeInSeconds();
+		// En test
+		ReactionHandler.initReactions();
 	}
 
 	@Override
