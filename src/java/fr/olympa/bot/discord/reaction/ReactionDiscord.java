@@ -2,6 +2,7 @@ package fr.olympa.bot.discord.reaction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -100,10 +101,14 @@ public abstract class ReactionDiscord {
 	public void createObject(ResultSet resultSet) throws JsonSyntaxException, SQLException {
 		datas = new Gson().fromJson(resultSet.getString("data"), new TypeToken<Map<String, String>>() {
 		}.getType());
-		canReactUserIds = new Gson().fromJson(resultSet.getString("allowed_users_ids"), new TypeToken<List<Long>>() {
-		}.getType());
+		String allowed = resultSet.getString("allowed_users_ids");
+		if (allowed != null && !allowed.isEmpty())
+			canReactUserIds = new Gson().fromJson(resultSet.getString("allowed_users_ids"), new TypeToken<List<Long>>() {
+			}.getType());
+		else
+			canReactUserIds = new ArrayList<>();
 		canMultiple = resultSet.getInt("can_multiple") == 1;
 		messageId = resultSet.getLong("message_id");
-		olympaGuildId = resultSet.getInt("guild_id");
+		olympaGuildId = resultSet.getLong("guild_id");
 	}
 }

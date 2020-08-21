@@ -68,14 +68,19 @@ public class GuildsListener extends ListenerAdapter {
 				olympaGuild.setName(guild.getName());
 				DiscordSQL.updateGuild(olympaGuild);
 			}
-			for (Member membre : guild.getMembers()) {
-				DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(membre.getUser());
+			for (Member member : guild.getMembers()) {
+				DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member.getUser());
 				if (discordMember == null)
-					DiscordSQL.addMember(new DiscordMember(membre));
+					DiscordSQL.addMember(new DiscordMember(member));
+				// TEMP
 				else if (discordMember.getTag() == null) {
-					discordMember.updateName(membre.getUser());
+					discordMember.updateName(member.getUser());
+					DiscordSQL.updateMember(discordMember);
+				} else if (discordMember.getJoinTime() == 0) {
+					discordMember.updateJoinTime(member.getTimeJoined().toEpochSecond());
 					DiscordSQL.updateMember(discordMember);
 				}
+				//TEMP
 			}
 			//				if (!allUsers.contains(membre.getIdLong())) {
 			//			DiscordSQL.addMember(new DiscordMember(membre));

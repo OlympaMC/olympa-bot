@@ -65,25 +65,27 @@ public class DiscordSQL {
 		return sanction;
 	}
 
-	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction, new String[] { "class_name", "message_id", "allowed_users_ids", "data", "can_multiple", "guild_id" });
+	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction, new String[] { "name", "message_id", "allowed_users_ids", "data", "can_multiple", "guild_id" });
 
-	public static OlympaGuild addReaction(ReactionDiscord reaction) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
+	public static void addReaction(ReactionDiscord reaction) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		String name = ReactionHandler.toString(reaction);
+		if (name == null) {
+			System.out.println("Impossible de sauvegarder dans la BDD la réaction " + reaction.getClass().getName() + " : " + "elle n'est pas dans " + ReactionHandler.class.getName() + ".");
+			return;
+		}
 		PreparedStatement statement = insertReactionStatement.getStatement();
-		OlympaGuild olympaGuild = null;
 		int i = 1;
 		statement.setString(i++, ReactionHandler.toString(reaction));
 		statement.setLong(i++, reaction.getMessageId());
-		statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
+		if (reaction.getCanReactUserIds() != null && !reaction.getCanReactUserIds().isEmpty())
+			statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
+		else
+			statement.setString(i++, null);
 		statement.setString(i++, new Gson().toJson(reaction.getDatas()));
 		statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
 		statement.setLong(i++, reaction.getOlympaGuildId());
 		statement.executeUpdate();
-		ResultSet resultSet = statement.getGeneratedKeys();
-		resultSet.next();
-		olympaGuild = OlympaGuild.createObject(resultSet);
-		resultSet.close();
 		statement.close();
-		return olympaGuild;
 	}
 
 	private static OlympaStatement selectReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, "message_id", null);
@@ -95,14 +97,14 @@ public class DiscordSQL {
 		statement.setLong(i++, messageId);
 		ResultSet resultSet = statement.executeQuery();
 		if (resultSet.next()) {
-			reaction = ReactionHandler.getByName(resultSet.getString("class_name"));
+			reaction = ReactionHandler.getByName(resultSet.getString("name"));
 			reaction.createObject(resultSet);
 		}
 		resultSet.close();
 		return reaction;
 	}
 
-	private static OlympaStatement selectAllReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, (String) null, null);
+	private static OlympaStatement selectAllReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, (String[]) null, (String[]) null);
 
 	public static Set<ReactionDiscord> selectAllReactions() throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		PreparedStatement statement = selectAllReactionStatement.getStatement();
@@ -110,7 +112,7 @@ public class DiscordSQL {
 		ReactionDiscord reaction;
 		ResultSet resultSet = statement.executeQuery();
 		while (resultSet.next()) {
-			reaction = ReactionHandler.getByName(resultSet.getString("class_name"));
+			reaction = ReactionHandler.getByName(resultSet.getString("name"));
 			reaction.createObject(resultSet);
 			reactions.add(reaction);
 		}
@@ -268,11 +270,11 @@ public class DiscordSQL {
 			statement.setTimestamp(i++, new Timestamp(discordMember.getLastSeen() * 1000L));
 		else
 			statement.setObject(i++, null);
-		if (discordMember.getJoinTime() != -1)
+		if (discordMember.getJoinTime() != 0)
 			statement.setDate(i++, new Date(discordMember.getJoinTime() * 1000L));
 		else
 			statement.setObject(i++, null);
-		if (discordMember.getLeaveTime() != -1)
+		if (discordMember.getLeaveTime() != 0)
 			statement.setDate(i++, new Date(discordMember.getLeaveTime() * 1000L));
 		else
 			statement.setObject(i++, null);

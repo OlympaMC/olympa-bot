@@ -31,8 +31,8 @@ public class DiscordMember {
 	String tag;
 	double xp;
 	long lastSeen = -1;
-	long joinTime = -1;
-	long leaveTime = -1;
+	long joinTime;
+	long leaveTime;
 
 	public long getJoinTime() {
 		return joinTime;
@@ -175,7 +175,7 @@ public class DiscordMember {
 		this.joinTime = joinTime;
 	}
 
-	public void updateLeaveTime(long joinTime) {
-		this.joinTime = joinTime;
+	public void updateLeaveTime(long leaveTime) {
+		this.leaveTime = leaveTime;
 	}
 }
