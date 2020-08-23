@@ -2,7 +2,9 @@ package fr.olympa.bot.discord.reaction;
 
 import java.util.concurrent.ConcurrentMap;
 
+import fr.olympa.bot.OlympaBots;
 import net.dv8tion.jda.api.JDA.Status;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
@@ -17,8 +19,8 @@ public class ReactionListener extends ListenerAdapter {
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		long messageId = event.getMessageIdLong();
-		//		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
-		event.getTextChannel().retrieveMessageById(messageId).queue(message -> {
+		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
+			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
 			User user = event.getUser();
 			MessageReaction react = event.getReaction();
 			ReactionDiscord reaction = AwaitReaction.get(messageId);
@@ -32,7 +34,6 @@ public class ReactionListener extends ListenerAdapter {
 				return;
 			}
 		});
-		//		});
 	}
 
 	@Override
