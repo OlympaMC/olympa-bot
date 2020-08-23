@@ -2,7 +2,6 @@ package fr.olympa.bot.discord.reaction;
 
 import java.util.concurrent.ConcurrentMap;
 
-import fr.olympa.bot.OlympaBots;
 import net.dv8tion.jda.api.JDA.Status;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
@@ -18,22 +17,22 @@ public class ReactionListener extends ListenerAdapter {
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		long messageId = event.getMessageIdLong();
-		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
-			event.getTextChannel().retrieveMessageById(messageId).queue(message -> {
-				User user = event.getUser();
-				MessageReaction react = event.getReaction();
-				ReactionDiscord reaction = AwaitReaction.get(messageId);
-				if (reaction == null || user.isBot())
-					return;
-				long nb = 0;
-				if (!reaction.canMultiple())
-					nb = message.getReactions().stream().filter(r -> !r.retrieveUsers().complete().contains(user)).count();
-				if (!reaction.canInteract(user) || nb > 1 || !reaction.onReactAdd(message, event.getChannel(), user, react, reaction.getData(react))) {
-					react.removeReaction(user).queue();
-					return;
-				}
-			});
+		//		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
+		event.getTextChannel().retrieveMessageById(messageId).queue(message -> {
+			User user = event.getUser();
+			MessageReaction react = event.getReaction();
+			ReactionDiscord reaction = AwaitReaction.get(messageId);
+			if (reaction == null || user.isBot())
+				return;
+			long nb = 0;
+			if (!reaction.canMultiple())
+				nb = message.getReactions().stream().filter(r -> !r.retrieveUsers().complete().contains(user)).count();
+			if (!reaction.canInteract(user) || nb > 1 || !reaction.onReactAdd(message, event.getChannel(), user, react, reaction.getData(react))) {
+				react.removeReaction(user).queue();
+				return;
+			}
 		});
+		//		});
 	}
 
 	@Override

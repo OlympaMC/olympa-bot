@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class SurveyCommand extends DiscordCommand {
@@ -41,8 +42,8 @@ public class SurveyCommand extends DiscordCommand {
 	public static Map<String, String> getEmojis(String[] args) {
 		List<String> emojis = Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟");
 		Map<String, String> data = new HashMap<>();
-		for (String arg : args)
-			data.put(emojis.get(0), arg);
+		for (int i = 0; args.length > i; i++)
+			data.put(emojis.get(i), args[i]);
 		return data;
 	}
 
@@ -51,6 +52,19 @@ public class SurveyCommand extends DiscordCommand {
 		embedBuilder.setTitle("Sondage:");
 		for (Entry<String, String> entry : data.entrySet())
 			embedBuilder.addField(entry.getKey(), "**" + entry.getValue() + "**", true);
+		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
+		return embedBuilder.build();
+	}
+
+	public static MessageEmbed getEmbed(Message message, Map<String, String> data) {
+		EmbedBuilder embedBuilder = new EmbedBuilder();
+		embedBuilder.setTitle("Sondage:");
+		List<MessageReaction> reactions = message.getReactions();
+		for (Entry<String, String> entry : data.entrySet()) {
+			MessageReaction reaction = reactions.stream().filter(r -> r.getReactionEmote().getEmoji().equals(entry.getKey())).findFirst().orElse(null);
+			message.retrieveReactionUsers(entry.getKey()).complete().size();
+			embedBuilder.addField(entry.getKey() + " " + reaction.getCount() / (reactions.size() / 100D) + "%", "**" + entry.getValue() + "**", true);
+		}
 		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		return embedBuilder.build();
 	}

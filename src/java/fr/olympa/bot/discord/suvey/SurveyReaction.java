@@ -17,7 +17,7 @@ public class SurveyReaction extends ReactionDiscord {
 	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
 		if (!hasData(data))
 			return false;
-		message.editMessage(SurveyCommand.getEmbed(datas)).queue();
+		message.editMessage(SurveyCommand.getEmbed(message, datas)).queue();
 		return true;
 	}
 
