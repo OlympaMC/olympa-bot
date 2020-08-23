@@ -13,22 +13,23 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 
-public class MuteChooseCommand extends ReactionDiscord {
+public class MuteChooseReaction extends ReactionDiscord {
 
-	public MuteChooseCommand(Message message, Map<String, String> data, long... canReactUserIds) {
+	public MuteChooseReaction(Message message, Map<String, String> data, long... canReactUserIds) {
 		super(data, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId(), canReactUserIds);
 	}
 
-	public MuteChooseCommand() {
+	public MuteChooseReaction() {
 		super();
 	}
 
 	@Override
 	public void onBotStop(long messageId) {
+		// TODO remove reactions
 	}
 
 	@Override
-	public boolean onReactAdd(long messageId, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
+	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
 		Member target = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(data);
 
 		EmbedBuilder em = new EmbedBuilder();
@@ -36,7 +37,7 @@ public class MuteChooseCommand extends ReactionDiscord {
 		messageChannel.sendMessage(em.build()).queue();
 		// anctionHandler.mute(target, user, messageChannel);
 		messageReaction.clearReactions().queue();
-		AwaitReaction.removeReaction(messageId);
+		AwaitReaction.removeReaction(message.getIdLong());
 		return true;
 	}
 

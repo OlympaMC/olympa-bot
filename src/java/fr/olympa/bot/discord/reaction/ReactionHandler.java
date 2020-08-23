@@ -5,14 +5,14 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import fr.olympa.bot.discord.commands.RefreshServersMessage;
-import fr.olympa.bot.discord.sanctions.MuteChooseCommand;
+import fr.olympa.bot.discord.sanctions.MuteChooseReaction;
+import fr.olympa.bot.discord.servers.RefreshServersReaction;
 import fr.olympa.bot.discord.sql.DiscordSQL;
 
 public class ReactionHandler {
 
-	public static MuteChooseCommand MUTE_CHOOSE = new MuteChooseCommand();
-	public static RefreshServersMessage REFRESH_SERVER = new RefreshServersMessage();
+	public static MuteChooseReaction MUTE_CHOOSE = new MuteChooseReaction();
+	public static RefreshServersReaction REFRESH_SERVER = new RefreshServersReaction();
 
 	public static void initReactions() {
 		try {

@@ -50,7 +50,7 @@ public class StaffListenerBungee implements Listener {
 		Guild guild = olympaGuild.getGuild();
 		TextChannel channelStaffDiscord = guild.getTextChannelById(729534637466189955L);
 		EmbedBuilder eb = new EmbedBuilder();
-		eb.setAuthor(player.getName(), null, "https://minotar.net/avatar/" + player.getName());
+		eb.setAuthor(player.getName(), null, "https://minotar.eu/avatar/" + player.getName());
 		eb.setDescription(playerName + " s'est déconnecté du serveur.");
 		eb.setColor(Color.RED);
 		channelStaffDiscord.sendMessage(eb.build()).queue();
@@ -83,7 +83,7 @@ public class StaffListenerBungee implements Listener {
 		Guild guild = olympaGuild.getGuild();
 		TextChannel channelStaffDiscord = guild.getTextChannelById(729534637466189955L);
 		EmbedBuilder eb = new EmbedBuilder();
-		eb.setAuthor(player.getName(), null, "https://minotar.net/avatar/" + player.getName());
+		eb.setAuthor(player.getName(), null, "https://minotar.eu/avatar/" + player.getName());
 		eb.setDescription(playerName + " s'est connecté au serveur " + player.getServer().getInfo().getName() + ".");
 		eb.setColor(Color.GREEN);
 		channelStaffDiscord.sendMessage(eb.build()).queue();

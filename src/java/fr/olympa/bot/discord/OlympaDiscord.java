@@ -15,7 +15,6 @@ import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.HelpCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
 import fr.olympa.bot.discord.commands.PlayersCommand;
-import fr.olympa.bot.discord.commands.ServersCommand;
 import fr.olympa.bot.discord.commands.StartStopCommand;
 import fr.olympa.bot.discord.commands.UsurpCommand;
 import fr.olympa.bot.discord.groups.GroupCommand;
@@ -30,12 +29,14 @@ import fr.olympa.bot.discord.member.MemberListener;
 import fr.olympa.bot.discord.observer.LogListener;
 import fr.olympa.bot.discord.reaction.ReactionListener;
 import fr.olympa.bot.discord.sanctions.MuteCommand;
+import fr.olympa.bot.discord.servers.ServersCommand;
 import fr.olympa.bot.discord.spam.SpamListener;
 import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.bot.discord.staff.StaffListener;
 import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
 import fr.olympa.bot.discord.support.chat.SupportChatListener;
+import fr.olympa.bot.discord.suvey.SurveyCommand;
 import fr.olympa.bot.discord.textmessage.TextChannelListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -95,6 +96,7 @@ public class OlympaDiscord {
 		new HelpCommand().register();
 		new PlayersCommand().register();
 		new DeployCommand().register();
+		new SurveyCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {

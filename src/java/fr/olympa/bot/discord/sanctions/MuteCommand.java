@@ -11,7 +11,6 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
-import fr.olympa.bot.discord.reaction.AwaitReaction;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -56,7 +55,10 @@ public class MuteCommand extends DiscordCommand {
 				numberEmoji = numberEmoji.getNext();
 			}
 			em.setDescription(sj.toString());
-			channel.sendMessage(em.build()).queue(m -> AwaitReaction.addReaction(m, new MuteChooseCommand(m, data, member.getIdLong())));
+			channel.sendMessage(em.build()).queue(m -> {
+				MuteChooseReaction reaction = new MuteChooseReaction(m, data, member.getIdLong());
+				reaction.addToMessage(m);
+			});
 
 			return;
 		} else {

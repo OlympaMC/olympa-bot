@@ -1,54 +1,42 @@
-package fr.olympa.bot.discord.commands;
+package fr.olympa.bot.discord.servers;
 
 import java.awt.Color;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.server.ServerStatus;
-import fr.olympa.bot.discord.reaction.ReactionDiscord;
+import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.core.bungee.servers.MonitorInfo;
 import fr.olympa.core.bungee.servers.MonitorServers;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.TextChannel;
 
-public class RefreshServersMessage extends ReactionDiscord {
+public class ServersCommand extends DiscordCommand {
 
-	public RefreshServersMessage(Map<String, String> map, Message msg, long guildOlympaId, long... canReactUserIds) {
-		super(map, msg.getIdLong(), guildOlympaId, canReactUserIds);
-	}
-
-	public RefreshServersMessage() {
-		super();
+	public ServersCommand() {
+		super("server", "servers");
+		description = "Affiche la liste des serveurs et leur état.";
 	}
 
 	@Override
-	public void onReactRemove(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
-	}
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
+		Member member = message.getMember();
+		TextChannel channel = message.getTextChannel();
 
-	@Override
-	public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
-	}
-
-	@Override
-	public void onReactModClearAll(long messageId, MessageChannel messageChannel) {
-	}
-
-	@Override
-	public boolean onReactAdd(long messageId, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
-		if ("refresh".equalsIgnoreCase(getData(messageReaction)))
-			messageChannel.retrieveMessageById(messageId).queue(x -> x.editMessage(getEmbed()).queue());
-		return false;
-	}
-
-	@Override
-	public void onBotStop(long messageId) {
+		Map<String, String> map = new HashMap<>();
+		map.put("🔄", "refresh");
+		channel.sendMessage(getEmbed()).queue(msg -> {
+			RefreshServersReaction reaction = new RefreshServersReaction(map, msg, member.getIdLong());
+			reaction.addToMessage(msg);
+			reaction.saveToDB();
+		});
 	}
 
 	public static MessageEmbed getEmbed() {
