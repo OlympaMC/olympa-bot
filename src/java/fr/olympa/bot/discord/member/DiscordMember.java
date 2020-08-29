@@ -33,6 +33,7 @@ public class DiscordMember {
 	long lastSeen = -1;
 	long joinTime;
 	long leaveTime;
+	Map<Long, String> oldNames = new HashMap<>();
 
 	public long getJoinTime() {
 		return joinTime;
@@ -45,8 +46,6 @@ public class DiscordMember {
 	public Map<Long, String> getOldNames() {
 		return oldNames;
 	}
-
-	Map<Long, String> oldNames = new HashMap<>();
 
 	public static List<Member> get(Guild guild, String name, List<Member> mentionned) {
 		if (mentionned != null && !mentionned.isEmpty())

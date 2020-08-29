@@ -152,7 +152,14 @@ public class InfoCommand extends DiscordCommand {
 			DiscordMember discordMember;
 			try {
 				discordMember = CacheDiscordSQL.getDiscordMember(user);
-				DecimalFormat df = new DecimalFormat("##.##");
+				if (discordMember.getLeaveTime() != 0) {
+					t = Utils.timestampToDuration(discordMember.getLeaveTime());
+					date = Utils.timestampToDate(discordMember.getLeaveTime());
+					embed.addField("Nous a quitté le ", date + " (" + t + ")", true);
+				}
+				if (!discordMember.getOldNames().isEmpty())
+					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
+				DecimalFormat df = new DecimalFormat("0.#");
 				embed.addField("XP", df.format(discordMember.getXp()), true);
 				embed.addField("Compte lié", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
 				OnlineStatus onlineStatus = member.getOnlineStatus();
