@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import fr.olympa.api.utils.Matcher;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -60,13 +61,13 @@ public abstract class DiscordCommand implements CommandEvent {
 	}
 
 	public Member getMember(Guild guild, String arg) {
-		Member member;
+		Member member = null;
 		List<Member> members = guild.getMembersByEffectiveName(arg, false);
 		if (members.isEmpty())
 			members = guild.getMembersByName(arg, false);
 		if (!members.isEmpty())
 			member = members.get(0);
-		else
+		else if (Matcher.isDiscordTag(arg))
 			member = guild.getMemberByTag(arg);
 		if (member == null)
 			member = guild.getMemberById(arg);
