@@ -56,8 +56,14 @@ public abstract class ReactionDiscord {
 		this.canReactUserIds = Arrays.stream(canReactUserIds).boxed().collect(Collectors.toList());
 	}
 
+	public ReactionDiscord(Map<String, String> datas, long messageId, long olympaGuildId) {
+		this.datas = datas;
+		this.messageId = messageId;
+		this.olympaGuildId = olympaGuildId;
+	}
+
 	public boolean canInteract(User user) {
-		if (canReactUserIds.isEmpty())
+		if (canReactUserIds == null || canReactUserIds.isEmpty())
 			return true;
 		return canReactUserIds.stream().anyMatch(id -> user.getIdLong() == id);
 	}

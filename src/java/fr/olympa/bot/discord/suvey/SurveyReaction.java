@@ -1,5 +1,8 @@
 package fr.olympa.bot.discord.suvey;
 
+import java.util.Map;
+
+import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.reaction.ReactionDiscord;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -7,6 +10,10 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 
 public class SurveyReaction extends ReactionDiscord {
+
+	public SurveyReaction(Map<String, String> map, Message msg, OlympaGuild guild) {
+		super(map, msg.getIdLong(), guild.getId());
+	}
 
 	@Override
 	public void onBotStop(long messageId) {

@@ -9,9 +9,8 @@ import java.util.Map.Entry;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
-import fr.olympa.bot.discord.servers.RefreshServersReaction;
+import fr.olympa.bot.discord.guild.GuildHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -29,11 +28,10 @@ public class SurveyCommand extends DiscordCommand {
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		message.delete().queue();
-		Member member = message.getMember();
 		TextChannel channel = message.getTextChannel();
 		Map<String, String> emojis = getEmojis(args);
 		channel.sendMessage(getEmbed(emojis)).queue(msg -> {
-			RefreshServersReaction reaction = new RefreshServersReaction(emojis, msg, member.getIdLong());
+			SurveyReaction reaction = new SurveyReaction(emojis, msg, GuildHandler.getOlympaGuild(message.getGuild()));
 			reaction.addToMessage(msg);
 			reaction.saveToDB();
 		});
@@ -51,7 +49,7 @@ public class SurveyCommand extends DiscordCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Sondage:");
 		for (Entry<String, String> entry : data.entrySet())
-			embedBuilder.addField(entry.getKey(), entry.getValue(), true);
+			embedBuilder.addField(null, entry.getKey() + " " + entry.getValue(), true);
 		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		return embedBuilder.build();
 	}
@@ -63,7 +61,7 @@ public class SurveyCommand extends DiscordCommand {
 		for (Entry<String, String> entry : data.entrySet()) {
 			MessageReaction reaction = reactions.stream().filter(r -> r.getReactionEmote().getEmoji().equals(entry.getKey())).findFirst().orElse(null);
 			message.retrieveReactionUsers(entry.getKey()).complete().size();
-			embedBuilder.addField(entry.getKey() + " " + reaction.getCount() / (reactions.size() / 100D) + "%", entry.getValue(), true);
+			embedBuilder.addField(null, entry.getKey() + " " + reaction.getCount() / (reactions.size() / 100D) + "%" + " " + entry.getValue(), true);
 		}
 		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		return embedBuilder.build();

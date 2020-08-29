@@ -2,6 +2,7 @@ package fr.olympa.bot.discord.servers;
 
 import java.util.Map;
 
+import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.reaction.ReactionDiscord;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -10,8 +11,8 @@ import net.dv8tion.jda.api.entities.User;
 
 public class RefreshServersReaction extends ReactionDiscord {
 
-	public RefreshServersReaction(Map<String, String> map, Message msg, long guildOlympaId, long... canReactUserIds) {
-		super(map, msg.getIdLong(), guildOlympaId, canReactUserIds);
+	public RefreshServersReaction(Map<String, String> map, Message msg, OlympaGuild guild) {
+		super(map, msg.getIdLong(), guild.getId());
 	}
 
 	public RefreshServersReaction() {
