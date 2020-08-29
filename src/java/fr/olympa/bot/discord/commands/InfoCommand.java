@@ -50,16 +50,14 @@ public class InfoCommand extends DiscordCommand {
 			List<Guild> guilds = jda.getGuilds();
 			int usersConnected = 0;
 			int usersTotal = 0;
-			for (User user2 : jda.getUsers()) {
+			for (User user2 : jda.getUsers())
 				if (!user2.isBot()) {
 					Guild firstGuild = user2.getMutualGuilds().get(0);
 					Member member2 = firstGuild.getMember(user2);
-					if (member2.getOnlineStatus() != OnlineStatus.OFFLINE) {
+					if (member2.getOnlineStatus() != OnlineStatus.OFFLINE)
 						usersConnected++;
-					}
 					usersTotal++;
 				}
-			}
 			User author = jda.getUserById(450125243592343563L);
 			EmbedBuilder embed = new EmbedBuilder()
 					.setTitle("Informations")
@@ -85,7 +83,7 @@ public class InfoCommand extends DiscordCommand {
 			// test.sendMessage(older.stream().map(Member::getAsMention).collect(Collectors.joining(",
 			// "))).queue(msg -> msg.delete().queueAfter(30, TimeUnit.SECONDS));
 			EmbedBuilder embed = new EmbedBuilder();
-			embed.setTitle("Les 25 membres les plus anciens:");
+			embed.setTitle("Les 25 membres les plus anciens :");
 			embed.setDescription(older.stream().map(m -> m.getUser().getAsMention() + " depuis " + Utils.timestampToDuration(m.getTimeJoined().toEpochSecond())).collect(Collectors.joining("\n")));
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
@@ -94,7 +92,7 @@ public class InfoCommand extends DiscordCommand {
 		case "boost":
 			Stream<Member> boost = message.getGuild().getBoosters().stream().sorted((e1, e2) -> e1.getTimeBoosted().compareTo(e2.getTimeBoosted())).limit(25);
 			embed = new EmbedBuilder();
-			embed.setTitle("Les Nitros Boost:");
+			embed.setTitle("Les Nitros Boost :");
 			embed.setDescription(boost.map(m -> m.getAsMention() + " depuis " + Utils.timestampToDuration(m.getTimeBoosted().toEpochSecond())).collect(Collectors.joining("\n")));
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
@@ -110,9 +108,8 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "nonsigne":
 			Guild guild = message.getGuild();
-			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong()) {
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
-			}
 			Role roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			Set<Member> signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
 			Set<Member> noSigned = guild.getMemberCache().asSet().stream().filter(m -> !signed.contains(m) && DiscordGroup.isStaff(m) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -125,9 +122,8 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "signe":
 			guild = message.getGuild();
-			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong()) {
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
-			}
 			roleSigned = DiscordGroup.SIGNED.getRole(guild);
 			signed = guild.getMembers().stream().filter(m -> m.getRoles().contains(roleSigned) && !m.getUser().isBot()).collect(Collectors.toSet());
 			noSigned = guild.getMemberCache().asSet().stream().filter(m -> !signed.contains(m) && DiscordGroup.isStaff(m) && !m.getUser().isBot()).collect(Collectors.toSet());
@@ -140,11 +136,7 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "joueur":
 		case "membre":
-			List<Member> members = message.getMentionedMembers();
-			if (members.isEmpty()) {
-				return;
-			}
-			Member member = members.get(0);
+			Member member = getMember(message.getGuild(), args[1]);
 			User user = member.getUser();
 			embed = new EmbedBuilder();
 			embed.setTitle("Informations ");
@@ -164,9 +156,8 @@ public class InfoCommand extends DiscordCommand {
 				embed.addField("XP", df.format(discordMember.getXp()), true);
 				embed.addField("Compte lié", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
 				OnlineStatus onlineStatus = member.getOnlineStatus();
-				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0) {
+				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
 					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
-				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -175,7 +166,7 @@ public class InfoCommand extends DiscordCommand {
 		case "roles":
 		case "role":
 			List<Role> roles = message.getMentionedRoles();
-			members = message.getGuild().getMembersWithRoles(roles);
+			List<Member> members = message.getGuild().getMembersWithRoles(roles);
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roles.stream().map(Role::getName).collect(Collectors.joining(", ")) + ": ");
 			embed.setDescription(members.stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));
@@ -184,9 +175,8 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "absent":
 			guild = message.getGuild();
-			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong()) {
+			if (GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getIdLong() != guild.getIdLong())
 				return;
-			}
 			Role roleAbsent = DiscordGroup.ABSENT.getRole(guild);
 
 			embed = new EmbedBuilder();

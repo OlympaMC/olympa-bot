@@ -51,7 +51,7 @@ public class SurveyCommand extends DiscordCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Sondage:");
 		for (Entry<String, String> entry : data.entrySet())
-			embedBuilder.addField(entry.getKey(), "**" + entry.getValue() + "**", true);
+			embedBuilder.addField(entry.getKey(), entry.getValue(), true);
 		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		return embedBuilder.build();
 	}
@@ -63,7 +63,7 @@ public class SurveyCommand extends DiscordCommand {
 		for (Entry<String, String> entry : data.entrySet()) {
 			MessageReaction reaction = reactions.stream().filter(r -> r.getReactionEmote().getEmoji().equals(entry.getKey())).findFirst().orElse(null);
 			message.retrieveReactionUsers(entry.getKey()).complete().size();
-			embedBuilder.addField(entry.getKey() + " " + reaction.getCount() / (reactions.size() / 100D) + "%", "**" + entry.getValue() + "**", true);
+			embedBuilder.addField(entry.getKey() + " " + reaction.getCount() / (reactions.size() / 100D) + "%", entry.getValue(), true);
 		}
 		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		return embedBuilder.build();
