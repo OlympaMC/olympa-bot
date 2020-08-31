@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import fr.olympa.api.player.OlympaPlayer;
+import fr.olympa.api.sql.MySQL;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
@@ -156,6 +158,17 @@ public class InfoCommand extends DiscordCommand {
 					t = Utils.timestampToDuration(discordMember.getLeaveTime());
 					date = Utils.timestampToDate(discordMember.getLeaveTime());
 					embed.addField("Nous a quitté le ", date + " (" + t + ")", true);
+				}
+				if (discordMember.getOlympaId() != 0) {
+
+					OlympaPlayer olympaTarget = null;
+					try {
+						olympaTarget = MySQL.getPlayer(discordMember.getOlympaId());
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					embed.setThumbnail("https://minotar.eu/avatar/" + olympaTarget.getName());
+					embed.addField("Compte Minecraft :", olympaTarget.getName(), true);
 				}
 				if (!discordMember.getOldNames().isEmpty())
 					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);

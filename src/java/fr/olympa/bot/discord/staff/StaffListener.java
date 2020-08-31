@@ -1,6 +1,10 @@
 package fr.olympa.bot.discord.staff;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+
+import com.vdurmont.emoji.Emoji;
+import com.vdurmont.emoji.EmojiManager;
 
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.sql.MySQL;
@@ -48,22 +52,28 @@ public class StaffListener extends ListenerAdapter {
 			DiscordMember dm;
 			try {
 				dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
+				OlympaPlayer olympaPlayer;
+				if (dm.getOlympaId() == 0)
+					olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
+				else
+					olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
+				if (olympaPlayer == null) {
+					message.addReaction(guild.getEmotesByName("V_", false).get(0)).queue();
+					return;
+				}
+				StringBuilder out = new StringBuilder(message.getContentDisplay());
+				message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
+				int staffOnline = StaffChatHandler.sendMessage(olympaPlayer, null, out.toString());
+				channel.sendMessage("DEBUG staffOnline : " + staffOnline);
+				for (Emoji emoji : Arrays.asList(EmojiManager.getForAlias("zero"), EmojiManager.getForAlias("one"), EmojiManager.getForAlias("keycap_ten"), EmojiManager.getForAlias("five"),
+						EmojiManager.getForAlias("regional_indicator_symbol_a")))
+					channel.sendMessage("DEBUG Aliases : " + String.join(", ", emoji.getAliases()) + " Tags :" + String.join(", ", emoji.getTags()) + " Unicode :" + emoji.getUnicode());
+				message.addReaction(guild.getEmotesByName("VYES", false).get(0)).queue();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				return;
-			}
-			OlympaPlayer olympaPlayer;
-			if (dm.getOlympaId() == 0)
-				olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
-			else
-				olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
-			if (olympaPlayer == null) {
 				message.addReaction(guild.getEmotesByName("VNO", false).get(0)).queue();
 				return;
 			}
-			StringBuilder out = new StringBuilder(message.getContentDisplay());
-			message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
-			StaffChatHandler.sendMessage(olympaPlayer, null, out.toString());
 		}
 	}
 }

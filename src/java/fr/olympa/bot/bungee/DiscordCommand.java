@@ -110,7 +110,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			codeComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§eClique ici pour copier le code")));
 			codeComponent.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, code));
 			message.addExtra(codeComponent);
-			for (BaseComponent baseComponent : TextComponent.fromLegacyText("§d en privé à §7@§5OlympaBot#5503§d."))
+			for (BaseComponent baseComponent : TextComponent.fromLegacyText("§d en privé à §7@§5OlympaBot#5503§d, trouve le dans #informations sur Discord."))
 				message.addExtra(baseComponent);
 			proxiedPlayer.sendMessage(message);
 

@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,10 +25,15 @@ public abstract class ReactionDiscord {
 
 	public void addToMessage(Message message) {
 		AwaitReaction.reactions.put(message.getIdLong(), this);
-		for (String emoji : getEmojis())
-			message.addReaction(emoji).queue();
+
+		addReaction(message, getEmojis().iterator());
 		setMessageId(message.getIdLong());
 		setOlympaGuildId(GuildHandler.getOlympaGuild(message.getGuild()).getId());
+	}
+
+	private void addReaction(Message message, Iterator<String> iterator) {
+		if (iterator.hasNext())
+			message.addReaction(iterator.next()).queue(m -> addReaction(message, iterator));
 	}
 
 	public void saveToDB() {

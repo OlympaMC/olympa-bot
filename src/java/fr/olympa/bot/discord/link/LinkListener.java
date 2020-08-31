@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class LinkListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
 		User user = event.getAuthor();
@@ -29,23 +29,23 @@ public class LinkListener extends ListenerAdapter {
 		MessageChannel channel = message.getChannel();
 		String msg = message.getContentRaw();
 		String code = msg.split(" ")[0];
-		
+
 		ProxiedPlayer player = LinkHandler.getPlayer(code);
 		if ((player == null || !player.isConnected()) && !channel.hasLatestMessage()) {
-			
+
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
 			embed.setDescription("Pour relier ton compte Olympa et ton compte Discord, fais **/discord link** sur Minecraft et donne moi ici le code obtenu.");
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
-		
+
 		Member member = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(user.getIdLong());
-		
+
 		if (member == null) {
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
-			embed.setDescription("Tu dois rejoindre le discord avant de pouloir lier ton compte. http:///discord.olympa.fr");
+			embed.setDescription("Tu dois rejoindre le discord avant de pouvoir lier ton compte. http://discord.olympa.fr/");
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
@@ -64,7 +64,7 @@ public class LinkListener extends ListenerAdapter {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 }
