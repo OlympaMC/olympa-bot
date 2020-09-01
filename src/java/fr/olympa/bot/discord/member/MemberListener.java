@@ -9,6 +9,7 @@ import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
@@ -59,7 +60,6 @@ public class MemberListener extends ListenerAdapter {
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLeaveTime(Utils.getCurrentTimeInSeconds());
-			DiscordSQL.updateMember(discordMember);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -83,26 +83,29 @@ public class MemberListener extends ListenerAdapter {
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateName(user);
-			DiscordSQL.updateMember(discordMember);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
+	// NOT LOAD
 	@Override
 	public void onUserUpdateActivityOrder(UserUpdateActivityOrderEvent event) {
 		User user = event.getEntity();
 		if (user.isFake())
 			return;
+		System.out.println("UserUpdateActivityOrderEvent " + user.getAsTag());
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
-			long lastSeenTime = discordMember.getLastSeenTime();
 			discordMember.updateLastSeen();
-			if (lastSeenTime == -1 || lastSeenTime > 60 * 60)
-				DiscordSQL.updateMember(discordMember);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println("DEBUG Activity de " + user.getAsTag() + " : ");
+		for (Activity value : event.getNewValue())
+			System.out.println("Name " + value.getName() + " Type " + value.getType().name() + " URL " + value.getUrl() + " Emoji " + value.getEmoji()
+					+ (value.getTimestamps() != null ? " Depuis " + Utils.timestampToDuration(value.getTimestamps().getStart())
+							+ (value.getTimestamps().getEnd() != 0 ? " Termine " + Utils.timestampToDuration(value.getTimestamps().getEnd()) : "") : ""));
 	}
 
 	@Override
@@ -112,10 +115,7 @@ public class MemberListener extends ListenerAdapter {
 			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
-			long lastSeenTime = discordMember.getLastSeenTime();
 			discordMember.updateLastSeen();
-			if (lastSeenTime == -1 || lastSeenTime > 60 * 60)
-				DiscordSQL.updateMember(discordMember);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -128,10 +128,7 @@ public class MemberListener extends ListenerAdapter {
 			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
-			long lastSeenTime = discordMember.getLastSeenTime();
 			discordMember.updateLastSeen();
-			if (lastSeenTime == -1 || lastSeenTime > 60 * 60)
-				DiscordSQL.updateMember(discordMember);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -142,10 +139,7 @@ public class MemberListener extends ListenerAdapter {
 		User user = event.getAuthor();
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
-			long lastSeenTime = discordMember.getLastSeenTime();
 			discordMember.updateLastSeen();
-			if (lastSeenTime == -1 || lastSeenTime > 60 * 60)
-				DiscordSQL.updateMember(discordMember);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

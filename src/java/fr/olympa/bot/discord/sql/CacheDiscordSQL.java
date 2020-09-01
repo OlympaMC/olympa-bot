@@ -17,7 +17,13 @@ import net.dv8tion.jda.api.entities.User;
 public class CacheDiscordSQL {
 
 	// <discordId, DiscordMember>
-	private static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
+	private static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).removalListener(notification -> {
+		try {
+			DiscordSQL.updateMember((DiscordMember) notification.getValue());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}).build();
 
 	public static DiscordMember getDiscordMember(User user) throws SQLException {
 		return getDiscordMember(user.getIdLong());

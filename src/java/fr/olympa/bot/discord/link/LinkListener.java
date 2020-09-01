@@ -49,14 +49,16 @@ public class LinkListener extends ListenerAdapter {
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
+		Member memberStaff = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMemberById(user.getIdLong());
 
 		try {
 			OlympaPlayer olympaPlayer = new AccountProvider(player.getUniqueId()).getFromRedis();
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.setOlympaId(olympaPlayer.getId());
 			DiscordSQL.updateMember(discordMember);
-			member.modifyNickname(olympaPlayer.getName()).queue();
 			LinkHandler.updateGroups(member, olympaPlayer);
+			if (memberStaff != null)
+				LinkHandler.updateGroups(memberStaff, olympaPlayer);
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Bonjour " + user.getName());
 			embed.setDescription("Tu a relié ton compte Olympa " + player.getName() + " avec ton compte discord " + user.getAsMention() + ". Tu as reçu les bons rôle sur discord.");

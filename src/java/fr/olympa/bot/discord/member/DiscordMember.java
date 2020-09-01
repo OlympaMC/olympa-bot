@@ -98,12 +98,8 @@ public class DiscordMember {
 
 	public DiscordMember(Member member) {
 		discordId = member.getIdLong();
+		joinTime = member.getTimeJoined().toEpochSecond();
 		updateName(member.getUser());
-	}
-
-	public DiscordMember(User user) {
-		discordId = user.getIdLong();
-		updateName(user);
 	}
 
 	private JDA getJDA() {
@@ -139,7 +135,7 @@ public class DiscordMember {
 		if (!matcher.find())
 			return;
 		String newName = matcher.group(1);
-		if (!newName.equals(name)) {
+		if (name != null && !newName.equals(name)) {
 			oldNames.put(Utils.getCurrentTimeInSeconds(), name);
 			name = newName;
 		}

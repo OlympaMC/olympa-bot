@@ -1,10 +1,6 @@
 package fr.olympa.bot.discord.staff;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-
-import com.vdurmont.emoji.Emoji;
-import com.vdurmont.emoji.EmojiManager;
 
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.sql.MySQL;
@@ -18,6 +14,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class StaffListener extends ListenerAdapter {
@@ -38,6 +35,20 @@ public class StaffListener extends ListenerAdapter {
 		 * { mb2.addField(role2.getName(), membersRole, true);
 		 * reactions.add(discordGroup.getEmoji(role2)); } } }
 		 */
+	}
+
+	@Override
+	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+		Guild guild = event.getGuild();
+		Member member = event.getMember();
+		Message message = event.getMessage();
+		TextChannel channel = event.getChannel();
+		if (member == null || member.isFake() || member.getUser().isBot())
+			return;
+		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.STAFF || channel.getIdLong() != 729534637466189955L)
+			return;
+		message.clearReactions().queue(r -> message.addReaction(guild.getEmotesByName("VNO", false).get(0)).queue());
+
 	}
 
 	@Override
@@ -63,12 +74,11 @@ public class StaffListener extends ListenerAdapter {
 				}
 				StringBuilder out = new StringBuilder(message.getContentDisplay());
 				message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
-				int staffOnline = StaffChatHandler.sendMessage(olympaPlayer, null, out.toString());
-				channel.sendMessage("DEBUG staffOnline : " + staffOnline);
-				for (Emoji emoji : Arrays.asList(EmojiManager.getForAlias("zero"), EmojiManager.getForAlias("one"), EmojiManager.getForAlias("keycap_ten"), EmojiManager.getForAlias("five"),
-						EmojiManager.getForAlias("regional_indicator_symbol_a")))
-					channel.sendMessage("DEBUG Aliases : " + String.join(", ", emoji.getAliases()) + " Tags :" + String.join(", ", emoji.getTags()) + " Unicode :" + emoji.getUnicode());
+				String staffOnline = String.valueOf(StaffChatHandler.sendMessage(olympaPlayer, null, out.toString()));
 				message.addReaction(guild.getEmotesByName("VYES", false).get(0)).queue();
+				System.out.println("staffOnline " + staffOnline);
+				for (int i = 0; staffOnline.length() > i; i++)
+					message.addReaction(staffOnline.charAt(i) + "\u20E3").queue();
 			} catch (SQLException e) {
 				e.printStackTrace();
 				message.addReaction(guild.getEmotesByName("VNO", false).get(0)).queue();

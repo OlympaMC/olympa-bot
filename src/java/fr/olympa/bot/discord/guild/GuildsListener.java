@@ -43,7 +43,7 @@ public class GuildsListener extends ListenerAdapter {
 		try {
 			discordMembers = CacheDiscordSQL.getDiscordMember(user);
 			if (discordMembers == null) {
-				DiscordMember joinTime = new DiscordMember(user);
+				DiscordMember joinTime = new DiscordMember(member);
 				joinTime.updateJoinTime(member.getTimeJoined().toEpochSecond());
 				DiscordSQL.addMember(joinTime);
 			}
@@ -68,24 +68,23 @@ public class GuildsListener extends ListenerAdapter {
 				olympaGuild.setName(guild.getName());
 				DiscordSQL.updateGuild(olympaGuild);
 			}
-			for (Member member : guild.getMembers()) {
-				DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member.getUser());
-				if (discordMember == null)
-					DiscordSQL.addMember(new DiscordMember(member));
+			for (Member member : guild.getMembers())
+				//				DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberWithoutCaching(member.getUser());
+				//				if (discordMember == null)
+				//					DiscordSQL.addMember(new DiscordMember(member));
 				// TEMP
-				else if (discordMember.getTag() == null) {
-					discordMember.updateName(member.getUser());
-					DiscordSQL.updateMember(discordMember);
-				} else if (discordMember.getJoinTime() == 0) {
-					discordMember.updateJoinTime(member.getTimeJoined().toEpochSecond());
-					DiscordSQL.updateMember(discordMember);
+				//				else if (discordMember.getTag() == null) {
+				//					discordMember.updateName(member.getUser());
+				//					DiscordSQL.updateMember(discordMember);
+				//				} else if (discordMember.getJoinTime() == 0) {
+				//					discordMember.updateJoinTime(member.getTimeJoined().toEpochSecond());
+				//					DiscordSQL.updateMember(discordMember);
+				//				}
+				if (!allUsers.contains(member.getIdLong())) {
+					DiscordSQL.addMember(new DiscordMember(member));
+					allUsers.add(member.getIdLong());
 				}
-				//TEMP
-			}
-			//				if (!allUsers.contains(membre.getIdLong())) {
-			//			DiscordSQL.addMember(new DiscordMember(membre));
-			//			allUsers.add(membre.getIdLong());
-			//				}
+			//TEMP
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

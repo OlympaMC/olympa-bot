@@ -62,9 +62,9 @@ public abstract class DiscordCommand implements CommandEvent {
 
 	public Member getMember(Guild guild, String arg) {
 		Member member = null;
-		List<Member> members = guild.getMembersByEffectiveName(arg, false);
+		List<Member> members = guild.getMembersByEffectiveName(arg, true);
 		if (members.isEmpty())
-			members = guild.getMembersByName(arg, false);
+			members = guild.getMembersByName(arg, true);
 		if (!members.isEmpty())
 			member = members.get(0);
 		else if (Matcher.isDiscordTag(arg))

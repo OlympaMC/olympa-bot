@@ -2,16 +2,14 @@ package fr.olympa.bot.discord.commands;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.olympa.api.player.OlympaPlayer;
-import fr.olympa.api.sql.MySQL;
+import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
@@ -138,43 +136,48 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "joueur":
 		case "membre":
-			Member member = getMember(message.getGuild(), args[1]);
-			User user = member.getUser();
 			embed = new EmbedBuilder();
-			embed.setTitle("Informations ");
+			Member member = getMember(message.getGuild(), args[1]);
+			if (member == null) {
+				embed.setTitle("Erreur");
+				embed.setDescription("Membre " + args[1] + " introuvable.");
+				channel.sendMessage(embed.build()).queue();
+				return;
+			}
+			User user = member.getUser();
+			embed.setTitle("Informations");
 			embed.setDescription(member.getAsMention());
 			embed.setImage(user.getAvatarUrl());
 			embed.setColor(discord.getColor());
 			String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
-			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE.localizedBy(Locale.FRANCE));
+			String date = Utils.timestampToDate(user.getTimeCreated().toEpochSecond());
 			embed.addField("Compte créé", date + " (" + t + ")", true);
 			t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
-			date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE.localizedBy(Locale.FRANCE));
+			date = Utils.timestampToDate(member.getTimeJoined().toEpochSecond());
 			embed.addField("Membre depuis", date + " (" + t + ")", true);
 			DiscordMember discordMember;
 			try {
 				discordMember = CacheDiscordSQL.getDiscordMember(user);
+				if (discordMember.getOlympaId() != 0) {
+
+					OlympaPlayer olympaTarget = null;
+					try {
+						olympaTarget = AccountProvider.get(discordMember.getOlympaId());
+						embed.setThumbnail("https://minotar.net/helm/" + olympaTarget.getName());
+						embed.addField("Compte Minecraft :", olympaTarget.getName(), true);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
 				if (discordMember.getLeaveTime() != 0) {
 					t = Utils.timestampToDuration(discordMember.getLeaveTime());
 					date = Utils.timestampToDate(discordMember.getLeaveTime());
 					embed.addField("Nous a quitté le ", date + " (" + t + ")", true);
 				}
-				if (discordMember.getOlympaId() != 0) {
-
-					OlympaPlayer olympaTarget = null;
-					try {
-						olympaTarget = MySQL.getPlayer(discordMember.getOlympaId());
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-					embed.setThumbnail("https://minotar.eu/avatar/" + olympaTarget.getName());
-					embed.addField("Compte Minecraft :", olympaTarget.getName(), true);
-				}
 				if (!discordMember.getOldNames().isEmpty())
 					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
 				DecimalFormat df = new DecimalFormat("0.#");
 				embed.addField("XP", df.format(discordMember.getXp()), true);
-				embed.addField("Compte lié", discordMember.getOlympaId() != 0 ? "✅" : "❌", true);
 				OnlineStatus onlineStatus = member.getOnlineStatus();
 				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
 					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
