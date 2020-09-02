@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.staff;
+package fr.olympa.bot.bungee;
 
 import java.awt.Color;
 import java.sql.SQLException;

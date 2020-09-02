@@ -164,7 +164,7 @@ public class DiscordSQL {
 	}
 
 	private static OlympaStatement updateGuildStatement = new OlympaStatement(StatementType.UPDATE, tableGuild, "id", new String[] {
-			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_insult", "log_channel_id", "exclude_channels_ids", "guild_type" });
+			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_insult", "status_message_enabled", "log_channel_id", "exclude_channels_ids", "guild_type" });
 
 	public static void updateGuild(OlympaGuild olympaGuild) throws SQLException {
 		PreparedStatement statement = updateGuildStatement.getStatement();
@@ -177,6 +177,7 @@ public class DiscordSQL {
 		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogRoles()));
 		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogEntries()));
 		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogInsult()));
+		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isStatusMessageEnabled()));
 		if (olympaGuild.getLogChannelId() != 0)
 			statement.setLong(i++, olympaGuild.getLogChannelId());
 		else
@@ -285,7 +286,7 @@ public class DiscordSQL {
 		statement.setLong(i++, discordMember.getId());
 		statement.executeUpdate();
 		statement.close();
-		System.out.println("[DEBUG] discordMember update: " + discordMember.getName() + new Gson().toJson(discordMember));
+		//		System.out.println("[DEBUG] discordMember update: " + discordMember.getName() + new Gson().toJson(discordMember));
 	}
 
 	private static OlympaStatement insertMessageStatement = new OlympaStatement(StatementType.INSERT, tableMessages, "guild_discord_id", "channel_discord_id", "message_discord_id", "author_id", "contents", "created");

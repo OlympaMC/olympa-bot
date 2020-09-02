@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.entities.Role;
 
 public enum DiscordPermission {
 
-	HIGH_STAFF(DiscordGroup.RESP_TECH, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF, DiscordGroup.RESP_BUILDER, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA),
+	HIGH_STAFF(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF, DiscordGroup.RESP_BUILDER),
 	MODERATOR(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA),
 	ASSISTANT(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ASSISTANT),
 	HIGH_DEV(DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),

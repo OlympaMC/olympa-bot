@@ -39,8 +39,8 @@ public class LinkBungeListener implements Listener {
 		}
 		if (discordMember == null)
 			return;
-		Member member = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(discordMember.getId());
-		Member memberStaff = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF).getGuild().getMemberById(discordMember.getId());
+		Member member = GuildHandler.getMember(DiscordGuildType.PUBLIC, discordMember.getDiscordId());
+		Member memberStaff = GuildHandler.getMember(DiscordGuildType.STAFF, discordMember.getDiscordId());
 
 		LinkHandler.updateGroups(member, olympaPlayer);
 		if (memberStaff != null)

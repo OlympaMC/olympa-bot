@@ -39,7 +39,7 @@ public class OlympaGuild {
 	private String name;
 	private final long id, discordId;
 	private long logChannelId;
-	private boolean logVoice, logMsg, logUsername, logAttachment, logRoles, logEntries, logInsult;
+	private boolean logVoice, logMsg, logUsername, logAttachment, logRoles, logEntries, logInsult, statusMessageEnabled;
 	private DiscordGuildType type;
 	private List<Long> excludeChannelsIds;
 
@@ -60,12 +60,14 @@ public class OlympaGuild {
 				resultSet.getInt("log_roles"),
 				resultSet.getInt("log_entries"),
 				resultSet.getInt("log_insult"),
+				resultSet.getInt("status_message_enabled"),
 				resultSet.getLong("log_channel_id"),
 				listExcludeChIds,
 				resultSet.getInt("guild_type"));
 	}
 
-	public OlympaGuild(long id, long discordId, String guildName, int logVoice, int logMsg, int logUsername, int logAttachment, int logRoles, int logEntries, int logInsult, long logChannelId, List<Long> excludeChannelsIds, int type) {
+	public OlympaGuild(long id, long discordId, String guildName, int logVoice, int logMsg, int logUsername, int logAttachment, int logRoles, int logEntries, int logInsult, int statusMessageEnabled, long logChannelId,
+			List<Long> excludeChannelsIds, int type) {
 		this.id = id;
 		this.discordId = discordId;
 		name = guildName;
@@ -76,6 +78,7 @@ public class OlympaGuild {
 		this.logRoles = logRoles == 1;
 		this.logEntries = logEntries == 1;
 		this.logInsult = logInsult == 1;
+		this.statusMessageEnabled = statusMessageEnabled == 1;
 		this.logChannelId = logChannelId;
 		this.excludeChannelsIds = excludeChannelsIds;
 		this.type = DiscordGuildType.get(type);
@@ -179,6 +182,10 @@ public class OlympaGuild {
 
 	public boolean isLogInsult() {
 		return logInsult;
+	}
+
+	public boolean isStatusMessageEnabled() {
+		return statusMessageEnabled;
 	}
 
 }

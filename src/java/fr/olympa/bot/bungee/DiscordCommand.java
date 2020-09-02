@@ -107,7 +107,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			TextComponent codeComponent = new TextComponent(code);
 			codeComponent.setColor(ChatColor.DARK_PURPLE);
 			codeComponent.setBold(true);
-			codeComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§eClique ici pour copier le code")));
+			codeComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§eClique ici pour copier le code dans le press-papier")));
 			codeComponent.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, code));
 			message.addExtra(codeComponent);
 			for (BaseComponent baseComponent : TextComponent.fromLegacyText("§d en privé à §7@§5OlympaBot#5503§d, trouve le dans #informations sur Discord."))

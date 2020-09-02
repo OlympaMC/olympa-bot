@@ -4,11 +4,13 @@ import java.util.List;
 
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 
 public class GuildHandler {
 
 	public static List<OlympaGuild> guilds = null;
-	
+
 	public static OlympaGuild getOlympaGuild(Guild guild) {
 		return getOlympaGuildByDiscordId(guild.getIdLong());
 	}
@@ -25,8 +27,16 @@ public class GuildHandler {
 		guilds.remove(getOlympaGuildByOlympaId(olympaGuild.getId()));
 		guilds.add(olympaGuild);
 	}
-	
+
 	public static OlympaGuild getOlympaGuild(DiscordGuildType type) {
 		return guilds.stream().filter(g -> g.getType() == type).findFirst().orElse(null);
+	}
+
+	public static Member getMember(DiscordGuildType type, long discordId) {
+		return getOlympaGuild(type).getGuild().getMemberById(discordId);
+	}
+
+	public static Member getMember(DiscordGuildType type, User user) {
+		return getOlympaGuild(type).getGuild().getMemberById(user.getIdLong());
 	}
 }

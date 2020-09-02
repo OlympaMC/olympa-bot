@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.listeners;
+package fr.olympa.bot.discord.ready;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -21,8 +21,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -90,7 +88,6 @@ public class ReadyListener extends ListenerAdapter {
 		Guild defaultGuild = olympaGuild.getGuild();
 		Role defaultRole = DiscordGroup.PLAYER.getRole(defaultGuild);
 		List<Member> members = defaultGuild.getMembers();
-		System.out.println("Membres : " + members.size());
 		members.stream().filter(m -> m.getRoles().isEmpty()).forEach(member -> {
 			defaultGuild.addRoleToMember(member, defaultRole).queue();
 			OlympaBots.getInstance().sendMessage("&c" + member.getUser().getAsTag() + " n'avait pas de roles.");
@@ -100,25 +97,12 @@ public class ReadyListener extends ListenerAdapter {
 		embed.setTimestamp(OffsetDateTime.now());
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		for (OlympaGuild olympaGuilds : GuildHandler.guilds) {
+			if (!olympaGuilds.isStatusMessageEnabled())
+				continue;
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null)
 				continue;
-
-			logChannel.getHistoryFromBeginning(1).queue(historyMsg -> {
-				List<Message> list = historyMsg.getRetrievedHistory();
-				if (!list.isEmpty()) {
-					Message histMessage = list.get(0);
-					List<MessageEmbed> embeds = histMessage.getEmbeds();
-					if (!embeds.isEmpty()) {
-						MessageEmbed em = histMessage.getEmbeds().get(0);
-						if (em != null && em.getTitle() != null && histMessage.getEmbeds().get(0).getTitle().equals("Déconnexion du bot")) {
-							histMessage.editMessage(embed.build()).queue();
-							return;
-						}
-					}
-				}
-				logChannel.sendMessage(embed.build()).queue();
-			});
+			logChannel.sendMessage(embed.build()).queue();
 		}
 		OlympaDiscord.lastConnection = Utils.getCurrentTimeInSeconds();
 		// En test
@@ -133,33 +117,12 @@ public class ReadyListener extends ListenerAdapter {
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		embed.setTimestamp(OffsetDateTime.now());
 		for (OlympaGuild olympaGuilds : GuildHandler.guilds) {
+			if (!olympaGuilds.isStatusMessageEnabled())
+				continue;
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null)
 				continue;
-			//			logChannel.getHistoryFromBeginning(1).queue(historyMsg -> {
-			//				List<Message> list = historyMsg.getRetrievedHistory();
-			//				if (!list.isEmpty()) {
-			//					Message histMessage = list.get(0);
-			//					List<MessageEmbed> embeds = histMessage.getEmbeds();
-			//					if (!embeds.isEmpty())
-			//						if (histMessage.getEmbeds().get(0).getTitle().equals("Bot connecté")) {
-			//							histMessage.editMessage(embed.build()).queue();
-			//							return;
-			//						}
-			//				}
 			logChannel.sendMessage(embed.build()).queue();
-			//			});
 		}
-		//		MessageHistory.getHistoryAfter(channel, channel.getLatestMessageId()).limit(2).queue(historyMsg -> {
-		//			List<Message> list = historyMsg.getRetrievedHistory();
-		//			if (!list.isEmpty()) {
-		//				for (Message histMessage : list) {
-		//					if (DiscordUtils.isMe(histMessage.getAuthor())) {
-		//						histMessage.editMessage(embed.build()).queue();
-		//						return;
-		//					}
-		//				}
-		//			}
-		//		});
 	}
 }

@@ -55,12 +55,11 @@ public class LinkHandler {
 		Set<OlympaGroup> groups = olympaPlayer.getGroups().keySet();
 		Set<Role> roles = DiscordGroup.get(groups).stream().map(g -> g.getRole(member.getGuild())).collect(Collectors.toSet());
 		Set<Role> roleToRemoved = new HashSet<>(member.getRoles());
-		SetView<Role> communRole = /*roleToRemoved.stream().filter(r1 -> roles.stream().filter(r2 -> r1.getId() == r2.getId()).findFirst().isPresent()).collect(Collectors.toList());*/ Sets.intersection(roles, roleToRemoved);
+		SetView<Role> communRole = Sets.intersection(roles, roleToRemoved);
 		roleToRemoved.removeAll(communRole);
 		roles.removeAll(communRole);
-
-		member.modifyNickname(olympaPlayer.getName()).queue();
-		if (!roles.isEmpty() && !roles.isEmpty())
-			member.getGuild().modifyMemberRoles(member, roles, roleToRemoved).queue();
+		member.modifyNickname(olympaPlayer.getName()).reason("Utilisation du pseudo Miencraft : " + olympaPlayer.getName()).queue();
+		if (!roles.isEmpty() || !roleToRemoved.isEmpty())
+			member.getGuild().modifyMemberRoles(member, roles, roleToRemoved).reason("Grade changer via Minecraft : " + olympaPlayer.getName()).queue();
 	}
 }

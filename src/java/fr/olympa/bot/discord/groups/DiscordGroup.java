@@ -25,13 +25,17 @@ public enum DiscordGroup {
 	MOD(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur lié aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum", true),
 	ASSISTANT(OlympaGroup.ASSISTANT, 558322953314631690L, 558168138848403456L, "Question ou autre demande. Il saura t'aider pour toute autre situation.", true),
 	RESP_STAFF(OlympaGroup.RESP_STAFF, 600766523354644491L, 600770102006120452L, null, false),
+	RESP_COM(OlympaGroup.RESP_COM, 600766523354644491L, 731225340655173632L, null, false),
 	RESP_ANIMATION(OlympaGroup.RESP_ANIMATION, 606158641355292723L, 606162089903521827L, null, false),
 	RESP_BUILDER(OlympaGroup.RESP_BUILDER, 570320569443155983L, 560935286289203202L, null, false),
 	DEVP(OlympaGroup.DEVP, 558322951250771978L, 0, null, false),
 	DEV(OlympaGroup.DEV, 558322951250771978L, 558441264140386304L, "Signalement de bugs, quelque soit la platforme (Minecraft, Site, Forum, Discord, Teamspeak ...).", true),
 	BUILDER(OlympaGroup.BUILDER, 558322957798080514L, 558441911271161867L, null, false),
-	ANIMATEUR(OlympaGroup.ASSISTANT, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
+	ANIMATEUR(OlympaGroup.ANIMATEUR, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
 	GRAPHISTE(OlympaGroup.GRAPHISTE, 558322958905638944L, 558442057174089740L, null, false),
+	FRIEND(OlympaGroup.FRIEND, 603012821630058498L, 558168724708786187L, null, false),
+	YOUTUBER(OlympaGroup.YOUTUBER, 558322955386617858L, 558570424288542740L, null, false),
+	MINI_YOUTUBER(OlympaGroup.MINI_YOUTUBER, 558322956070289430L, 558440310108323874L, null, false),
 	PLAYER(OlympaGroup.PLAYER, 0, 558334380393627670L, null, false),
 	SIGNED(null, 679992766117183494L, 0, null, false),
 	ABSENT(null, 624938102313582593L, 0, null, false),
@@ -123,7 +127,7 @@ public enum DiscordGroup {
 	}
 
 	public boolean isStaff() {
-		return idStaff != 0L && olympaGroup != null;
+		return idStaff != 0L && olympaGroup != null && olympaGroup.getPower() >= OlympaGroup.GRAPHISTE.getPower();
 	}
 
 	public boolean isSupportCanTag() {

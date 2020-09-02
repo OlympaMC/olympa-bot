@@ -37,6 +37,7 @@ public class SettingsCommand extends DiscordCommand {
 			embed.addField("Logs pseudo", olympaGuild.isLogUsername() ? "✅" : "❌", true);
 			embed.addField("Logs channel vocal", olympaGuild.isLogVoice() ? "✅" : "❌", true);
 			embed.addField("Logs insultes", olympaGuild.isLogInsult() ? "✅" : "❌", true);
+			embed.addField("Message de status du bot", olympaGuild.isStatusMessageEnabled() ? "✅" : "❌", true);
 			String s = "❌";
 			if (olympaGuild.getLogChannelId() != 0)
 				s = guild.getTextChannelById(olympaGuild.getLogChannelId()).getAsMention();
@@ -55,7 +56,7 @@ public class SettingsCommand extends DiscordCommand {
 				e.printStackTrace();
 			}
 		channel.sendMessage(embed.build()).queue(msg -> {
-			for (String unicode : new String[] { "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣" })
+			for (String unicode : new String[] { "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣" })
 				msg.addReaction(unicode);
 
 		});
