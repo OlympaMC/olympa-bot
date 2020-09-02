@@ -1,9 +1,10 @@
 package fr.olympa.bot.discord.sanctions;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
+
+import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.NumberEmoji;
@@ -44,7 +45,7 @@ public class MuteCommand extends DiscordCommand {
 			EmbedBuilder em = new EmbedBuilder();
 			em.setTitle("Plusieurs membres trouvés:");
 			StringJoiner sj = new StringJoiner("\n");
-			HashMap<String, String> data = new HashMap<>();
+			LinkedMap<String, String> data = new LinkedMap<>();
 			NumberEmoji numberEmoji = NumberEmoji.ONE;
 			for (Member t : targets) {
 				if (numberEmoji != null) {

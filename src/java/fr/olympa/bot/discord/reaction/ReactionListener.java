@@ -19,17 +19,24 @@ public class ReactionListener extends ListenerAdapter {
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		long messageId = event.getMessageIdLong();
+		User user = event.getUser();
+		if (user.isBot())
+			return;
+		MessageReaction react = event.getReaction();
+		ReactionDiscord reaction = AwaitReaction.get(messageId);
+		if (reaction == null)
+			return;
+
+		if (!reaction.canInteract(user) || !reaction.hasReactionEmoji(react.getReactionEmote().getName())) {
+			react.removeReaction(user).queue();
+			return;
+		}
 		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
 			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
-			User user = event.getUser();
-			MessageReaction react = event.getReaction();
-			ReactionDiscord reaction = AwaitReaction.get(messageId);
-			if (reaction == null || user.isBot())
-				return;
 			long nb = 0;
 			if (!reaction.canMultiple())
-				nb = message.getReactions().stream().filter(r -> !r.retrieveUsers().complete().contains(user)).count();
-			if (!reaction.canInteract(user) || nb > 1 || !reaction.onReactAdd(message, event.getChannel(), user, react, reaction.getData(react))) {
+				nb = message.getReactions().stream().filter(r -> r.retrieveUsers().complete().contains(user)).count();
+			if (nb > 1 || !reaction.onReactAdd(message, event.getChannel(), user, react, reaction.getReactionsEmojis(react))) {
 				react.removeReaction(user).queue();
 				return;
 			}
@@ -40,10 +47,14 @@ public class ReactionListener extends ListenerAdapter {
 	public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
 		long messageId = event.getMessageIdLong();
 		User user = event.getUser();
+		MessageReaction react = event.getReaction();
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
 		if (reaction == null || user.isBot())
 			return;
-		reaction.onReactRemove(messageId, event.getChannel(), event.getReaction(), user);
+		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
+			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
+			reaction.onReactRemove(message, event.getChannel(), user, event.getReaction(), reaction.getReactionsEmojis(react));
+		});
 	}
 
 	@Override
@@ -53,6 +64,8 @@ public class ReactionListener extends ListenerAdapter {
 		if (reaction == null)
 			return;
 		reaction.onReactModClearAll(messageId, event.getChannel());
+		if (reaction.isRemoveWhenModClearAll())
+			reaction.remove(event.getChannel());
 	}
 
 	@Override

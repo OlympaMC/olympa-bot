@@ -39,6 +39,8 @@ public enum DiscordGroup {
 	PLAYER(OlympaGroup.PLAYER, 0, 558334380393627670L, null, false),
 	SIGNED(null, 679992766117183494L, 0, null, false),
 	ABSENT(null, 624938102313582593L, 0, null, false),
+	WARNING1(null, 593166910082777141L, 0, null, false),
+	WARNING2(null, 593167088617652329L, 0, null, false),
 	MUTED(null, 0, 566627971276865576L, null, false);
 
 	public static Set<DiscordGroup> get(Collection<OlympaGroup> groups) {
@@ -47,6 +49,10 @@ public enum DiscordGroup {
 
 	public static DiscordGroup get(Guild guild, String emoji) {
 		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.getRole(guild).getName().startsWith(emoji)).findFirst().orElse(null);
+	}
+
+	public static Set<Role> getSecondsRoles(Guild guild) {
+		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.getOlympaGroup() != null && dg.getRole(guild) != null).map(dg -> dg.getRole(guild)).collect(Collectors.toSet());
 	}
 
 	public static DiscordGroup get(long id) {
@@ -113,9 +119,9 @@ public enum DiscordGroup {
 
 	public Role getRole(Guild guild) {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-		if (olympaGuild.getType() == DiscordGuildType.STAFF)
+		if (idStaff != 0 && olympaGuild.getType() == DiscordGuildType.STAFF)
 			return guild.getRoleById(idStaff);
-		else if (olympaGuild.getType() == DiscordGuildType.PUBLIC) {
+		else if (idPublic != 0 && olympaGuild.getType() == DiscordGuildType.PUBLIC) {
 			guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
 			return guild.getRoleById(idPublic);
 		} else

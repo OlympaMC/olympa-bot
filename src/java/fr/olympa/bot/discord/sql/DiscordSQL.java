@@ -6,9 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gson.Gson;
 
@@ -18,8 +16,6 @@ import fr.olympa.api.sql.OlympaStatement.StatementType;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
-import fr.olympa.bot.discord.reaction.ReactionDiscord;
-import fr.olympa.bot.discord.reaction.ReactionHandler;
 import fr.olympa.bot.discord.sanctions.DiscordSanction;
 import fr.olympa.bot.discord.textmessage.DiscordMessage;
 import net.dv8tion.jda.api.entities.Guild;
@@ -30,7 +26,6 @@ public class DiscordSQL {
 	static String tableGuild = "discord.guilds";
 	static String tableMembers = "discord.members";
 	static String tableMessages = "discord.messages";
-	static String tableReaction = "discord.reactions";
 	static String tableSanction = "discord.sanctions";
 
 	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, tableSanction, "target_id", "author_id", "type", "reason", "expire");
@@ -63,61 +58,6 @@ public class DiscordSQL {
 			sanction = DiscordSanction.createObject(resultSet);
 		resultSet.close();
 		return sanction;
-	}
-
-	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction, new String[] { "name", "message_id", "allowed_users_ids", "data", "can_multiple", "guild_id" });
-
-	public static void addReaction(ReactionDiscord reaction) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		String name = ReactionHandler.toString(reaction);
-		if (name == null) {
-			System.out.println("Impossible de sauvegarder dans la BDD la réaction " + reaction.getClass().getName() + " : " + "elle n'est pas dans " + ReactionHandler.class.getName() + ".");
-			return;
-		}
-		PreparedStatement statement = insertReactionStatement.getStatement();
-		int i = 1;
-		statement.setString(i++, ReactionHandler.toString(reaction));
-		statement.setLong(i++, reaction.getMessageId());
-		if (reaction.getCanReactUserIds() != null && !reaction.getCanReactUserIds().isEmpty())
-			statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
-		else
-			statement.setString(i++, null);
-		statement.setString(i++, new Gson().toJson(reaction.getDatas()));
-		statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
-		statement.setLong(i++, reaction.getOlympaGuildId());
-		statement.executeUpdate();
-		statement.close();
-	}
-
-	private static OlympaStatement selectReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, "message_id", null);
-
-	public static ReactionDiscord selectReaction(long messageId) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		PreparedStatement statement = selectReactionStatement.getStatement();
-		ReactionDiscord reaction = null;
-		int i = 1;
-		statement.setLong(i++, messageId);
-		ResultSet resultSet = statement.executeQuery();
-		if (resultSet.next()) {
-			reaction = ReactionHandler.getByName(resultSet.getString("name"));
-			reaction.createObject(resultSet);
-		}
-		resultSet.close();
-		return reaction;
-	}
-
-	private static OlympaStatement selectAllReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, (String[]) null, (String[]) null);
-
-	public static Set<ReactionDiscord> selectAllReactions() throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		PreparedStatement statement = selectAllReactionStatement.getStatement();
-		Set<ReactionDiscord> reactions = new HashSet<>();
-		ReactionDiscord reaction;
-		ResultSet resultSet = statement.executeQuery();
-		while (resultSet.next()) {
-			reaction = ReactionHandler.getByName(resultSet.getString("name"));
-			reaction.createObject(resultSet);
-			reactions.add(reaction);
-		}
-		resultSet.close();
-		return reactions;
 	}
 
 	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, new String[] { "guild_id", "guild_name" });

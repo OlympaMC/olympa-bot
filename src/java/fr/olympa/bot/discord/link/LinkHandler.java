@@ -14,6 +14,7 @@ import com.google.common.collect.Sets.SetView;
 import fr.olympa.api.groups.OlympaGroup;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.bot.discord.groups.DiscordGroup;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -52,14 +53,16 @@ public class LinkHandler {
 	}
 
 	public static void updateGroups(Member member, OlympaPlayer olympaPlayer) {
+		Guild guild = member.getGuild();
 		Set<OlympaGroup> groups = olympaPlayer.getGroups().keySet();
-		Set<Role> roles = DiscordGroup.get(groups).stream().map(g -> g.getRole(member.getGuild())).collect(Collectors.toSet());
+		Set<Role> roles = DiscordGroup.get(groups).stream().map(g -> g.getRole(guild)).collect(Collectors.toSet());
 		Set<Role> roleToRemoved = new HashSet<>(member.getRoles());
 		SetView<Role> communRole = Sets.intersection(roles, roleToRemoved);
 		roleToRemoved.removeAll(communRole);
+		roleToRemoved.removeAll(DiscordGroup.getSecondsRoles(guild));
 		roles.removeAll(communRole);
 		member.modifyNickname(olympaPlayer.getName()).reason("Utilisation du pseudo Miencraft : " + olympaPlayer.getName()).queue();
 		if (!roles.isEmpty() || !roleToRemoved.isEmpty())
-			member.getGuild().modifyMemberRoles(member, roles, roleToRemoved).reason("Grade changer via Minecraft : " + olympaPlayer.getName()).queue();
+			guild.modifyMemberRoles(member, roles, roleToRemoved).reason("Grade changer via Minecraft : " + olympaPlayer.getName()).queue();
 	}
 }

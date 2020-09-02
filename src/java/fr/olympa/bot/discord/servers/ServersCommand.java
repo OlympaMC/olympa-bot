@@ -2,11 +2,11 @@ package fr.olympa.bot.discord.servers;
 
 import java.awt.Color;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.api.server.ServerStatus;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
@@ -28,7 +28,7 @@ public class ServersCommand extends DiscordCommand {
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		TextChannel channel = message.getTextChannel();
-		Map<String, String> map = new HashMap<>();
+		LinkedMap<String, String> map = new LinkedMap<>();
 		map.put("🔄", "refresh");
 		channel.sendMessage(getEmbed()).queue(msg -> {
 			RefreshServersReaction reaction = new RefreshServersReaction(map, msg, GuildHandler.getOlympaGuild(message.getGuild()));

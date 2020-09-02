@@ -7,23 +7,24 @@ import java.util.stream.Collectors;
 
 import fr.olympa.bot.discord.sanctions.MuteChooseReaction;
 import fr.olympa.bot.discord.servers.RefreshServersReaction;
-import fr.olympa.bot.discord.sql.DiscordSQL;
+import fr.olympa.bot.discord.suvey.SurveyReaction;
 
 public class ReactionHandler {
 
 	public static MuteChooseReaction MUTE_CHOOSE = new MuteChooseReaction();
 	public static RefreshServersReaction REFRESH_SERVER = new RefreshServersReaction();
+	public static SurveyReaction SURVEY = new SurveyReaction();
 
 	public static void initReactions() {
 		try {
-			AwaitReaction.reactions.putAll(DiscordSQL.selectAllReactions().stream().collect(Collectors.toMap(entry -> entry.getMessageId(), entry -> entry)));
+			AwaitReaction.reactions.putAll(ReactionSQL.selectAllReactions().stream().collect(Collectors.toMap(entry -> entry.getMessageId(), entry -> entry)));
 		} catch (InstantiationException | IllegalAccessException | NoSuchFieldException | SecurityException | SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	public static ReactionDiscord getByName(String name) throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
+	public static ReactionDiscord getByName(String name) throws NoSuchFieldException, SecurityException, InstantiationException, IllegalAccessException {
 		Field field = ReactionHandler.class.getField(name);
 		if (field != null) {
 			Class<?> fieldType = field.getType();

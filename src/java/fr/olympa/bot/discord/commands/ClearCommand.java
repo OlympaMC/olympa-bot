@@ -33,7 +33,7 @@ public class ClearCommand extends DiscordCommand {
 		List<Message> hists = channel.getHistoryBefore(message.getIdLong(), i).complete().getRetrievedHistory();
 		for (Message hist : hists)
 			try {
-				deleteMessage(hist);
+				hist.delete().complete();
 				j++;
 			} catch (Exception e) {
 				e.printStackTrace();

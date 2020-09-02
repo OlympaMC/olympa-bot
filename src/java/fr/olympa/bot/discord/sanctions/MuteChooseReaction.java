@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.sanctions;
 
-import java.util.Map;
+import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.User;
 
 public class MuteChooseReaction extends ReactionDiscord {
 
-	public MuteChooseReaction(Message message, Map<String, String> data, long... canReactUserIds) {
+	public MuteChooseReaction(Message message, LinkedMap<String, String> data, long... canReactUserIds) {
 		super(data, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId(), canReactUserIds);
 	}
 
@@ -54,7 +54,8 @@ public class MuteChooseReaction extends ReactionDiscord {
 	}
 
 	@Override
-	public void onReactRemove(long messageId, MessageChannel messageChannel, MessageReaction messageReaction, User user) {
+	public void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionsEmojis) {
 		// TODO Auto-generated method stub
+
 	}
 }
