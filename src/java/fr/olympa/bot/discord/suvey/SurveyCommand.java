@@ -3,9 +3,7 @@ package fr.olympa.bot.discord.suvey;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +68,7 @@ public class SurveyCommand extends DiscordCommand {
 		return embedBuilder.build();
 	}
 
-	public static MessageEmbed getEmbed(Message message, LinkedMap<String, String> reactionEmojis) {
+	public static MessageEmbed getEmbed(Message message, LinkedMap<String, String> reactionEmojis, boolean isUnique) {
 		List<MessageReaction> reactions = message.getReactions();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("📝 Sondage:");
@@ -79,17 +77,21 @@ public class SurveyCommand extends DiscordCommand {
 			embedBuilder.setDescription(reactionEmojis.getValue(0));
 			i = 1;
 		}
-		Set<User> users = new HashSet<>();
+		List<User> users = new ArrayList<>();
 		for (MessageReaction r : reactions)
 			users.addAll(r.retrieveUsers().complete());
-		int size = users.size() - 1;
+		users.removeIf(user -> user.getIdLong() == message.getJDA().getSelfUser().getIdLong());
+		int total = users.size();
+		int totalUnique = (int) users.stream().distinct().count();
+		embedBuilder.appendDescription("\n\nVotes " + total + "\n" + "Vote unique " + (isUnique ? "✅" : "❌" + "\nNombre de vote unique " + totalUnique));
 		while (reactionEmojis.size() > i) {
 			String key = reactionEmojis.get(i);
 			String value = reactionEmojis.getValue(i);
 			MessageReaction reaction = reactions.stream().filter(r -> r.getReactionEmote().getEmoji().equals(key)).findFirst().orElse(null);
-			int count = reaction.getCount() - 1;
-			String pourcent = new DecimalFormat("0.#").format(count / size * 100D);
-			embedBuilder.addField(value, key + " " + pourcent + "% " + (count != 0 ? count + " vote" + Utils.withOrWithoutS(count) : ""), false);
+			double count = reaction.getCount() - 1;
+			String pourcent = new DecimalFormat("0.#").format(count / total * 100D);
+			String countRound = new DecimalFormat("0.#").format(count);
+			embedBuilder.addField(value, key + " " + pourcent + "% " + (count != 0 ? countRound + " vote" + Utils.withOrWithoutS((int) Math.round(count)) : ""), false);
 			i++;
 		}
 		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());

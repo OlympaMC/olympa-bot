@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.sql.MySQL;
 import fr.olympa.bot.discord.guild.GuildHandler;
-import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.core.bungee.staffchat.StaffChatHandler;
@@ -43,9 +42,7 @@ public class StaffListener extends ListenerAdapter {
 		Member member = event.getMember();
 		Message message = event.getMessage();
 		TextChannel channel = event.getChannel();
-		if (member == null || member.isFake() || member.getUser().isBot())
-			return;
-		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.STAFF || channel.getIdLong() != 729534637466189955L)
+		if (member == null || member.isFake() || member.getUser().isBot() || !GuildHandler.isStaffChannel(channel))
 			return;
 		message.clearReactions().queue(r -> message.addReaction(guild.getEmotesByName("VNO", false).get(0)).queue());
 
@@ -57,33 +54,31 @@ public class StaffListener extends ListenerAdapter {
 		Member member = event.getMember();
 		Message message = event.getMessage();
 		TextChannel channel = event.getChannel();
-		if (member == null || member.isFake() || member.getUser().isBot())
+		if (member == null || member.isFake() || member.getUser().isBot() || !GuildHandler.isStaffChannel(channel))
 			return;
-		if (GuildHandler.getOlympaGuild(guild).getType() == DiscordGuildType.STAFF && channel.getIdLong() == 729534637466189955L) {
-			DiscordMember dm;
-			try {
-				dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
-				OlympaPlayer olympaPlayer;
-				if (dm.getOlympaId() == 0)
-					olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
-				else
-					olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
-				if (olympaPlayer == null) {
-					message.addReaction(guild.getEmotesByName("V_", false).get(0)).queue();
-					return;
-				}
-				StringBuilder out = new StringBuilder(message.getContentDisplay());
-				message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
-				String staffOnline = String.valueOf(StaffChatHandler.sendMessage(olympaPlayer, null, out.toString()));
-				message.addReaction(guild.getEmotesByName("VYES", false).get(0)).queue();
-				System.out.println("staffOnline " + staffOnline);
-				for (int i = 0; staffOnline.length() > i; i++)
-					message.addReaction(staffOnline.charAt(i) + "\u20E3").queue();
-			} catch (SQLException e) {
-				e.printStackTrace();
-				message.addReaction(guild.getEmotesByName("VNO", false).get(0)).queue();
+		DiscordMember dm;
+		try {
+			dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
+			OlympaPlayer olympaPlayer;
+			if (dm.getOlympaId() == 0)
+				olympaPlayer = MySQL.getPlayer(member.getEffectiveName());
+			else
+				olympaPlayer = MySQL.getPlayer(dm.getOlympaId());
+			if (olympaPlayer == null) {
+				message.addReaction(guild.getEmotesByName("V_", false).get(0)).queue();
 				return;
 			}
+			StringBuilder out = new StringBuilder(message.getContentDisplay());
+			message.getAttachments().forEach(att -> out.append(" " + att.getProxyUrl()));
+			String staffOnline = String.valueOf(StaffChatHandler.sendMessage(olympaPlayer, null, out.toString()));
+			message.addReaction(guild.getEmotesByName("VYES", false).get(0)).queue();
+			for (int i = 0; staffOnline.length() > i; i++)
+				message.addReaction(staffOnline.charAt(i) + "\u20E3").queue();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			message.addReaction(guild.getEmotesByName("VNO", false).get(0)).queue();
+			return;
 		}
+
 	}
 }

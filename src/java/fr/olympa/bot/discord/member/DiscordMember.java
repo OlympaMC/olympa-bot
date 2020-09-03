@@ -138,7 +138,8 @@ public class DiscordMember {
 		if (name != null && !newName.equals(name)) {
 			oldNames.put(Utils.getCurrentTimeInSeconds(), name);
 			name = newName;
-		}
+		} else
+			name = newName;
 		tag = matcher.group(2);
 	}
 

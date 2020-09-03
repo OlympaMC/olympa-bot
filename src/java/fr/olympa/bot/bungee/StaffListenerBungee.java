@@ -49,7 +49,7 @@ public class StaffListenerBungee implements Listener {
 			User user = discordMember.getUser();
 			playerName = user.getAsMention();
 		}
-		TextChannel channelStaffDiscord = getStaffTextChannel();
+		TextChannel channelStaffDiscord = GuildHandler.getMinecraftChannel();
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setAuthor(player.getName(), null, "https://minotar.net/helm/" + player.getName());
 		eb.setDescription(playerName + " s'est déconnecté du serveur.");
@@ -80,7 +80,7 @@ public class StaffListenerBungee implements Listener {
 			User user = discordMember.getUser();
 			playerName = user.getAsMention();
 		}
-		TextChannel channelStaffDiscord = getStaffTextChannel();
+		TextChannel channelStaffDiscord = GuildHandler.getMinecraftChannel();
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setAuthor(player.getName(), null, "https://minotar.net/helm/" + player.getName());
 		eb.setDescription(playerName + " s'est connecté au serveur " + player.getServer().getInfo().getName() + ".");
@@ -95,7 +95,7 @@ public class StaffListenerBungee implements Listener {
 
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
 		Guild guild = olympaGuild.getGuild();
-		TextChannel channelStaffDiscord = guild.getTextChannelById(729534637466189955L);
+		TextChannel channelStaffDiscord = olympaGuild.getStaffChannel();
 		if (olympaPlayer != null) {
 			Member member = null;
 			try {
@@ -113,37 +113,32 @@ public class StaffListenerBungee implements Listener {
 		} else
 			WebHookHandler.send(message, channelStaffDiscord, event.getSender().getName(), "https://c7.uihere.com/files/250/925/132/computer-terminal-linux-console-computer-icons-command-line-interface-linux.jpg");
 	}
-	
-	public TextChannel getStaffTextChannel() {
-		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		Guild guild = olympaGuild.getGuild();
-		return guild.getTextChannelById(729534637466189955L);
-	}
-	
+
 	public void sendError(String serverName, String stackTrace) {
-		TextChannel channelStaffDiscord = getStaffTextChannel();
+		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		List<String> strings = new ArrayList<>(2);
-		if (stackTrace.length() < 2048) {
+		if (stackTrace.length() < 2048)
 			strings.add(stackTrace);
-		}else {
+		else {
 			StringTokenizer tok = new StringTokenizer(stackTrace, "\n");
 			StringBuilder output = new StringBuilder(stackTrace.length());
-		    int lineLen = 0;
-		    while (tok.hasMoreTokens()) {
+			int lineLen = 0;
+			while (tok.hasMoreTokens()) {
 				String word = tok.nextToken() + "\n";
 
-		        if (lineLen + word.length() > 2048) {
-		            strings.add(output.toString());
+				if (lineLen + word.length() > 2048) {
+					strings.add(output.toString());
 					output = new StringBuilder(stackTrace.length());
-		            lineLen = 0;
-		        }
-		        output.append(word);
-		        lineLen += word.length();
-		    }
+					lineLen = 0;
+				}
+				output.append(word);
+				lineLen += word.length();
+			}
 			strings.add(output.toString());
 		}
-		for (int i = 0; i < strings.size(); i++) {
-			channelStaffDiscord.sendMessage(new EmbedBuilder().setTitle("Erreur sur " + serverName + " (" + (i + 1) + "/" + strings.size() + ")").setDescription(strings.get(i)).setColor(Color.RED).build()).queue();
-		}
+		//		for (int i = 0; i < strings.size(); i++)
+		// channelStaffDiscord.sendMessage(new EmbedBuilder().setTitle("Erreur sur " + serverName + " (" + (i + 1) + "/" + strings.size() + ")").setDescription("```" + strings.get(i) + "```").setColor(Color.RED).build()).queue();
+		for (int i = 0; i < strings.size(); i++)
+			channelStaffDiscord.sendMessage(i == 0 ? "**Erreur sur " + serverName + "**\n" : "" + "```Java\n" + strings.get(i) + "```").queue();
 	}
 }

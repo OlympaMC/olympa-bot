@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
-import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -40,16 +39,21 @@ public class SettingsCommand extends DiscordCommand {
 			embed.addField("Message de status du bot", olympaGuild.isStatusMessageEnabled() ? "✅" : "❌", true);
 			String s = "❌";
 			if (olympaGuild.getLogChannelId() != 0)
-				s = guild.getTextChannelById(olympaGuild.getLogChannelId()).getAsMention();
+				s = olympaGuild.getLogChannel().getAsMention();
 			embed.addField("Log Channel", s, true);
-			s = "❌";
+			if (olympaGuild.getStaffChannelId() != 0)
+				embed.addField("Staff Channel", olympaGuild.getStaffChannel().getAsMention(), true);
+			if (olympaGuild.getBugsChannelId() != 0)
+				embed.addField("Bugs Channel", olympaGuild.getBugsChannel().getAsMention(), true);
+			if (olympaGuild.getMinecraftChannelId() != 0)
+				embed.addField("Minecraft Channel", olympaGuild.getMinecraftChannel().getAsMention(), true);
 			if (!olympaGuild.getExcludeChannelsIds().isEmpty())
 				s = olympaGuild.getExcludeChannelsIds().stream().map(id -> guild.getTextChannelById(id).getAsMention()).collect(Collectors.joining(", "));
 			embed.addField("Excludes Log Channel", s, true);
 			embed.addField("OlympaGuild Type", olympaGuild.getType().getName(), true);
 		} else if (args[0].equalsIgnoreCase("reload"))
 			try {
-				GuildHandler.updateGuild(DiscordSQL.selectGuildById(olympaGuild.getId()));
+				GuildHandler.updateGuild(GuildSQL.selectGuildById(olympaGuild.getId()));
 				embed.setDescription("✅ La config du discord `" + guild.getName() + "` a été rechargé.");
 			} catch (SQLException e) {
 				embed.setDescription("❌ Une erreur SQL est survenu: `" + e.getMessage() + "`.");

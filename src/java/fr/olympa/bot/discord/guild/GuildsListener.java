@@ -28,7 +28,7 @@ public class GuildsListener extends ListenerAdapter {
 	public void onShutdown(ShutdownEvent event) {
 		GuildHandler.guilds.forEach(guild -> {
 			try {
-				DiscordSQL.updateGuild(guild);
+				GuildSQL.updateGuild(guild);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -60,13 +60,13 @@ public class GuildsListener extends ListenerAdapter {
 			Guild guild = event.getGuild();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			if (olympaGuild == null) {
-				olympaGuild = DiscordSQL.addGuild(guild);
+				olympaGuild = GuildSQL.addGuild(guild);
 				if (olympaGuild != null)
 					GuildHandler.guilds.add(olympaGuild);
 			}
 			if (!olympaGuild.getName().equals(guild.getName())) {
 				olympaGuild.setName(guild.getName());
-				DiscordSQL.updateGuild(olympaGuild);
+				GuildSQL.updateGuild(olympaGuild);
 			}
 			for (Member member : guild.getMembers())
 				//				DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberWithoutCaching(member.getUser());

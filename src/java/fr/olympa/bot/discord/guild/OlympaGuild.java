@@ -38,7 +38,7 @@ public class OlympaGuild {
 
 	private String name;
 	private final long id, discordId;
-	private long logChannelId;
+	private long logChannelId, staffChannelId, bugsChannelId, minecraftChannelId;
 	private boolean logVoice, logMsg, logUsername, logAttachment, logRoles, logEntries, logInsult, statusMessageEnabled;
 	private DiscordGuildType type;
 	private List<Long> excludeChannelsIds;
@@ -62,11 +62,23 @@ public class OlympaGuild {
 				resultSet.getInt("log_insult"),
 				resultSet.getInt("status_message_enabled"),
 				resultSet.getLong("log_channel_id"),
+				resultSet.getLong("staff_channel_id"),
+				resultSet.getLong("bugs_channel_id"),
+				resultSet.getLong("minecraft_channel_id"),
 				listExcludeChIds,
 				resultSet.getInt("guild_type"));
 	}
 
-	public OlympaGuild(long id, long discordId, String guildName, int logVoice, int logMsg, int logUsername, int logAttachment, int logRoles, int logEntries, int logInsult, int statusMessageEnabled, long logChannelId,
+	public long getStaffChannelId() {
+		return staffChannelId;
+	}
+
+	public long getBugsChannelId() {
+		return bugsChannelId;
+	}
+
+	public OlympaGuild(long id, long discordId, String guildName, int logVoice, int logMsg, int logUsername, int logAttachment, int logRoles, int logEntries, int logInsult, int statusMessageEnabled,
+			long logChannelId, long staffChannelId, long bugsChannelId, long minecraftChannelId,
 			List<Long> excludeChannelsIds, int type) {
 		this.id = id;
 		this.discordId = discordId;
@@ -80,6 +92,9 @@ public class OlympaGuild {
 		this.logInsult = logInsult == 1;
 		this.statusMessageEnabled = statusMessageEnabled == 1;
 		this.logChannelId = logChannelId;
+		this.staffChannelId = staffChannelId;
+		this.bugsChannelId = bugsChannelId;
+		this.minecraftChannelId = minecraftChannelId;
 		this.excludeChannelsIds = excludeChannelsIds;
 		this.type = DiscordGuildType.get(type);
 	}
@@ -180,12 +195,28 @@ public class OlympaGuild {
 		return getJda().getTextChannelById(logChannelId);
 	}
 
+	public TextChannel getStaffChannel() {
+		return getJda().getTextChannelById(staffChannelId);
+	}
+
+	public TextChannel getBugsChannel() {
+		return getJda().getTextChannelById(bugsChannelId);
+	}
+
+	public TextChannel getMinecraftChannel() {
+		return getJda().getTextChannelById(minecraftChannelId);
+	}
+
 	public boolean isLogInsult() {
 		return logInsult;
 	}
 
 	public boolean isStatusMessageEnabled() {
 		return statusMessageEnabled;
+	}
+
+	public long getMinecraftChannelId() {
+		return minecraftChannelId;
 	}
 
 }
