@@ -175,6 +175,10 @@ public class OlympaGuild {
 		this.logEntries = logEntries;
 	}
 
+	public boolean isOlympaDiscord() {
+		return type == DiscordGuildType.PUBLIC || type == DiscordGuildType.STAFF;
+	}
+
 	public DiscordGuildType getType() {
 		return type;
 	}

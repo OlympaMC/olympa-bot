@@ -61,7 +61,7 @@ public class LinkHandler {
 		roleToRemoved.removeAll(communRole);
 		roleToRemoved.removeAll(DiscordGroup.getSecondsRoles(guild));
 		roles.removeAll(communRole);
-		member.modifyNickname(olympaPlayer.getName()).reason("Utilisation du pseudo Miencraft : " + olympaPlayer.getName()).queue();
+		member.modifyNickname(olympaPlayer.getName()).reason("Utilisation du pseudo Minecraft : " + olympaPlayer.getName()).queue();
 		if (!roles.isEmpty() || !roleToRemoved.isEmpty())
 			guild.modifyMemberRoles(member, roles, roleToRemoved).reason("Grade changer via Minecraft : " + olympaPlayer.getName()).queue();
 	}

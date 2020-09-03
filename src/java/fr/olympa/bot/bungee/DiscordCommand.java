@@ -163,7 +163,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			}
 			break;
 		case "stop":
-			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_BOT.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}
@@ -175,7 +175,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 
 			break;
 		case "start":
-			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_BOT.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}

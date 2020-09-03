@@ -29,6 +29,13 @@ public class CacheDiscordSQL {
 		return getDiscordMember(user.getIdLong());
 	}
 
+	public static DiscordMember getDiscordMemberWtihoutCaaching(long userDiscordId) throws SQLException {
+		DiscordMember discordMember = cacheMembers.asMap().get(userDiscordId);
+		if (discordMember == null)
+			discordMember = DiscordSQL.selectMemberByDiscordId(userDiscordId);
+		return discordMember;
+	}
+
 	public static DiscordMember getDiscordMember(long userDiscordId) throws SQLException {
 		DiscordMember discordMember = cacheMembers.asMap().get(userDiscordId);
 		if (discordMember == null) {

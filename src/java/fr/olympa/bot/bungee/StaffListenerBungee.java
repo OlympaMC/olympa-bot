@@ -139,6 +139,6 @@ public class StaffListenerBungee implements Listener {
 		//		for (int i = 0; i < strings.size(); i++)
 		// channelStaffDiscord.sendMessage(new EmbedBuilder().setTitle("Erreur sur " + serverName + " (" + (i + 1) + "/" + strings.size() + ")").setDescription("```" + strings.get(i) + "```").setColor(Color.RED).build()).queue();
 		for (int i = 0; i < strings.size(); i++)
-			channelStaffDiscord.sendMessage(i == 0 ? "**Erreur sur " + serverName + "**\n" : "" + "```Java\n" + strings.get(i) + "```").queue();
+			channelStaffDiscord.sendMessage((i == 0 ? "**Erreur sur " + serverName + "**\n" : "") + "```Java\n" + strings.get(i) + "```").queue();
 	}
 }

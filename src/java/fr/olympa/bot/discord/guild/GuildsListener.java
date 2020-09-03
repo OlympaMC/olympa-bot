@@ -68,14 +68,23 @@ public class GuildsListener extends ListenerAdapter {
 				olympaGuild.setName(guild.getName());
 				GuildSQL.updateGuild(olympaGuild);
 			}
+
 			for (Member member : guild.getMembers())
-				//				DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberWithoutCaching(member.getUser());
+				//				DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberWtihoutCaaching(member.getUser().getIdLong());
 				//				if (discordMember == null)
 				//					DiscordSQL.addMember(new DiscordMember(member));
+				//				else if (olympaGuild.isOlympaDiscord() && discordMember.getOlympaId() != 0) {
+				//					OlympaPlayer olympaPlayer = AccountProvider.get(discordMember.getOlympaId());
+				//					if (!member.getEffectiveName().equals(olympaPlayer.getName())) {
+				//						System.err.println("DEBUG " + guild.getName() + " membre " + member.getEffectiveName() + " n'a pas le bon pseudo " + olympaPlayer.getName());
+				//						member.modifyNickname(olympaPlayer.getName()).reason("MAJ Manuelle").queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
+				//					}
+				//				}
+				//			}
 				// TEMP
 				//				else if (discordMember.getTag() == null) {
 				//					discordMember.updateName(member.getUser());
-				//					DiscordSQL.updateMember(discordMember);
+				//				DiscordSQL.updateMember(discordMember);
 				//				} else if (discordMember.getJoinTime() == 0) {
 				//					discordMember.updateJoinTime(member.getTimeJoined().toEpochSecond());
 				//					DiscordSQL.updateMember(discordMember);

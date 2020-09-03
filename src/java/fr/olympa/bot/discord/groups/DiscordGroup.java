@@ -37,11 +37,12 @@ public enum DiscordGroup {
 	YOUTUBER(OlympaGroup.YOUTUBER, 558322955386617858L, 558570424288542740L, null, false),
 	MINI_YOUTUBER(OlympaGroup.MINI_YOUTUBER, 558322956070289430L, 558440310108323874L, null, false),
 	PLAYER(OlympaGroup.PLAYER, 0, 558334380393627670L, null, false),
-	SIGNED(null, 679992766117183494L, 0, null, false),
-	ABSENT(null, 624938102313582593L, 0, null, false),
-	WARNING1(null, 593166910082777141L, 0, null, false),
-	WARNING2(null, 593167088617652329L, 0, null, false),
-	MUTED(null, 0, 566627971276865576L, null, false);
+	SIGNED(679992766117183494L, 0, null, false),
+	ABSENT(624938102313582593L, 0, null, false),
+	WARNING1(593166910082777141L, 0, null, false),
+	WARNING2(593167088617652329L, 0, null, false),
+	OLDER(0, 684335098312917026L, null, false),
+	MUTED(0, 566627971276865576L, null, false);
 
 	public static Set<DiscordGroup> get(Collection<OlympaGroup> groups) {
 		return Arrays.stream(DiscordGroup.values()).filter(dg -> groups.stream().anyMatch(g -> dg.getOlympaGroup() != null && g.getId() == dg.getOlympaGroup().getId())).collect(Collectors.toSet());
@@ -52,7 +53,7 @@ public enum DiscordGroup {
 	}
 
 	public static Set<Role> getSecondsRoles(Guild guild) {
-		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.getOlympaGroup() != null && dg.getRole(guild) != null).map(dg -> dg.getRole(guild)).collect(Collectors.toSet());
+		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.getOlympaGroup() == null && dg.hasRoleId(guild)).map(dg -> dg.getRole(guild)).collect(Collectors.toSet());
 	}
 
 	public static DiscordGroup get(long id) {
@@ -117,14 +118,23 @@ public enum DiscordGroup {
 		return olympaGroup;
 	}
 
+	public boolean hasRoleId(Guild guild) {
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
+		if (olympaGuild.getType() == DiscordGuildType.STAFF)
+			return idStaff != 0;
+		else if (olympaGuild.getType() == DiscordGuildType.PUBLIC)
+			return idPublic != 0;
+		else
+			return false;
+	}
+
 	public Role getRole(Guild guild) {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (idStaff != 0 && olympaGuild.getType() == DiscordGuildType.STAFF)
 			return guild.getRoleById(idStaff);
-		else if (idPublic != 0 && olympaGuild.getType() == DiscordGuildType.PUBLIC) {
-			guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
+		else if (idPublic != 0 && olympaGuild.getType() == DiscordGuildType.PUBLIC)
 			return guild.getRoleById(idPublic);
-		} else
+		else
 			return null;
 	}
 

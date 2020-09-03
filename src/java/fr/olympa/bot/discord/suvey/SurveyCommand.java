@@ -9,6 +9,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
+import com.vdurmont.emoji.EmojiManager;
+import com.vdurmont.emoji.EmojiParser;
+
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
@@ -44,9 +47,17 @@ public class SurveyCommand extends DiscordCommand {
 		args.remove(0);
 		TextChannel channel = message.getTextChannel();
 
-		List<String> emojis = Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟");
-		for (int i = 0; args.size() > i; i++)
-			reactionEmojis.put(emojis.get(i), args.get(i));
+		List<String> defaultEmojis = Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟");
+		for (int i = 0; args.size() > i; i++) {
+			String emoji = defaultEmojis.get(i);
+			String awnser = args.get(i);
+			List<String> emojis = EmojiParser.extractEmojis(awnser);
+			if (!emojis.isEmpty()) {
+				emoji = emojis.get(0);
+				EmojiParser.removeEmojis(awnser, Arrays.asList(EmojiManager.getByUnicode(emojis.get(0))));
+			}
+			reactionEmojis.put(emoji, awnser);
+		}
 		channel.sendMessage(getEmbed(reactionEmojis)).queue(msg -> {
 			SurveyReaction reaction = new SurveyReaction(reactionEmojis, msg, GuildHandler.getOlympaGuild(message.getGuild()));
 			reaction.addToMessage(msg);
