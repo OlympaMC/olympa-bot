@@ -18,7 +18,6 @@ public class StartStopCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
-		message.delete().queue();
 		OlympaRuntime.action(label, args[0], out -> {
 			message.getChannel().sendMessage(
 					new EmbedBuilder().setDescription(message.getAuthor().getAsMention() + " " + out.replaceAll("§.", "")).setColor(OlympaBots.getInstance().getDiscord().getColor()).build())

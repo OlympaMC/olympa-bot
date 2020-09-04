@@ -20,7 +20,6 @@ public class DeployCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
-		message.delete().queue();
 		String argument = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
 		OlympaRuntime.action(label, argument, out -> {
 			message.getChannel().sendMessage(

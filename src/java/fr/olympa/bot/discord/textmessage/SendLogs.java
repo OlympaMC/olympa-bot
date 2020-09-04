@@ -14,6 +14,7 @@ import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
 public class SendLogs {
@@ -28,7 +29,7 @@ public class SendLogs {
 		embed.setTimestamp(OffsetDateTime.now());
 		return embed;
 	}
-	
+
 	public static void sendMessageLog(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
 		if (member.getUser().isBot())
 			return;
@@ -56,6 +57,12 @@ public class SendLogs {
 				if (lastMContent != null && lastMContent.hasData())
 					if (content.contains(lastMContent.getContent()))
 						content = content.replace(lastMContent.getContent(), "➡️");
+				if (content.length() + attch.length() > MessageEmbed.VALUE_MAX_LENGTH) {
+					int tooLarge = MessageEmbed.VALUE_MAX_LENGTH - attch.length();
+					String tooLargeS = " **" + String.valueOf(tooLarge) + " chars de plus...**";
+					tooLarge += tooLargeS.length();
+					content = content.substring(0, tooLarge + tooLarge) + tooLargeS + attch;
+				}
 				embed.addField(editTime + " (" + Utils.timestampToDateAndHour(mContent.getTimestamp(discordMessage)) + ")", content + attch, true);
 			}
 			lastMContent = mContent;

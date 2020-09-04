@@ -117,7 +117,7 @@ public class StaffListenerBungee implements Listener {
 	public void sendError(String serverName, String stackTrace) {
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		List<String> strings = new ArrayList<>(2);
-		if (stackTrace.length() < 2048)
+		if (stackTrace.length() < 2000)
 			strings.add(stackTrace);
 		else {
 			StringTokenizer tok = new StringTokenizer(stackTrace, "\n");
@@ -126,7 +126,7 @@ public class StaffListenerBungee implements Listener {
 			while (tok.hasMoreTokens()) {
 				String word = tok.nextToken() + "\n";
 
-				if (lineLen + word.length() > 2048) {
+				if (lineLen + word.length() > 2000) {
 					strings.add(output.toString());
 					output = new StringBuilder(stackTrace.length());
 					lineLen = 0;
@@ -138,7 +138,9 @@ public class StaffListenerBungee implements Listener {
 		}
 		//		for (int i = 0; i < strings.size(); i++)
 		// channelStaffDiscord.sendMessage(new EmbedBuilder().setTitle("Erreur sur " + serverName + " (" + (i + 1) + "/" + strings.size() + ")").setDescription("```" + strings.get(i) + "```").setColor(Color.RED).build()).queue();
+
+		channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").queue();
 		for (int i = 0; i < strings.size(); i++)
-			channelStaffDiscord.sendMessage((i == 0 ? "**Erreur sur " + serverName + "**\n" : "") + "```Java\n" + strings.get(i) + "```").queue();
+			channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
 	}
 }

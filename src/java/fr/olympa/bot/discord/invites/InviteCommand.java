@@ -19,8 +19,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class InviteCommand extends DiscordCommand {
 
@@ -33,7 +31,6 @@ public class InviteCommand extends DiscordCommand {
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
-		message.delete().queue(null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
 
 		if (args.length != 0 && args[0].equalsIgnoreCase("show")) {
 			EmbedBuilder em = new EmbedBuilder();

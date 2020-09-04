@@ -42,7 +42,6 @@ public class InfoCommand extends DiscordCommand {
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		OlympaDiscord discord = OlympaBots.getInstance().getDiscord();
 		MessageChannel channel = message.getChannel();
-		deleteMessageAfter(message);
 		JDA jda = message.getJDA();
 
 		if (args.length == 0) {

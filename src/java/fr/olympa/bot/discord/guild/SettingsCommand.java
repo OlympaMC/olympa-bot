@@ -20,7 +20,6 @@ public class SettingsCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
-		message.delete().queue();
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);

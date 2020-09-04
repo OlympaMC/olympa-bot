@@ -35,7 +35,6 @@ public class SurveyCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] baseArgs, Message message, String label) {
-		message.delete().queue();
 		List<String> args = new ArrayList<>();
 		LinkedMap<String, String> reactionEmojis = new LinkedMap<>();
 		String allArguments = String.join(" ", baseArgs);
