@@ -10,7 +10,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.sql.OlympaStatement;
-import fr.olympa.api.sql.OlympaStatement.StatementType;
+import fr.olympa.api.sql.StatementType;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.entities.User;

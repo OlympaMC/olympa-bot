@@ -1,8 +1,9 @@
 package fr.olympa.bot.discord.servers;
 
 import java.awt.Color;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.md_5.bungee.api.config.ServerInfo;
 
 public class ServersCommand extends DiscordCommand {
 
@@ -40,23 +42,30 @@ public class ServersCommand extends DiscordCommand {
 	public static MessageEmbed getEmbed() {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
-		Collection<MonitorInfo> info = MonitorServers.getServers();
-		for (MonitorInfo serverInfo : info) {
-			ServerStatus status = serverInfo.getStatus();
+		Map<ServerInfo, MonitorInfo> infos = MonitorServers.getServersMap();
+		for (Entry<ServerInfo, MonitorInfo> entry : infos.entrySet()) {
+			MonitorInfo info = entry.getValue();
+			if (info.getName().contains("bungee"))
+				continue;
+			ServerStatus status = info.getStatus();
 			StringJoiner sb = new StringJoiner(" ");
 			sb.add("__" + status.getName() + "__");
-			sb.add("**" + serverInfo.getName() + ":**\u200B");
-			if (serverInfo.getOnlinePlayers() != null)
-				sb.add("**Joueurs :** " + serverInfo.getOnlinePlayers() + "/" + serverInfo.getMaxPlayers() + "\u200B");
-			if (serverInfo.getTps() != null)
-				sb.add("**TPS :** " + serverInfo.getTps() + "\u200B");
-			if (serverInfo.getPing() != null)
-				sb.add("**Ping :** " + serverInfo.getPing() + "ms\u200B");
-			if (serverInfo.getError() != null)
-				sb.add("Erreur : *" + serverInfo.getError() + "*");
-			embedBuilder.addField(serverInfo.getOlympaServer().getNameCaps(), sb.toString(), true);
+			sb.add("**" + info.getName() + ":**\u200B");
+			if (info.getOnlinePlayers() != null)
+				sb.add("**Joueurs :** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "\u200B");
+			if (info.getTps() != null)
+				sb.add("**TPS :** " + info.getTps() + "\u200B");
+			if (!info.getRangeVersion().equals("unknown")) {
+				String ver = info.getRangeVersion();
+				sb.add("**Version " + (ver.contains("à") ? "s" : "") + " :** " + ver + "ms\u200B");
+			}
+			if (info.getPing() != null)
+				sb.add("**Ping :** " + info.getPing() + "ms\u200B");
+			if (info.getError() != null)
+				sb.add("Erreur : *" + info.getError() + "*");
+			embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
 		}
-		List<ServerStatus> statuss = info.stream().map(si -> si.getStatus()).collect(Collectors.toList());
+		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).collect(Collectors.toList());
 		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
 			embedBuilder.setColor(Color.GREEN);
 		else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE))

@@ -9,7 +9,7 @@ import java.util.Set;
 import com.google.gson.Gson;
 
 import fr.olympa.api.sql.OlympaStatement;
-import fr.olympa.api.sql.OlympaStatement.StatementType;
+import fr.olympa.api.sql.StatementType;
 
 public class ReactionSQL {
 	static String tableReaction = "discord.reactions";

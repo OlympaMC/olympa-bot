@@ -117,7 +117,8 @@ public class StaffListenerBungee implements Listener {
 	public void sendError(String serverName, String stackTrace) {
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		List<String> strings = new ArrayList<>(2);
-		if (stackTrace.length() < 2000)
+		int maxSize = 2000 - 100;
+		if (stackTrace.length() < maxSize)
 			strings.add(stackTrace);
 		else {
 			StringTokenizer tok = new StringTokenizer(stackTrace, "\n");
@@ -126,7 +127,7 @@ public class StaffListenerBungee implements Listener {
 			while (tok.hasMoreTokens()) {
 				String word = tok.nextToken() + "\n";
 
-				if (lineLen + word.length() > 2000) {
+				if (lineLen + word.length() > maxSize) {
 					strings.add(output.toString());
 					output = new StringBuilder(stackTrace.length());
 					lineLen = 0;

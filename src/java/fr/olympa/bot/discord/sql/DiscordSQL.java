@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 
 import fr.olympa.api.sql.DbConnection;
 import fr.olympa.api.sql.OlympaStatement;
-import fr.olympa.api.sql.OlympaStatement.StatementType;
+import fr.olympa.api.sql.StatementType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sanctions.DiscordSanction;
 import fr.olympa.bot.discord.textmessage.DiscordMessage;

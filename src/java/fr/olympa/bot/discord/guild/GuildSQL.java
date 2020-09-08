@@ -9,13 +9,17 @@ import java.util.List;
 import com.google.gson.Gson;
 
 import fr.olympa.api.sql.OlympaStatement;
-import fr.olympa.api.sql.OlympaStatement.StatementType;
+import fr.olympa.api.sql.StatementType;
 import fr.olympa.api.utils.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 
 public class GuildSQL {
 
 	static String tableGuild = "discord.guilds";
+
+	{
+		OlympaStatement.formatTableName(tableGuild);
+	}
 
 	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, new String[] { "guild_id", "guild_name" });
 
@@ -26,7 +30,7 @@ public class GuildSQL {
 		statement.setLong(i++, guild.getIdLong());
 		statement.setString(i++, guild.getName());
 		statement.executeUpdate();
-		ResultSet resultSet = statement.getGeneratedKeys();
+		ResultSet resultSet = selectGuildIdStatement.executeQuery(statement);
 		resultSet.next();
 		olympaGuild = OlympaGuild.createObject(resultSet);
 		resultSet.close();
@@ -41,7 +45,7 @@ public class GuildSQL {
 		OlympaGuild olympaGuild = null;
 		int i = 1;
 		statement.setLong(i++, id);
-		ResultSet resultSet = statement.executeQuery();
+		ResultSet resultSet = selectGuildIdStatement.executeQuery(statement);
 		if (resultSet.next())
 			olympaGuild = OlympaGuild.createObject(resultSet);
 		resultSet.close();
@@ -53,7 +57,7 @@ public class GuildSQL {
 	public static List<OlympaGuild> selectGuilds() throws SQLException {
 		PreparedStatement statement = selectGuildsIdStatement.getStatement();
 		List<OlympaGuild> olympaGuilds = new ArrayList<>();
-		ResultSet resultSet = statement.executeQuery();
+		ResultSet resultSet = selectGuildIdStatement.executeQuery(statement);
 		while (resultSet.next())
 			olympaGuilds.add(OlympaGuild.createObject(resultSet));
 		resultSet.close();
@@ -99,7 +103,7 @@ public class GuildSQL {
 			statement.setObject(i++, null);
 		statement.setInt(i++, olympaGuild.getType().ordinal());
 		statement.setLong(i++, olympaGuild.getId());
-		statement.executeUpdate();
+		selectGuildIdStatement.execute(statement);
 		statement.close();
 	}
 }
