@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import fr.olympa.api.utils.Matcher;
+import fr.olympa.api.match.RegexMatcher;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -67,7 +67,7 @@ public abstract class DiscordCommand implements CommandEvent {
 			members = guild.getMembersByName(arg, true);
 		if (!members.isEmpty())
 			member = members.get(0);
-		else if (Matcher.isDiscordTag(arg))
+		else if (RegexMatcher.DISCORD_TAG.is(arg))
 			member = guild.getMemberByTag(arg);
 		if (member == null)
 			member = guild.getMemberById(arg);

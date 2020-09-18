@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -18,15 +19,16 @@ import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 
 public class DiscordMessage {
-	
+
 	final long olympaGuildId, channelId, messageId, olympaDiscordAuthorId, created;
 	long logMessageId;
 	List<MessageContent> contents;
-	
+
 	public static DiscordMessage createObject(ResultSet resultSet) throws JsonSyntaxException, SQLException {
 		return new DiscordMessage(resultSet.getLong("guild_discord_id"),
 				resultSet.getLong("channel_discord_id"),
@@ -37,7 +39,7 @@ public class DiscordMessage {
 				resultSet.getTimestamp("created"),
 				resultSet.getLong("log_msg_discord_id"));
 	}
-	
+
 	public DiscordMessage(Message message) throws SQLException {
 		olympaGuildId = GuildHandler.getOlympaGuild(message.getGuild()).getId();
 		messageId = message.getIdLong();
@@ -47,7 +49,17 @@ public class DiscordMessage {
 		contents = new ArrayList<>();
 		addEditedMessage(message);
 	}
-	
+
+	public DiscordMessage(Message message, Map<Attachment, String> map) throws SQLException {
+		olympaGuildId = GuildHandler.getOlympaGuild(message.getGuild()).getId();
+		messageId = message.getIdLong();
+		channelId = message.getChannel().getIdLong();
+		olympaDiscordAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
+		created = message.getTimeCreated().toEpochSecond();
+		contents = new ArrayList<>();
+		addEditedMessage(message, map);
+	}
+
 	public DiscordMessage(long olympaGuildId, long channelId, long messageId, long olympaDiscordAuthorId, List<MessageContent> contents, Timestamp created, long logMessageId) {
 		this.olympaGuildId = olympaGuildId;
 		this.channelId = channelId;
@@ -57,80 +69,84 @@ public class DiscordMessage {
 		this.created = created.getTime() / 1000L;
 		this.logMessageId = logMessageId;
 	}
-	
+
 	public long getGuildId() {
 		return olympaGuildId;
 	}
-	
+
 	public long getChannelId() {
 		return channelId;
 	}
-	
+
 	public long getMessageId() {
 		return messageId;
 	}
-	
+
 	public long getLogMessageId() {
 		return logMessageId;
 	}
-	
+
 	public long getOlympaDiscordAuthorId() {
 		return olympaDiscordAuthorId;
 	}
-	
+
 	public long getCreated() {
 		return created;
 	}
-	
+
+	public void addEditedMessage(Message message, Map<Attachment, String> attachments) {
+		contents.add(new MessageContent(message, this, attachments));
+	}
+
 	public void addEditedMessage(Message message) {
 		contents.add(new MessageContent(message, this));
 	}
-	
+
 	public OlympaGuild getOlympaGuild() {
 		return GuildHandler.getOlympaGuildByOlympaId(olympaGuildId);
 	}
-	
+
 	public Guild getGuild() {
 		return getOlympaGuild().getGuild();
 	}
-	
+
 	public TextChannel getChannel() {
 		return getGuild().getTextChannelById(channelId);
 	}
-	
+
 	public RestAction<Message> getLogMsg() {
 		return getOlympaGuild().getLogChannel().retrieveMessageById(logMessageId);
 	}
-	
+
 	@Nullable
 	public Message getMessage() {
 		return getChannel().getHistory().getMessageById(messageId);
 	}
-	
+
 	public MessageContent getContent() {
 		return contents.get(contents.size() - 1);
 	}
-	
+
 	public List<MessageContent> getContents() {
 		return contents;
 	}
-	
+
 	public MessageContent getOriginalContent() {
 		return contents.get(0);
 	}
-	
+
 	public void setLogMsg(Message logMsg) {
 		logMessageId = logMsg.getIdLong();
 	}
-	
+
 	public void setOriginalNotFound() {
 		contents.add(0, new MessageContent(false));
 	}
-	
+
 	public void setMessageDeleted() {
 		contents.add(new MessageContent(true));
 	}
-	
+
 	public String getJumpUrl() {
 		return "https://discordapp.com/channels/" + getOlympaGuild().getDiscordId() + "/" + channelId + "/" + messageId;
 	}

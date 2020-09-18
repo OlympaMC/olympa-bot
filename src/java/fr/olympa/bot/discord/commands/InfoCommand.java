@@ -57,7 +57,7 @@ public class InfoCommand extends DiscordCommand {
 						usersConnected++;
 					usersTotal++;
 				}
-			User author = jda.getUserById(450125243592343563L);
+			//			User author = jda.getUserById(450125243592343563L);
 			EmbedBuilder embed = new EmbedBuilder()
 					.setTitle("Informations")
 					.addField("Nom", user.getName(), true)
@@ -66,8 +66,8 @@ public class InfoCommand extends DiscordCommand {
 					.addField("Clients", usersConnected + "/" + usersTotal, true)
 					.addField("Serveurs Discord", String.valueOf(guilds.size()), true)
 					.addField("Donnés envoyés", String.valueOf(jda.getResponseTotal()), true)
-					.addField("Connecté depuis ", Utils.timestampToDuration(OlympaDiscord.lastConnection), true)
-					.setFooter("Dev " + author.getName(), author.getAvatarUrl());
+					.addField("Connecté depuis ", Utils.timestampToDuration(OlympaDiscord.lastConnection), true);
+			//					.setFooter("Dev " + author.getName(), author.getAvatarUrl());
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(discord.timeToDelete, TimeUnit.SECONDS));
 			return;
@@ -136,10 +136,15 @@ public class InfoCommand extends DiscordCommand {
 		case "joueur":
 		case "membre":
 			embed = new EmbedBuilder();
-			Member member = getMember(message.getGuild(), args[1]);
+			List<Member> members = message.getMentionedMembers();
+			Member member = null;
+			if (!members.isEmpty())
+				member = members.get(0);
+			else
+				member = getMember(message.getGuild(), args[1]);
 			if (member == null) {
 				embed.setTitle("Erreur");
-				embed.setDescription("Membre " + args[1] + " introuvable.");
+				embed.setDescription("Membre " + (args.length > 1 ? args[1] : "") + " introuvable.");
 				channel.sendMessage(embed.build()).queue();
 				return;
 			}
@@ -154,6 +159,7 @@ public class InfoCommand extends DiscordCommand {
 			t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
 			date = Utils.timestampToDate(member.getTimeJoined().toEpochSecond());
 			embed.addField("Membre depuis", date + " (" + t + ")", true);
+			embed.setFooter(user.getAsTag() + "|" + (member.getNickname() != null ? member.getNickname() + "|" : "") + user.getIdLong());
 			DiscordMember discordMember;
 			try {
 				discordMember = CacheDiscordSQL.getDiscordMember(user);
@@ -175,8 +181,7 @@ public class InfoCommand extends DiscordCommand {
 				}
 				if (!discordMember.getOldNames().isEmpty())
 					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
-				DecimalFormat df = new DecimalFormat("0.#");
-				embed.addField("XP", df.format(discordMember.getXp()), true);
+				embed.addField("XP", new DecimalFormat("0.#").format(discordMember.getXp()), true);
 				OnlineStatus onlineStatus = member.getOnlineStatus();
 				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
 					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
@@ -188,7 +193,7 @@ public class InfoCommand extends DiscordCommand {
 		case "roles":
 		case "role":
 			List<Role> roles = message.getMentionedRoles();
-			List<Member> members = message.getGuild().getMembersWithRoles(roles);
+			members = message.getGuild().getMembersWithRoles(roles);
 			embed = new EmbedBuilder();
 			embed.setTitle("Membre avec le role " + roles.stream().map(Role::getName).collect(Collectors.joining(", ")) + ": ");
 			embed.setDescription(members.stream().map(m -> m.getAsMention()).collect(Collectors.joining(", ")));

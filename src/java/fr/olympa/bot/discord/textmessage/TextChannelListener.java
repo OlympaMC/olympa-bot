@@ -1,8 +1,11 @@
 package fr.olympa.bot.discord.textmessage;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -15,13 +18,13 @@ import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent;
@@ -41,10 +44,23 @@ public class TextChannelListener extends ListenerAdapter {
 			return;
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
+		File file = new File(OlympaBots.getInstance().getDataFolder(), "discordAttachment");
+		if (!file.exists())
+			file.mkdirs();
+
+		Map<Attachment, String> map = new HashMap<>();
+		if (!user.isFake() && message.getJDA().getSelfUser().getIdLong() != message.getAuthor().getIdLong())
+			message.getAttachments().forEach(att -> {
+				try {
+					map.put(att, FileHandler.addFile(att.getProxyUrl(), att.getFileName()));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
 		TextChannel channel = message.getTextChannel();
 		try {
-			DiscordMessage discordMessage = new DiscordMessage(message);
-			DiscordSQL.addMessage(discordMessage);
+			DiscordMessage discordMessage = new DiscordMessage(message, map);
+			SqlMessage.addMessage(discordMessage);
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
 			if (user.isBot() || member.isFake())
 				return;
@@ -65,6 +81,10 @@ public class TextChannelListener extends ListenerAdapter {
 			return;
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		Message message = event.getMessage();
+		File file = new File(OlympaBots.getInstance().getDataFolder(), "discordAttachment");
+		if (!file.exists())
+			file.mkdirs();
+
 		TextChannel channel = message.getTextChannel();
 		DiscordMessage discordMessage = null;
 		try {
@@ -108,7 +128,7 @@ public class TextChannelListener extends ListenerAdapter {
 					return;
 				discordMessage.setMessageDeleted();
 				CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
-				DiscordSQL.updateMessageContent(discordMessage);
+				SqlMessage.updateMessageContent(discordMessage);
 				if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 					return;
 				StringJoiner sj = new StringJoiner(".\n");
@@ -137,7 +157,7 @@ public class TextChannelListener extends ListenerAdapter {
 				return;
 			discordMessage.setMessageDeleted();
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
-			DiscordSQL.updateMessageContent(discordMessage);
+			SqlMessage.updateMessageContent(discordMessage);
 			if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 				return;
 			StringJoiner sj = new StringJoiner(".\n");

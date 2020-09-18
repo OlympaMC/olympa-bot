@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import javax.security.auth.login.LoginException;
 
 import fr.olympa.api.utils.Utils;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.commands.CommandListener;
 import fr.olympa.bot.discord.commands.AnnonceCommand;
 import fr.olympa.bot.discord.commands.ClearCommand;
@@ -44,7 +45,6 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import net.md_5.bungee.api.plugin.Plugin;
 
 public class OlympaDiscord {
 
@@ -61,9 +61,9 @@ public class OlympaDiscord {
 	private Color color = Color.YELLOW;
 
 	@SuppressWarnings("deprecation")
-	public void connect(Plugin plugin) {
+	public void connect(OlympaBots plugin) {
 
-		JDABuilder builder = new JDABuilder("NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg");
+		JDABuilder builder = new JDABuilder(plugin.getConfig().getConfig().getString("discord.token"));
 		builder.setStatus(OnlineStatus.IDLE);
 		builder.setBulkDeleteSplittingEnabled(true);
 

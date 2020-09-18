@@ -40,11 +40,12 @@ public class StaffListenerBungee implements Listener {
 		}
 		DiscordMember discordMember = null;
 		String playerName = player.getName();
-		try {
-			discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		if (olympaPlayer != null)
+			try {
+				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		if (discordMember != null) {
 			User user = discordMember.getUser();
 			playerName = user.getAsMention();
@@ -71,11 +72,12 @@ public class StaffListenerBungee implements Listener {
 		}
 		DiscordMember discordMember = null;
 		String playerName = player.getName();
-		try {
-			discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		if (olympaPlayer != null)
+			try {
+				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		if (discordMember != null) {
 			User user = discordMember.getUser();
 			playerName = user.getAsMention();

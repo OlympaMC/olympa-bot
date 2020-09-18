@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import fr.olympa.api.server.ServerStatus;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
@@ -13,6 +14,7 @@ import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.reaction.ReactionHandler;
+import fr.olympa.core.bungee.OlympaBungee;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDA.Status;
@@ -43,11 +45,38 @@ public class ReadyListener extends ListenerAdapter {
 				ProxyServer.getInstance();
 				int count = ProxyServer.getInstance().getOnlineCount();
 				String s = count > 1 ? "s" : new String();
-				if (count > 0)
-					presence.setActivity(Activity.playing("🚧 " + count + " joueur%s connecté%s".replace("%s", s)));
-				else
-					presence.setActivity(Activity.playing("🚧 En développement"));
-				presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
+				if (count > 0) {
+					presence.setActivity(Activity.playing("🎮" + count + " joueur%s connecté%s".replace("%s", s)));
+					presence.setStatus(OnlineStatus.ONLINE);
+				} else {
+					ServerStatus status = OlympaBungee.getInstance().getStatus();
+					switch (status) {
+					case BETA:
+						presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
+						presence.setActivity(Activity.playing("🐛 En " + status.getName().toLowerCase()));
+						break;
+					case MAINTENANCE:
+					case DEV:
+						presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
+						presence.setActivity(Activity.playing("🚧 En " + status.getName().toLowerCase()));
+						break;
+					case OPEN:
+						presence.setStatus(OnlineStatus.IDLE);
+						presence.setActivity(Activity.playing("✅ Ouvert : play.olympa.fr"));
+						break;
+					case SOON:
+						presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
+						presence.setActivity(Activity.playing("🏁 Ouverture bientôt"));
+						break;
+					case CLOSE:
+					case UNKNOWN:
+						presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
+						presence.setActivity(Activity.playing("❌ Serveur Minecraft Fermé"));
+					default:
+						break;
+
+					}
+				}
 			}
 		}, 0, 40000);
 		timer.schedule(new TimerTask() {
@@ -62,7 +91,6 @@ public class ReadyListener extends ListenerAdapter {
 						usersTotal++;
 					}
 				Presence presence = jda.getPresence();
-				presence.setStatus(OnlineStatus.IDLE);
 				presence.setActivity(Activity.watching(usersConnected + "/" + usersTotal + " membres"));
 			}
 		}, 20000, 40000);

@@ -1,0 +1,13 @@
+version: 1.0
+teamspeak:
+  host: localhost
+  user: serveradmin
+  password: 2X9KMTyZ
+  serverId: 1
+discord:
+  token: NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg
+twitter:
+  OAuthConsumerKey: xvz1evFS4wEEPTGEFPHBog
+  OAuthConsumerSecret: kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg
+  OAuthAccessToken: 370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb
+  OAuthAccessTokenSecret: LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE
