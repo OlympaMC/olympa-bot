@@ -3,6 +3,7 @@ package fr.olympa.bot.discord.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,10 +24,12 @@ public class HelpCommand extends DiscordCommand {
 		Member member = message.getMember();
 		EmbedBuilder em = new EmbedBuilder();
 		em.setTitle("Les commandes:");
+		em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		DiscordCommand.getCommands().values().stream().filter(x -> DiscordPermission.hasPermission(x.getPermission(), member)).forEach(x -> {
 			List<String> names = new ArrayList<>(3);
 			names.add(x.getName());
-			if (x.getAliases() != null) names.addAll(x.getAliases());
+			if (x.getAliases() != null)
+				names.addAll(x.getAliases());
 			em.addField(DiscordCommand.prefix + String.join(", ", names), x.getDescription() == null ? "Pas de description." : x.getDescription(), false);
 		});
 		channel.sendMessage(em.build()).queue();

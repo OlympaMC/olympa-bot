@@ -48,7 +48,12 @@ public class TeamspeakCommand extends BungeeCommand {
 				sendMessage(Prefix.DEFAULT_BAD, "&cMerci de patienter avant de faire &4/ts link&c.");
 				return;
 			}
-			TeamspeakUtils.check(player);
+			try {
+				TeamspeakUtils.check(player);
+			} catch (InterruptedException e) {
+				sendError();
+				e.printStackTrace();
+			}
 			break;
 		case "stop":
 			if (!hasPermission(OlympaCorePermissions.TEAMSPEAK_COMMAND_MANAGE)) {
@@ -63,7 +68,7 @@ public class TeamspeakCommand extends BungeeCommand {
 				sendDoNotHavePermission();
 				return;
 			}
-			OlympaBots.getInstance().getTeamspeak().connect(OlympaBots.getInstance());
+			OlympaBots.getInstance().getTeamspeak().connect();
 			sendMessage(Prefix.DEFAULT_GOOD, "&aTeamspeakBot connecté.");
 			break;
 		}

@@ -31,7 +31,7 @@ public enum DiscordGroup {
 	DEVP(OlympaGroup.DEVP, 558322951250771978L, 0, null, false),
 	DEV(OlympaGroup.DEV, 558322951250771978L, 558441264140386304L, "Signalement de bugs, quelque soit la platforme (Minecraft, Site, Forum, Discord, Teamspeak ...).", true),
 	BUILDER(OlympaGroup.BUILDER, 558322957798080514L, 558441911271161867L, null, false),
-	ANIMATEUR(OlympaGroup.ANIMATEUR, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
+	ANIMATEUR(OlympaGroup.ANIMATOR, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
 	GRAPHISTE(OlympaGroup.GRAPHISTE, 558322958905638944L, 558442057174089740L, null, false),
 	FRIEND(OlympaGroup.FRIEND, 603012821630058498L, 558168724708786187L, null, false),
 	YOUTUBER(OlympaGroup.YOUTUBER, 558322955386617858L, 558570424288542740L, null, false),

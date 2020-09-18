@@ -180,7 +180,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 				return;
 			}
 			if (OlympaBots.getInstance().getDiscord().getJda() == null) {
-				OlympaBots.getInstance().getDiscord().connect(OlympaBots.getInstance());
+				OlympaBots.getInstance().getDiscord().connect();
 				sendMessage("&5[&dDiscord&5] ➤ &aBot allumé.");
 			} else
 				sendMessage("&5[&dDiscord&5] ➤ &cBot déjà allumé.");

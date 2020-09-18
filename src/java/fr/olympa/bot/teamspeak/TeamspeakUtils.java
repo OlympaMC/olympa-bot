@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
+import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
 import com.github.theholywaffle.teamspeak3.api.ClientProperty;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
@@ -17,7 +18,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ServerGroup;
 
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
-import fr.olympa.api.utils.ColorUtils;
+import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -28,23 +29,20 @@ public class TeamspeakUtils {
 	static List<Integer> minecraftStaffGroup = new ArrayList<>();
 
 	@SuppressWarnings("deprecation")
-	public static void check(ProxiedPlayer player) {
+	public static void check(ProxiedPlayer player) throws InterruptedException {
 		TS3Api query = OlympaBots.getInstance().getTeamspeak().getQuery();
-
 		if (query == null) {
-			player.sendMessage(ColorUtils.color("&2Olympa &7» &cLa laison teamspeak/serveur s'est cassé."));
+			player.sendMessage(Prefix.DEFAULT_BAD.formatMessageB("La laison TeamSpeak/Serveur est cassée."));
 			return;
 		}
 		List<Client> sameip = query.getClients().stream().filter(client -> client.getIp().equals(player.getAddress().getAddress().getHostAddress())).collect(Collectors.toList());
 		if (sameip.isEmpty()) {
-			player.sendMessage(ColorUtils.color("&2Olympa &7» &cVous devez être connecté sur le Teamspeak."));
+			player.sendMessage(Prefix.DEFAULT_BAD.formatMessageB("Tu dois être connecté sur le TeamSpeak."));
 			return;
 		}
-
 		Client cl = sameip.stream().filter(client -> client.getNickname().equalsIgnoreCase(player.getName())).findFirst().orElse(null);
-
 		if (cl == null) {
-			player.sendMessage(ColorUtils.color("&2Olympa &7» &cVous devez utiliser le même pseudo sur Minecraft & sur Teamspeak !"));
+			player.sendMessage(Prefix.DEFAULT_BAD.formatMessageB("Tu dois utiliser le même pseudo sur Minecraft & TeamSpeak"));
 			return;
 		}
 		setSynchronized(player, cl);
@@ -57,10 +55,6 @@ public class TeamspeakUtils {
 	public static String getClientURI(Client client) {
 		return "[URL=" + client.getClientURI() + "]" + client.getNickname() + "[/URL]";
 	}
-	//
-	//	public static boolean isInGroup(Client client, OlympaGroup... groups) {
-	//		return Arrays.stream(client.getServerGroups()).filter(s -> Arrays.stream(groups).map(OlympaGroup::getTS3ID).filter(gId -> gId == s).findFirst().isPresent()).findFirst().isPresent();
-	//	}
 
 	public static boolean isInGroup(Client client, int groupID) {
 		return Arrays.stream(client.getServerGroups()).filter(s -> groupID == s).findFirst().isPresent();
@@ -71,13 +65,11 @@ public class TeamspeakUtils {
 	}
 
 	public static void removeAllServerGroup(Client client) {
-
 		for (int clientservergroupid : client.getServerGroups())
 			OlympaBots.getInstance().getTeamspeak().getQuery().removeClientFromServerGroup(clientservergroupid, client.getDatabaseId());
 	}
 
-	@SuppressWarnings("deprecation")
-	public static void setSynchronized(ProxiedPlayer player, Client client) {
+	public static void setSynchronized(ProxiedPlayer player, Client client) throws InterruptedException {
 		AccountProvider accountProvider = new AccountProvider(player.getUniqueId());
 		OlympaPlayer olympaPlayer;
 		try {
@@ -86,26 +78,22 @@ public class TeamspeakUtils {
 			e.printStackTrace();
 			return;
 		}
-		TS3Api query = OlympaBots.getInstance().getTeamspeak().getQuery();
-		query.editClient(client.getId(), Collections.singletonMap(ClientProperty.CLIENT_DESCRIPTION, "Pseudo Minecraft: " + player.getName()));
-		removeAllServerGroup(client);
 		olympaPlayer.setTeamspeakId(client.getDatabaseId());
-		//			TeamspeakBot.query.addClientToServerGroup(OlympaPlayer.getGroup().getTS3ID(), client.getDatabaseId());
-		//
-		//			OlympaPlayer.setTS3ID(client.getDatabaseId());
-		//					accountProvider.sendAccountToRedis(OlympaPlayer);
-		query.sendPrivateMessage(client.getId(), "Ton indentité Teamspeak est désormais liée au compte Minecraft '" + player.getName() + "'.");
-		player.sendMessage(ColorUtils.color("&2Olympa &7» &aTon compte Minecraft est désormais liée à ton identité Teamspeak '" + client.getNickname() + "'."));
+		updateRank(olympaPlayer, client);
+		OlympaBots.getInstance().getTeamspeak().getQueryAsync()
+				.sendPrivateMessage(client.getId(), String.format("Ton identitée Teamspeak est désormais liée au compte Minecraft %s.", player.getName())).await();
+		player.sendMessage(Prefix.DEFAULT_GOOD.formatMessageB("Ton compte Minecraft est désormais lié à ton identitée Teamspeak &2%s&a.", client.getNickname()));
 	}
 
-	//	public static void updateRank(OlympaPlayer OlympaPlayer, ClientInfo client) {
-	//
-	//		TeamspeakBot.query.editClient(client.getId(), Collections.singletonMap(ClientProperty.CLIENT_DESCRIPTION, "Pseudo Minecraft: " + OlympaPlayer.getName()));
-	//		if (!Ints.asList(client.getServerGroups()).contains(OlympaPlayer.getGroup().getTS3ID()))
-	//			removeAllServerGroup(client);
-	//
-	//		TeamspeakBot.query.addClientToServerGroup(OlympaPlayer.getGroup().getTS3ID(), client.getDatabaseId());
-	//
-	//		OlympaPlayer.setTS3ID(client.getDatabaseId());
-	//	}
+	public static void updateRank(OlympaPlayer olympaPlayer, Client client) throws InterruptedException {
+		removeAllServerGroup(client);
+		TS3Api query = OlympaBots.getInstance().getTeamspeak().getQuery();
+		TS3ApiAsync queryAsync = OlympaBots.getInstance().getTeamspeak().getQueryAsync();
+		queryAsync.editClient(client.getId(), Collections.singletonMap(ClientProperty.CLIENT_DESCRIPTION, "Pseudo Minecraft : " + olympaPlayer.getName())).await();
+		List<TeamspeakGroups> permissions = TeamspeakGroups.get(olympaPlayer.getGroups().keySet());
+		permissions.add(TeamspeakGroups.CUSTOM.name(olympaPlayer.getGroupName()));
+		List<ServerGroup> servergroups = query.getServerGroups().stream().filter(sg -> permissions.stream().anyMatch(p -> sg.getName().equalsIgnoreCase(p.getName()))).collect(Collectors.toList());
+		for (ServerGroup tsGroup : servergroups)
+			queryAsync.addClientToServerGroup(tsGroup.getId(), client.getDatabaseId()).await();
+	}
 }

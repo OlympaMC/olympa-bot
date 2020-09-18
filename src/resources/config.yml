@@ -4,6 +4,7 @@ teamspeak:
   user: serveradmin
   password: 2X9KMTyZ
   serverId: 1
+  clientName: OlympaBot
 discord:
   token: NjYwMjIzOTc0MDAwNjg5MTgy.XkxtvQ.YaIarU6NAh0RxgEnogxpc8exlEg
 twitter:

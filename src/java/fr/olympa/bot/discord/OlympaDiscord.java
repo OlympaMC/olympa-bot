@@ -59,9 +59,14 @@ public class OlympaDiscord {
 	private JDA jda;
 	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
+	OlympaBots plugin;
+
+	public OlympaDiscord(OlympaBots plugin) {
+		this.plugin = plugin;
+	}
 
 	@SuppressWarnings("deprecation")
-	public void connect(OlympaBots plugin) {
+	public void connect() {
 
 		JDABuilder builder = new JDABuilder(plugin.getConfig().getConfig().getString("discord.token"));
 		builder.setStatus(OnlineStatus.IDLE);

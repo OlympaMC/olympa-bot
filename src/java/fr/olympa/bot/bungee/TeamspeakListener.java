@@ -1,6 +1,5 @@
-package fr.olympa.bot.teamspeak;
+package fr.olympa.bot.bungee;
 
-import fr.olympa.bot.bungee.TeamspeakCommand;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;

@@ -10,6 +10,7 @@ import fr.olympa.bot.bungee.LinkBungeListener;
 import fr.olympa.bot.bungee.SpigotReceiveError;
 import fr.olympa.bot.bungee.StaffListenerBungee;
 import fr.olympa.bot.bungee.TeamspeakCommand;
+import fr.olympa.bot.bungee.TeamspeakListener;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.teamspeak.OlympaTeamspeak;
 import fr.olympa.core.bungee.OlympaBungee;
@@ -54,14 +55,15 @@ public class OlympaBots extends Plugin {
 		// swearHandler = new SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
 		pluginManager.registerListener(this, new LinkBungeListener());
 		pluginManager.registerListener(this, bungeeListener = new StaffListenerBungee());
+		pluginManager.registerListener(this, new TeamspeakListener());
 		new DiscordCommand(this).register();
 		new TeamspeakCommand(this).register();
 
-		olympaDiscord = new OlympaDiscord();
-		olympaDiscord.connect(this);
+		olympaDiscord = new OlympaDiscord(this);
+		olympaDiscord.connect();
 
-		olympaTeamspeak = new OlympaTeamspeak();
-		olympaTeamspeak.connect(this);
+		olympaTeamspeak = new OlympaTeamspeak(this);
+		olympaTeamspeak.connect();
 
 		//new TwitterAPI(this).connect();
 		OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), new SpigotReceiveError(), RedisChannel.SPIGOT_RECEIVE_ERROR.name());

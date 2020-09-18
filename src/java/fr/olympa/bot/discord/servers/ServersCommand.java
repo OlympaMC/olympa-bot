@@ -3,7 +3,6 @@ package fr.olympa.bot.discord.servers;
 import java.awt.Color;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -43,35 +42,33 @@ public class ServersCommand extends DiscordCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
 		Map<ServerInfo, MonitorInfo> infos = MonitorServers.getServersMap();
-		for (Entry<ServerInfo, MonitorInfo> entry : infos.entrySet()) {
-			MonitorInfo info = entry.getValue();
-			if (info.getName().contains("bungee"))
-				continue;
-			ServerStatus status = info.getStatus();
-			StringJoiner sb = new StringJoiner(" ");
-			sb.add("__" + status.getName() + "__");
-			sb.add("**" + info.getName() + ":**\u200B");
-			if (info.getOnlinePlayers() != null)
-				sb.add("**Joueurs :** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "\u200B");
-			if (info.getTps() != null)
-				sb.add("**TPS :** " + info.getTps() + "\u200B");
-			if (!info.getRangeVersion().equals("unknown")) {
-				String ver = info.getRangeVersion();
-				sb.add("**Version " + (ver.contains("à") ? "s" : "") + " :** " + ver + "ms\u200B");
+		MonitorServers.getServersSorted().forEach(info -> {
+			if (!info.getName().contains("bungee")) {
+				ServerStatus status = info.getStatus();
+				StringJoiner sb = new StringJoiner("\n");
+				sb.add("**" + info.getName() + ":**\u200B __" + status.getName() + "__");
+				if (info.getOnlinePlayers() != null)
+					sb.add("**Joueurs :** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "\u200B");
+				if (info.getTps() != null)
+					sb.add("**TPS :** " + info.getTps() + "\u200B");
+				if (!info.getRangeVersion().equals("unknown")) {
+					String ver = info.getRangeVersion();
+					sb.add("**Version " + (ver.contains("à") ? "s" : "") + " :** " + ver + "ms\u200B");
+				}
+				if (info.getPing() != null)
+					sb.add("**Ping :** " + info.getPing() + "ms\u200B");
+				if (info.getError() != null)
+					sb.add("Erreur : `" + info.getError() + "`");
+				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
 			}
-			if (info.getPing() != null)
-				sb.add("**Ping :** " + info.getPing() + "ms\u200B");
-			if (info.getError() != null)
-				sb.add("Erreur : *" + info.getError() + "*");
-			embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
-		}
+		});
 		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).collect(Collectors.toList());
 		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
 			embedBuilder.setColor(Color.GREEN);
 		else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE))
 			embedBuilder.setColor(Color.RED);
 		else
-			embedBuilder.setColor(Color.ORANGE);
+			embedBuilder.setColor(Color.PINK);
 		return embedBuilder.build();
 	}
 }
