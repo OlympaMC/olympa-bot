@@ -1,7 +1,9 @@
 package fr.olympa.bot.teamspeak;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
@@ -9,7 +11,6 @@ import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
-import com.google.gson.Gson;
 
 import fr.olympa.bot.OlympaBots;
 import net.md_5.bungee.api.ProxyServer;
@@ -19,7 +20,8 @@ public class OlympaTeamspeak {
 
 	TS3Query queryConfig;
 
-	//	static List<Integer> helpchannelsId;
+	List<Channel> helpChannels;
+	Channel helpQueueChannel;
 	Channel helpChannelsAdmin;
 	OlympaBots plugin;
 
@@ -55,9 +57,10 @@ public class OlympaTeamspeak {
 					} else
 						query.kickClientFromServer("Merci de ne pas utiliser le nom '" + nickName + "'.", client);
 			query.setNickname(nickName);
-			//		helpchannelsId = query.getChannelsByName("Besoin d'aide #").stream().filter(c -> c.isPermanent()).map(c -> c.getId()).collect(Collectors.toList());
 			helpChannelsAdmin = query.getChannelByNameExact("Demande d'aide > Administrateurs", true);
-			System.out.println("map : " + new Gson().toJson(helpChannelsAdmin.getMap()));
+			helpChannels = query.getChannelsByName("Demande d'aide >").stream().filter(c -> c.isPermanent()).collect(Collectors.toList());
+			helpQueueChannel = query.getChannelByNameExact("File d'attente", true);
+			//			System.out.println("map : " + new Gson().toJson(helpChannelsAdmin.getMap()));
 			/*
 			 * List<Integer> helpchannelsID = new ArrayList<>(); // Besoin d'aide channels
 			 * helpchannelsID.add(18); helpchannelsID.add(16); helpchannelsID.add(15);

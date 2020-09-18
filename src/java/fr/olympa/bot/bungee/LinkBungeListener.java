@@ -2,13 +2,13 @@ package fr.olympa.bot.bungee;
 
 import java.sql.SQLException;
 
-import fr.olympa.api.customevents.AsyncOlympaPlayerChangeGroupEvent.ChangeType;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
+import fr.olympa.bot.teamspeak.TeamspeakUtils;
 import fr.olympa.core.bungee.api.customevent.OlympaGroupChangeEvent;
 import net.dv8tion.jda.api.entities.Member;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -21,15 +21,15 @@ public class LinkBungeListener implements Listener {
 	@EventHandler
 	public void onOlympaGroupChange(OlympaGroupChangeEvent event) {
 		OlympaPlayer olympaPlayer = event.getOlympaPlayer();
-		ChangeType state = event.getState();
-		switch (state) {
-		case ADD:
-			break;
-		case REMOVE:
-			break;
-		case SET:
-			break;
-		}
+		//		ChangeType state = event.getState();
+		//		switch (state) {
+		//		case ADD:
+		//			break;
+		//		case REMOVE:
+		//			break;
+		//		case SET:
+		//			break;
+		//		}
 		DiscordMember discordMember;
 		try {
 			discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
@@ -37,14 +37,23 @@ public class LinkBungeListener implements Listener {
 			e.printStackTrace();
 			return;
 		}
-		if (discordMember == null)
-			return;
-		Member member = GuildHandler.getMember(DiscordGuildType.PUBLIC, discordMember.getDiscordId());
-		Member memberStaff = GuildHandler.getMember(DiscordGuildType.STAFF, discordMember.getDiscordId());
-
-		LinkHandler.updateGroups(member, olympaPlayer);
-		if (memberStaff != null)
-			LinkHandler.updateGroups(memberStaff, olympaPlayer);
+		try {
+			if (discordMember != null) {
+				Member member = GuildHandler.getMember(DiscordGuildType.PUBLIC, discordMember.getDiscordId());
+				Member memberStaff = GuildHandler.getMember(DiscordGuildType.STAFF, discordMember.getDiscordId());
+				if (member != null)
+					LinkHandler.updateGroups(member, olympaPlayer);
+				if (memberStaff != null)
+					LinkHandler.updateGroups(memberStaff, olympaPlayer);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			TeamspeakUtils.updateRank(olympaPlayer);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 	}
 

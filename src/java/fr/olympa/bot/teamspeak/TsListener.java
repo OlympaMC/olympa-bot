@@ -10,6 +10,8 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
+import fr.olympa.api.permission.OlympaCorePermissions;
+import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
 
 public class TsListener extends TS3EventAdapter {
@@ -62,37 +64,42 @@ public class TsListener extends TS3EventAdapter {
 		OlympaTeamspeak ts = OlympaBots.getInstance().getTeamspeak();
 		TS3Api query = OlympaBots.getInstance().getTeamspeak().getQuery();
 		int channelID = event.getTargetChannelId();
+		int clientID = event.getClientId();
 
 		ChannelInfo channelInfo = query.getChannelInfo(channelID);
 		Channel channel = query.getChannelByNameExact(channelInfo.getName(), false);
 		if (channel.getTotalClients() != 1)
 			return;
 
-		//		if (ts.helpchannelsId.contains(channelID)) {
-		//			int clientID = event.getClientId();
-		//			ClientInfo clientInfo = query.getClientInfo(clientID);
-		//			int i = 0;
-		//			for (Client staff : query.getClients())
-		//				if (TeamspeakUtils.isInGroup(staff, OlympaGroup.MODERATEUR, OlympaGroup.Assistant, OlympaGroup.RESPMODO) && !TeamspeakUtils.isInGroup(staff, 40)) {
-		//					query.sendPrivateMessage(staff.getId(),
-		//							TeamspeakUtils.getClientURI(clientInfo) + "[color=green] a besoin de l'aide d'un Modérateur/Assistant dans le channel [/color]" + TeamspeakUtils
-		//									.getChannelURI(channelInfo));
-		//					i++;
-		//				}
-		//			if (i == 0) {
-		//				query.kickClientFromChannel("[color=green]Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.[/color]", clientID);
-		//				return;
-		//			}
-		//
-		//			query.pokeClient(clientID, "[color=green]Merci de patienter l'arrivée d'un Guide ou Modérateur.[/color]");
-		//		}
-		if (ts.helpChannelsAdmin.getId() == channelID) {
-			int clientID = event.getClientId();
+		if (ts.helpChannels.stream().anyMatch(c -> c.getId() == channelID)) {
 			ClientInfo clientInfo = query.getClientInfo(clientID);
+			OlympaCorePermissions.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
+				ps.forEach(p -> p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide sur le teamspeak.", clientInfo.getNickname())));
+			});
 			int i = 0;
 			for (Client staff : query.getClients())
-				if (TeamspeakGroups.ADMIN.hasPermission(staff)) {
-					query.sendPrivateMessage(staff.getDatabaseId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=red] a besoin de l'aide d'un Admin dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
+				if (TeamspeakGroups.ASSISTANT.hasPermission(staff) || TeamspeakGroups.MOD.hasPermission(staff) || TeamspeakGroups.MODP.hasPermission(staff)) {
+					query.sendPrivateMessage(staff.getId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=green] a besoin de l'aide d'un Modérateur/Assistant dans le channel [/color]"
+							+ TeamspeakUtils.getChannelURI(channelInfo));
+					i++;
+				}
+			if (i == 0) {
+				query.kickClientFromChannel("[color=green]Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.[/color]", clientID);
+				return;
+			}
+
+			query.pokeClient(clientID, "[color=green]Merci de patienter l'arrivée d'un Guide ou Modérateur.[/color]");
+		} else if (ts.helpQueueChannel.getId() == channelID)
+			query.sendPrivateMessage(clientID, "[color=green]Bienvenue dans la salle d'attente. Glisses-toi dans un channel 'Demande d'aide' au dessus dès qu'il y a de la place.[/color]");
+		else if (ts.helpChannelsAdmin.getId() == channelID) {
+			ClientInfo clientInfo = query.getClientInfo(clientID);
+			OlympaCorePermissions.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
+				ps.forEach(p -> p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide d'Administrateur sur le teamspeak.", clientInfo.getNickname())));
+			});
+			int i = 0;
+			for (Client admin : query.getClients())
+				if (TeamspeakGroups.ADMIN.hasPermission(admin) || TeamspeakGroups.MODP.hasPermission(admin)) {
+					query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=red] a besoin de l'aide d'un Admin dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
 					i++;
 				}
 			if (i == 0)

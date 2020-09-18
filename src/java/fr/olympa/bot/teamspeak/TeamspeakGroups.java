@@ -21,14 +21,23 @@ public enum TeamspeakGroups {
 	DEV("P-Développeur", OlympaGroup.DEV, OlympaGroup.RESP_TECH),
 	ANIMATOR("P-Buildeur", OlympaGroup.ANIMATOR),
 	BUILDER("P-Buildeur", OlympaGroup.BUILDER),
-	CUSTOM("");
+	TITLE("--- TITRE ---", true),
+	PERMISSION("--- PERMISSIONS ---", true),
+	SETTINGS("--- PARAMETRES ---", true),
+	CUSTOM(null);
 
 	String name;
 	OlympaGroup[] groups;
+	boolean isSeperator = false;
 
 	private TeamspeakGroups(String name, OlympaGroup... groups) {
 		this.name = name;
 		this.groups = groups;
+	}
+
+	private TeamspeakGroups(String name, boolean isSeperator) {
+		this.name = name;
+		this.isSeperator = isSeperator;
 	}
 
 	public TeamspeakGroups name(String name) {
@@ -38,6 +47,10 @@ public enum TeamspeakGroups {
 
 	public String getName() {
 		return name;
+	}
+
+	public static List<TeamspeakGroups> getSeperators() {
+		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.isSeperator).collect(Collectors.toList());
 	}
 
 	public static List<TeamspeakGroups> get(OlympaGroup group) {
