@@ -58,15 +58,12 @@ public class CommandListener extends ListenerAdapter {
 		if (label.isEmpty())
 			return;
 		DiscordCommand discordCommand = DiscordCommand.getCommand(label);
-		if (discordCommand == null) {
+		if (discordCommand.checkPrivateChannel(message, user)) {
 			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande n'existe pas. Fait .help pour voir la liste des commandes.").queue();
 			return;
 		}
-		boolean privateChannel = discordCommand.privateChannel;
-		if (!privateChannel && !message.isFromGuild()) {
-			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande est impossible en privé.").queue();
+		if (!discordCommand.checkEditedMsg && event instanceof MessageUpdateEvent || !discordCommand.checkPrivateChannel(message, user))
 			return;
-		}
 		DiscordPermission permision = discordCommand.permission;
 		if (permision != null && (member == null || !permision.hasPermission(member))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");

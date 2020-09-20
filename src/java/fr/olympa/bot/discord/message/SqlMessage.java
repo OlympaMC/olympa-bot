@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.textmessage;
+package fr.olympa.bot.discord.message;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -13,6 +13,7 @@ import fr.olympa.bot.discord.api.DiscordPermission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
@@ -36,6 +37,7 @@ public abstract class DiscordCommand implements CommandEvent {
 	String name;
 	protected List<String> aliases;
 	protected boolean privateChannel = false;
+	protected boolean checkEditedMsg = true;
 	protected DiscordPermission permission;
 	protected Integer minArg;
 	protected String description;
@@ -89,6 +91,14 @@ public abstract class DiscordCommand implements CommandEvent {
 
 	public List<String> getAliases() {
 		return aliases;
+	}
+
+	public boolean checkPrivateChannel(Message message, User user) {
+		if (!privateChannel && !message.isFromGuild()) {
+			message.getChannel().sendMessage("Désolé " + user.getAsMention() + " mais cette commande est impossible en privé.").queue();
+			return false;
+		}
+		return true;
 	}
 
 	public void deleteMessage(Message message) {

@@ -1,7 +1,6 @@
 package fr.olympa.bot.discord.commands;
 
-import java.util.List;
-
+import fr.olympa.api.match.RegexMatcher;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
@@ -23,23 +22,29 @@ public class ClearCommand extends DiscordCommand {
 		MessageChannel channel = message.getChannel();
 		Member member = message.getMember();
 
-		channel = message.getChannel();
-
-		// TODO CHECK INT
-		int i = Integer.parseInt(args[0]);
-		int j = 0;
+		Integer i = (Integer) RegexMatcher.NUMBER.parse(args[0]);
+		if (i == null || i == 0) {
+			message.getChannel().sendMessage(member.getAsMention() + "➤ " + args[0] + " doit être un nombre valide.").queue();
+			return;
+		}
 
 		deleteMessage(message);
-		List<Message> hists = channel.getHistoryBefore(message.getIdLong(), i).complete().getRetrievedHistory();
-		for (Message hist : hists)
-			try {
-				hist.delete().complete();
-				j++;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ " + j + "/" + hists.size() + " messages ont été supprimés.");
-
+		new Thread(() -> {
+			channel.getHistoryBefore(message.getIdLong(), i).queue(hists -> {
+				int deleted = channel.purgeMessages(hists.getRetrievedHistory()).size();
+				//				int deleted = 0;
+				//				for (Message hist : hists.getRetrievedHistory())
+				//					try {
+				//						hist.delete().queue();
+				//						hist.delete().queue();
+				//						channel.deleteMessageById(hist.getIdLong()).reason("Supprimer par " + message.getAuthor().getAsTag());
+				//						deleted++;
+				//					} catch (Exception e) {
+				//						DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Impossible de supprimer " + hist.getJumpUrl() + " : " + e.getMessage());
+				//					}
+				DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ " + deleted + "/" + hists.size() + " messages ont été supprimés.");
+			});
+		}).run();
 	}
 
 }

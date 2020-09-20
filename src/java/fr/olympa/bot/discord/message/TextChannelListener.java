@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.textmessage;
+package fr.olympa.bot.discord.message;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -16,6 +16,7 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.message.file.FileHandler;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
@@ -104,7 +105,7 @@ public class TextChannelListener extends ListenerAdapter {
 			StringJoiner sj = new StringJoiner(".\n");
 			sj.add(member.getAsMention() + " a modifié un message dans " + channel.getAsMention());
 			sj.add("S'y rendre: " + message.getJumpUrl());
-			SendLogs.sendMessageLog(discordMessage, "✍️ Message modifié", message.getJumpUrl(), sj.toString(), member);
+			LogsHandler.sendMessage(discordMessage, "✍️ Message modifié", message.getJumpUrl(), sj.toString(), member);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -132,9 +133,9 @@ public class TextChannelListener extends ListenerAdapter {
 				if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 					return;
 				StringJoiner sj = new StringJoiner(".\n");
-				sj.add(member.getAsMention() + " a supprimé un message dans " + channel.getAsMention());
+				sj.add("Un message de " + member.getAsMention() + "a été supprimé dans " + channel.getAsMention());
 				sj.add("S'y rendre: " + discordMessage.getJumpUrl());
-				SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+				LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -184,13 +185,13 @@ public class TextChannelListener extends ListenerAdapter {
 					messageBuilder.append(member.getAsMention());
 					WebHookHandler.send(embed.build(), channel, mentionneds.get(0), t1 -> {
 						sj.add("S'y rendre: https://discord.com/channels/" + channel.getGuild().getId() + "/" + channel.getId() + "/" + t1.getId() + ".");
-						SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+						LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 					});
 					return;
 				}
 			}
 			sj.add("S'y rendre: " + discordMessage.getJumpUrl());
-			SendLogs.sendMessageLog(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+			LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

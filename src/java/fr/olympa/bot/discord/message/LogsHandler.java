@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.textmessage;
+package fr.olympa.bot.discord.message;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.message.file.FileHandler;
 import fr.olympa.bot.discord.observer.MessageAttachement;
 import fr.olympa.bot.discord.observer.MessageContent;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -23,7 +24,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-public class SendLogs {
+public class LogsHandler {
 
 	public static EmbedBuilder get(String title, String titleUrl, String description, Member member) {
 		User user = member.getUser();
@@ -36,7 +37,7 @@ public class SendLogs {
 		return embed;
 	}
 
-	public static void sendMessageLog(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
+	public static void sendMessage(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
 		if (member.getUser().isBot())
 			return;
 		EmbedBuilder embed = get(title, titleUrl, description, member);
@@ -47,7 +48,7 @@ public class SendLogs {
 		Map<MessageAttachement, File> attWithData = new HashMap<>();
 		for (MessageContent mContent : discordMessage.getContents()) {
 			if (!mContent.hasData())
-				if (mContent.isDeleteOrNoData())
+				if (mContent.isDeleted())
 					embed.addField("Suppr" + " (" + Utils.timestampToDateAndHour(Utils.getCurrentTimeInSeconds()) + ")", "❌", true);
 				else
 					embed.addField("Message", "❌ **nous n'avons aucunes données dessus.**", true);
@@ -81,9 +82,21 @@ public class SendLogs {
 			i++;
 		}
 		embed.setTimestamp(Instant.now());
-		if (discordMessage.getLogMessageId() != 0)
+		MessageAction messageAction = null;
+		if (discordMessage.isDeleted())
+			for (Entry<MessageAttachement, File> e : attWithData.entrySet()) {
+				String desc = String.format("Pièce jointe `%s`\nLien original `%s`\n", e.getKey().getOriginalFileName(), e.getKey().getUrl());
+				if (messageAction == null)
+					messageAction = logChannel.sendFile(e.getValue()).append(desc);
+				else
+					messageAction = messageAction.addFile(e.getValue()).append(desc);
+			}
+		if (discordMessage.getLogMessageId() != 0) {
 			discordMessage.getLogMsg().queue(logMsg -> logMsg.editMessage(embed.build()).queue());
-		else {
+			logChannel.editMessageById(discordMessage.getLogMessageId(), embed.build()).queue();
+			if (messageAction != null)
+				messageAction.append("Info sur le msg supprimé : " + discordMessage.getLogJumpUrl() + "\n").queue();
+		} else {
 			Consumer<Message> succes = logMsg2 -> {
 				try {
 					DiscordMessage discordMessage2 = CacheDiscordSQL.getDiscordMessage(discordMessage.getGuildId(), discordMessage.getChannelId(), discordMessage.getMessageId()).getValue();
@@ -94,16 +107,10 @@ public class SendLogs {
 					e.printStackTrace();
 				}
 			};
-			MessageAction messageAction = null;
-			for (Entry<MessageAttachement, File> e : attWithData.entrySet())
-				if (messageAction == null)
-					messageAction = logChannel.sendFile(e.getValue()).append("Pièce jointe `" + e.getKey().getOriginalFileName() + "`" + "\nLien original `" + e.getKey().getUrl() + "`");
-				else
-					messageAction = messageAction.addFile(e.getValue());
-			if (messageAction == null)
-				logChannel.sendMessage(embed.build()).queue(succes);
-			else
+			if (messageAction != null)
 				messageAction.embed(embed.build()).queue(succes);
+			else
+				logChannel.sendMessage(embed.build()).queue(succes);
 		}
 
 	}

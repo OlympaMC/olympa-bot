@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.textmessage;
+package fr.olympa.bot.discord.message;
 
 import java.awt.Color;
 
@@ -24,7 +24,7 @@ public class SwearDiscord {
 		}
 		message.addReaction("⚠️").queue();
 		String desc = member.getAsMention() + " dans " + channel.getAsMention() + ".";
-		EmbedBuilder embed = SendLogs.get("⚠️ Insulte", null, desc + "\n" + message.getJumpUrl(), member);
+		EmbedBuilder embed = LogsHandler.get("⚠️ Insulte", null, desc + "\n" + message.getJumpUrl(), member);
 		embed.addField("Message", messageRaw, true);
 		embed.setTimestamp(message.getTimeCreated());
 		embed.setColor(Color.MAGENTA);

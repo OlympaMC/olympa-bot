@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.textmessage;
+package fr.olympa.bot.discord.message.file;
 
 import java.io.File;
 import java.io.IOException;

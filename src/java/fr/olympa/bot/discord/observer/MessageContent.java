@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import fr.olympa.bot.discord.textmessage.DiscordMessage;
+import fr.olympa.bot.discord.message.DiscordMessage;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 
@@ -12,7 +12,7 @@ public class MessageContent {
 
 	private Long time;
 	private String content;
-	private Boolean deleteOrNoData;
+	private Boolean deleted;
 	List<MessageAttachement> attachments;
 
 	public long getTimestamp(DiscordMessage dm) {
@@ -33,12 +33,12 @@ public class MessageContent {
 		return time;
 	}
 
-	public boolean isDeleteOrNoData() {
-		return deleteOrNoData;
+	public boolean isDeleted() {
+		return deleted == true;
 	}
 
-	public MessageContent(boolean deleteOrNoData) {
-		this.deleteOrNoData = deleteOrNoData;
+	public MessageContent(boolean deleted) {
+		this.deleted = deleted;
 	}
 
 	public MessageContent(Message message, DiscordMessage dm, Map<Attachment, String> attachments) {

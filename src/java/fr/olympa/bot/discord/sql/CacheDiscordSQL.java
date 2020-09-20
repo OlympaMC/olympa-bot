@@ -10,8 +10,8 @@ import com.google.common.cache.CacheBuilder;
 
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
-import fr.olympa.bot.discord.textmessage.DiscordMessage;
-import fr.olympa.bot.discord.textmessage.SqlMessage;
+import fr.olympa.bot.discord.message.DiscordMessage;
+import fr.olympa.bot.discord.message.SqlMessage;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 

@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.textmessage;
+package fr.olympa.bot.discord.message;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -86,6 +86,11 @@ public class DiscordMessage {
 		return logMessageId;
 	}
 
+	public String getLogJumpUrl() {
+		OlympaGuild opGuild = getOlympaGuild();
+		return new JumpURL(opGuild.getDiscordId(), opGuild.getLogChannel().getIdLong(), logMessageId).get();
+	}
+
 	public long getOlympaDiscordAuthorId() {
 		return olympaDiscordAuthorId;
 	}
@@ -131,6 +136,10 @@ public class DiscordMessage {
 		return contents;
 	}
 
+	public boolean isDeleted() {
+		return !contents.isEmpty() && contents.get(contents.size() - 1).isDeleted();
+	}
+
 	public MessageContent getOriginalContent() {
 		return contents.get(0);
 	}
@@ -148,6 +157,6 @@ public class DiscordMessage {
 	}
 
 	public String getJumpUrl() {
-		return "https://discordapp.com/channels/" + getOlympaGuild().getDiscordId() + "/" + channelId + "/" + messageId;
+		return new JumpURL(getOlympaGuild().getDiscordId(), channelId, messageId).get();
 	}
 }
