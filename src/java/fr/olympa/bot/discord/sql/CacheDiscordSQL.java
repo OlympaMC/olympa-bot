@@ -11,7 +11,7 @@ import com.google.common.cache.CacheBuilder;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.message.DiscordMessage;
-import fr.olympa.bot.discord.message.SqlMessage;
+import fr.olympa.bot.discord.message.SQLMessage;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
@@ -72,7 +72,7 @@ public class CacheDiscordSQL {
 	}
 
 	// <discordId, DiscordMember>
-	public static Cache<Long, DiscordMessage> cacheMessage = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
+	private static Cache<Long, DiscordMessage> cacheMessage = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
 
 	public static Entry<Long, DiscordMessage> getDiscordMessage(OlympaGuild olympaGuild, Message message) throws SQLException {
 		return getDiscordMessage(olympaGuild.getId(), message.getTextChannel().getIdLong(), message.getIdLong());
@@ -81,7 +81,7 @@ public class CacheDiscordSQL {
 	public static Entry<Long, DiscordMessage> getDiscordMessage(long olympaGuildId, long channelDiscordId, long messageDiscordId) throws SQLException {
 		Entry<Long, DiscordMessage> entry = cacheMessage.asMap().entrySet().stream().filter(e -> e.getValue().getMessageId() == messageDiscordId).findFirst().orElse(null);
 		if (entry == null) {
-			DiscordMessage discordMessage = SqlMessage.selectMessage(olympaGuildId, channelDiscordId, messageDiscordId);
+			DiscordMessage discordMessage = SQLMessage.selectMessage(olympaGuildId, channelDiscordId, messageDiscordId);
 			if (discordMessage != null) {
 				DiscordMember discordMember = getDiscordMemberByDiscordOlympaId(discordMessage.getOlympaDiscordAuthorId());
 				entry = new AbstractMap.SimpleEntry<>(discordMember.getDiscordId(), discordMessage);

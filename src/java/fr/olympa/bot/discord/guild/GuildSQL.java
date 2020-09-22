@@ -15,22 +15,18 @@ import net.dv8tion.jda.api.entities.Guild;
 
 public class GuildSQL {
 
-	static String tableGuild = "discord.guilds";
+	static String tableGuild = OlympaStatement.formatTableName("discord.guilds");
 
-	{
-		OlympaStatement.formatTableName(tableGuild);
-	}
-
-	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, new String[] { "guild_id", "guild_name" });
+	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, "guild_id", "guild_name");
 
 	public static OlympaGuild addGuild(Guild guild) throws SQLException {
 		PreparedStatement statement = insertGuildStatement.getStatement();
 		OlympaGuild olympaGuild = null;
 		int i = 1;
 		statement.setLong(i++, guild.getIdLong());
-		statement.setString(i++, guild.getName());
+		statement.setString(i, guild.getName());
 		statement.executeUpdate();
-		ResultSet resultSet = selectGuildIdStatement.executeQuery(statement);
+		ResultSet resultSet = insertGuildStatement.executeQuery();
 		resultSet.next();
 		olympaGuild = OlympaGuild.createObject(resultSet);
 		resultSet.close();
@@ -43,9 +39,8 @@ public class GuildSQL {
 	public static OlympaGuild selectGuildById(long id) throws SQLException {
 		PreparedStatement statement = selectGuildIdStatement.getStatement();
 		OlympaGuild olympaGuild = null;
-		int i = 1;
-		statement.setLong(i++, id);
-		ResultSet resultSet = selectGuildIdStatement.executeQuery(statement);
+		statement.setLong(1, id);
+		ResultSet resultSet = selectGuildIdStatement.executeQuery();
 		if (resultSet.next())
 			olympaGuild = OlympaGuild.createObject(resultSet);
 		resultSet.close();
@@ -55,9 +50,8 @@ public class GuildSQL {
 	private static OlympaStatement selectGuildsIdStatement = new OlympaStatement(StatementType.SELECT, tableGuild, (String[]) null, (String[]) null);
 
 	public static List<OlympaGuild> selectGuilds() throws SQLException {
-		PreparedStatement statement = selectGuildsIdStatement.getStatement();
 		List<OlympaGuild> olympaGuilds = new ArrayList<>();
-		ResultSet resultSet = selectGuildIdStatement.executeQuery(statement);
+		ResultSet resultSet = selectGuildsIdStatement.executeQuery();
 		while (resultSet.next())
 			olympaGuilds.add(OlympaGuild.createObject(resultSet));
 		resultSet.close();
@@ -102,8 +96,8 @@ public class GuildSQL {
 		else
 			statement.setObject(i++, null);
 		statement.setInt(i++, olympaGuild.getType().ordinal());
-		statement.setLong(i++, olympaGuild.getId());
-		selectGuildIdStatement.execute(statement);
+		statement.setLong(i, olympaGuild.getId());
+		updateGuildStatement.execute();
 		statement.close();
 	}
 }

@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.match.RegexMatcher;
-import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -106,7 +106,7 @@ public abstract class DiscordCommand implements CommandEvent {
 	}
 
 	public ScheduledFuture<?> deleteMessageAfter(Message message) {
-		return message.delete().queueAfter(OlympaBots.getInstance().getDiscord().timeToDelete, TimeUnit.SECONDS, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
+		return message.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
 	}
 
 	public DiscordPermission getPermission() {

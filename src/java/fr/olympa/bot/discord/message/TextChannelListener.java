@@ -61,7 +61,7 @@ public class TextChannelListener extends ListenerAdapter {
 		TextChannel channel = message.getTextChannel();
 		try {
 			DiscordMessage discordMessage = new DiscordMessage(message, map);
-			SqlMessage.addMessage(discordMessage);
+			SQLMessage.addMessage(discordMessage);
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
 			if (user.isBot() || member.isFake())
 				return;
@@ -95,9 +95,10 @@ public class TextChannelListener extends ListenerAdapter {
 			discordMessage = entry.getValue();
 			discordMessage.addEditedMessage(message);
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
-			if (member.getUser().isBot() || member.isFake())
+			if (user.isBot() || user.isFake())
 				return;
-			if (olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex) || user.isBot())
+			SQLMessage.updateMessageContent(discordMessage);
+			if (olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 				return;
 			SwearDiscord.check(member, channel, message, olympaGuild);
 			if (!olympaGuild.isLogMsg())
@@ -129,13 +130,13 @@ public class TextChannelListener extends ListenerAdapter {
 					return;
 				discordMessage.setMessageDeleted();
 				CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
-				SqlMessage.updateMessageContent(discordMessage);
 				if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 					return;
 				StringJoiner sj = new StringJoiner(".\n");
 				sj.add("Un message de " + member.getAsMention() + "a été supprimé dans " + channel.getAsMention());
 				sj.add("S'y rendre: " + discordMessage.getJumpUrl());
 				LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+				SQLMessage.updateMessageContent(discordMessage);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -158,7 +159,6 @@ public class TextChannelListener extends ListenerAdapter {
 				return;
 			discordMessage.setMessageDeleted();
 			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
-			SqlMessage.updateMessageContent(discordMessage);
 			if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 				return;
 			StringJoiner sj = new StringJoiner(".\n");
@@ -192,6 +192,7 @@ public class TextChannelListener extends ListenerAdapter {
 			}
 			sj.add("S'y rendre: " + discordMessage.getJumpUrl());
 			LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+			SQLMessage.updateMessageContent(discordMessage);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

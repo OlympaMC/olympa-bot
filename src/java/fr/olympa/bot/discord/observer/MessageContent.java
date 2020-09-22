@@ -12,7 +12,7 @@ public class MessageContent {
 
 	private Long time;
 	private String content;
-	private Boolean deleted;
+	private Boolean deleted = null;
 	List<MessageAttachement> attachments;
 
 	public long getTimestamp(DiscordMessage dm) {
@@ -33,8 +33,16 @@ public class MessageContent {
 		return time;
 	}
 
+	public Long getTime(MessageContent before) {
+		return before != null && before.time != null && before.time != 0 ? time - before.time : time;
+	}
+
 	public boolean isDeleted() {
-		return deleted == true;
+		return deleted != null && deleted;
+	}
+
+	public boolean isEmpty() {
+		return content == null && deleted == null && attachments == null;
 	}
 
 	public MessageContent(boolean deleted) {
@@ -42,28 +50,26 @@ public class MessageContent {
 	}
 
 	public MessageContent(Message message, DiscordMessage dm, Map<Attachment, String> attachments) {
-		content = message.getContentRaw();
+		if (!message.getContentRaw().isBlank())
+			content = message.getContentRaw();
 		if (message.isEdited())
 			time = message.getTimeEdited().toEpochSecond() - dm.getCreated();
-		this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).collect(Collectors.toList());
-		if (attachments.isEmpty())
-			attachments = null;
+		if (!attachments.isEmpty())
+			this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).collect(Collectors.toList());
 	}
 
 	public MessageContent(Message message, DiscordMessage dm) {
 		content = message.getContentRaw();
 		if (message.isEdited())
 			time = message.getTimeEdited().toEpochSecond() - dm.getCreated();
-		attachments = message.getAttachments().stream().map(e -> new MessageAttachement(e)).collect(Collectors.toList());
-		if (attachments.isEmpty())
-			attachments = null;
+		if (!message.getAttachments().isEmpty())
+			attachments = message.getAttachments().stream().map(MessageAttachement::new).collect(Collectors.toList());
 	}
 
 	public MessageContent(String content, Map<Attachment, String> attachments) {
 		this.content = content;
-		this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).collect(Collectors.toList());
-		if (attachments.isEmpty())
-			attachments = null;
+		if (!attachments.isEmpty())
+			this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).collect(Collectors.toList());
 	}
 
 	public boolean hasData() {

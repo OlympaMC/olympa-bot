@@ -34,8 +34,7 @@ public class DiscordMessage {
 				resultSet.getLong("channel_discord_id"),
 				resultSet.getLong("message_discord_id"),
 				resultSet.getLong("author_id"),
-				new Gson().fromJson(resultSet.getString("contents"), new TypeToken<List<MessageContent>>() {
-				}.getType()),
+				resultSet.getString("contents"),
 				resultSet.getTimestamp("created"),
 				resultSet.getLong("log_msg_discord_id"));
 	}
@@ -46,8 +45,8 @@ public class DiscordMessage {
 		channelId = message.getChannel().getIdLong();
 		olympaDiscordAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
 		created = message.getTimeCreated().toEpochSecond();
-		contents = new ArrayList<>();
-		addEditedMessage(message);
+		if (!message.getAuthor().isBot() && !message.getAuthor().isFake())
+			addEditedMessage(message);
 	}
 
 	public DiscordMessage(Message message, Map<Attachment, String> map) throws SQLException {
@@ -56,16 +55,18 @@ public class DiscordMessage {
 		channelId = message.getChannel().getIdLong();
 		olympaDiscordAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
 		created = message.getTimeCreated().toEpochSecond();
-		contents = new ArrayList<>();
-		addEditedMessage(message, map);
+		if (!message.getAuthor().isBot() && !message.getAuthor().isFake())
+			addEditedMessage(message, map);
 	}
 
-	public DiscordMessage(long olympaGuildId, long channelId, long messageId, long olympaDiscordAuthorId, List<MessageContent> contents, Timestamp created, long logMessageId) {
+	public DiscordMessage(long olympaGuildId, long channelId, long messageId, long olympaDiscordAuthorId, String contents, Timestamp created, long logMessageId) {
 		this.olympaGuildId = olympaGuildId;
 		this.channelId = channelId;
 		this.messageId = messageId;
 		this.olympaDiscordAuthorId = olympaDiscordAuthorId;
-		this.contents = contents;
+		if (contents != null && !contents.isBlank())
+			this.contents = new Gson().fromJson(contents, new TypeToken<List<MessageContent>>() {
+			}.getType());
 		this.created = created.getTime() / 1000L;
 		this.logMessageId = logMessageId;
 	}
@@ -100,11 +101,11 @@ public class DiscordMessage {
 	}
 
 	public void addEditedMessage(Message message, Map<Attachment, String> attachments) {
-		contents.add(new MessageContent(message, this, attachments));
+		getContents().add(new MessageContent(message, this, attachments));
 	}
 
 	public void addEditedMessage(Message message) {
-		contents.add(new MessageContent(message, this));
+		getContents().add(new MessageContent(message, this));
 	}
 
 	public OlympaGuild getOlympaGuild() {
@@ -129,18 +130,26 @@ public class DiscordMessage {
 	}
 
 	public MessageContent getContent() {
-		return contents.get(contents.size() - 1);
+		return contents != null && !contents.isEmpty() ? contents.get(contents.size() - 1) : null;
 	}
 
 	public List<MessageContent> getContents() {
+		if (contents == null)
+			contents = new ArrayList<>();
 		return contents;
 	}
 
 	public boolean isDeleted() {
-		return !contents.isEmpty() && contents.get(contents.size() - 1).isDeleted();
+		return contents != null && !contents.isEmpty() && contents.get(contents.size() - 1).isDeleted();
+	}
+
+	public boolean isEmpty() {
+		return contents == null || contents.isEmpty() || contents.size() == 1 && contents.get(0).isEmpty();
 	}
 
 	public MessageContent getOriginalContent() {
+		if (contents == null || contents.isEmpty())
+			return null;
 		return contents.get(0);
 	}
 
@@ -149,11 +158,11 @@ public class DiscordMessage {
 	}
 
 	public void setOriginalNotFound() {
-		contents.add(0, new MessageContent(false));
+		getContents().add(0, new MessageContent(false));
 	}
 
 	public void setMessageDeleted() {
-		contents.add(new MessageContent(true));
+		getContents().add(new MessageContent(true));
 	}
 
 	public String getJumpUrl() {

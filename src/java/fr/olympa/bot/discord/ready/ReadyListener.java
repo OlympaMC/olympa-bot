@@ -72,6 +72,7 @@ public class ReadyListener extends ListenerAdapter {
 					case UNKNOWN:
 						presence.setStatus(OnlineStatus.DO_NOT_DISTURB);
 						presence.setActivity(Activity.playing("❌ Serveur Minecraft Fermé"));
+						break;
 					default:
 						break;
 
@@ -125,14 +126,12 @@ public class ReadyListener extends ListenerAdapter {
 		embed.setTimestamp(OffsetDateTime.now());
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		for (OlympaGuild olympaGuilds : GuildHandler.guilds) {
-			if (!olympaGuilds.isStatusMessageEnabled())
-				continue;
 			TextChannel logChannel = olympaGuilds.getLogChannel();
-			if (logChannel == null)
+			if (logChannel == null || !olympaGuilds.isStatusMessageEnabled())
 				continue;
 			logChannel.sendMessage(embed.build()).queue();
 		}
-		OlympaDiscord.lastConnection = Utils.getCurrentTimeInSeconds();
+		OlympaDiscord.setLastConnection(Utils.getCurrentTimeInSeconds());
 		// En test
 		ReactionHandler.initReactions();
 	}
@@ -145,10 +144,8 @@ public class ReadyListener extends ListenerAdapter {
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		embed.setTimestamp(OffsetDateTime.now());
 		for (OlympaGuild olympaGuilds : GuildHandler.guilds) {
-			if (!olympaGuilds.isStatusMessageEnabled())
-				continue;
 			TextChannel logChannel = olympaGuilds.getLogChannel();
-			if (logChannel == null)
+			if (logChannel == null || !olympaGuilds.isStatusMessageEnabled())
 				continue;
 			logChannel.sendMessage(embed.build()).queue();
 		}

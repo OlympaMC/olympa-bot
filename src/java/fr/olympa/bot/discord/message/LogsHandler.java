@@ -4,11 +4,13 @@ import java.io.File;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
@@ -38,15 +40,30 @@ public class LogsHandler {
 	}
 
 	public static void sendMessage(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
-		if (member.getUser().isBot())
+		if (member.getUser().isBot() || member.getUser().isFake() || discordMessage.isEmpty())
 			return;
 		EmbedBuilder embed = get(title, titleUrl, description, member);
-		String attch = new String();
 		int i = 0;
 		MessageContent lastMContent = null;
 		TextChannel logChannel = discordMessage.getOlympaGuild().getLogChannel();
 		Map<MessageAttachement, File> attWithData = new HashMap<>();
-		for (MessageContent mContent : discordMessage.getContents()) {
+		List<MessageContent> contents = discordMessage.getContents();
+		int totalEdits = contents.size();
+		if (totalEdits > 24) {
+			MessageContent original = contents.get(0);
+			contents = contents.subList(contents.size() - 23, contents.size());
+			contents.add(original);
+			embed.appendDescription("\nIl a eu trop d'éditions, seule l'original et les 24 dernières éditions peuvent être afficher (un dev peux accéder à l'historique complet).");
+		}
+		for (MessageContent mContent : contents) {
+			if (discordMessage.getContents().indexOf(mContent) == 0 && mContent.getAttachments() != null) {
+				String s = Utils.withOrWithoutS(mContent.getAttachments().size());
+				embed.appendDescription("\n\n**Pièce" + s + " jointe" + s + ":** " + mContent.getAttachments().stream().map(a -> "`" + a.getOriginalFileName() + "` " + a.getUrl()).collect(Collectors.joining(", ")));
+				List<String> exts = Arrays.asList(".jpg", ".jpe", ".bmp", ".gif", ".png");
+				MessageAttachement image = mContent.getAttachments().stream().filter(att -> exts.stream().anyMatch(e -> att.getFileName().toLowerCase().endsWith(e))).findFirst().orElse(null);
+				if (image != null)
+					embed.setImage(image.getProxyUrl());
+			}
 			if (!mContent.hasData())
 				if (mContent.isDeleted())
 					embed.addField("Suppr" + " (" + Utils.timestampToDateAndHour(Utils.getCurrentTimeInSeconds()) + ")", "❌", true);
@@ -61,31 +78,46 @@ public class LogsHandler {
 							//									.append(member.getEffectiveName() + " a un fichier `" + att.getOriginalFileName() + "` dans son message \nLien Original : `" + att.getUrl() + "`").queue();
 							attWithData.put(att, FileHandler.getFile(att.getFileName()));
 					});
-				//					String s = Utils.withOrWithoutS(attachments.size());
-				//					attch = "\n\n**Pièce" + s + " jointe" + s + ":** " + attachments.stream().map(a -> "`" + a.getOriginalFileName() + "` " + a.getUrl()).collect(Collectors.joining(", "));
-				String editTime = "Original";
-				if (i != 0)
-					editTime = "Edit n°" + i;
-				String content = mContent.getContent();
-				if (lastMContent != null && lastMContent.hasData())
-					if (content.contains(lastMContent.getContent()))
-						content = content.replace(lastMContent.getContent(), "➡️");
-				if (content.length() + attch.length() > MessageEmbed.VALUE_MAX_LENGTH) {
-					int tooLarge = MessageEmbed.VALUE_MAX_LENGTH - attch.length();
-					String tooLargeS = " **" + String.valueOf(tooLarge) + " chars de plus...**";
-					tooLarge += tooLargeS.length();
-					content = content.substring(0, tooLarge + tooLarge) + tooLargeS + attch;
+				String editTime;
+				if (i == 0)
+					editTime = "Original";
+				else {
+
+					if (totalEdits > 24)
+						editTime = "Edit n°" + (totalEdits - 23 + i);
+					else
+						editTime = "Edit n°" + i;
+					editTime += " (" + Utils.timeToDuration(mContent.getTime(lastMContent)) + " après)";
 				}
-				embed.addField(editTime + " (" + Utils.timestampToDateAndHour(mContent.getTimestamp(discordMessage)) + ")", content + attch, true);
+				String content = mContent.getContent();
+				if (content != null && !content.isBlank()) {
+					if (lastMContent != null && lastMContent.hasData() && lastMContent.getContent() != null)
+						if (lastMContent.getContent().contains(content))
+							content = content.replace(lastMContent.getContent(), "➡️");
+					if (content.length() > MessageEmbed.VALUE_MAX_LENGTH) {
+						int tooLarge = content.length() - MessageEmbed.VALUE_MAX_LENGTH;
+						String tooLargeS = " **" + tooLarge + " chars de plus...**";
+						tooLarge += tooLargeS.length();
+						content = content.substring(0, content.length() - tooLarge) + tooLargeS;
+					}
+				} else
+					content = "`Message vide`";
+				EmbedBuilder em2 = new EmbedBuilder(embed).addField(editTime, content, true);
+				if (em2.isValidLength())
+					embed.addField(editTime, content, true);
+				else {
+					embed.addField(editTime, "`Erreur > Trop de charatères dans l'Embed.`", true);
+					break;
+				}
 			}
 			lastMContent = mContent;
 			i++;
 		}
-		embed.setTimestamp(Instant.now());
+		embed.setTimestamp(Instant.ofEpochMilli(discordMessage.getCreated() * 1000L));
 		MessageAction messageAction = null;
 		if (discordMessage.isDeleted())
 			for (Entry<MessageAttachement, File> e : attWithData.entrySet()) {
-				String desc = String.format("Pièce jointe `%s`\nLien original `%s`\n", e.getKey().getOriginalFileName(), e.getKey().getUrl());
+				String desc = String.format("Pièce jointe `%s`%nLien original `%s`%n", e.getKey().getOriginalFileName(), e.getKey().getUrl());
 				if (messageAction == null)
 					messageAction = logChannel.sendFile(e.getValue()).append(desc);
 				else
@@ -97,12 +129,12 @@ public class LogsHandler {
 			if (messageAction != null)
 				messageAction.append("Info sur le msg supprimé : " + discordMessage.getLogJumpUrl() + "\n").queue();
 		} else {
+			CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
 			Consumer<Message> succes = logMsg2 -> {
 				try {
 					DiscordMessage discordMessage2 = CacheDiscordSQL.getDiscordMessage(discordMessage.getGuildId(), discordMessage.getChannelId(), discordMessage.getMessageId()).getValue();
 					discordMessage2.setLogMsg(logMsg2);
-					CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage2);
-					SqlMessage.updateMessageLogMsgId(discordMessage2);
+					SQLMessage.updateMessageLogMsgId(discordMessage2);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

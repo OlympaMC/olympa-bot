@@ -33,9 +33,9 @@ public class DiscordSQL {
 		statement.setString(i++, discordSanction.getReason());
 		Long expire = discordSanction.getExpire();
 		if (expire != null)
-			statement.setTimestamp(i++, new Timestamp(expire * 1000L));
+			statement.setTimestamp(i, new Timestamp(expire * 1000L));
 		else
-			statement.setTimestamp(i++, null);
+			statement.setTimestamp(i, null);
 		statement.executeUpdate();
 		statement.close();
 	}

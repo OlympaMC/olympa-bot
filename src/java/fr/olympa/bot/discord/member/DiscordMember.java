@@ -5,9 +5,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
@@ -33,7 +36,7 @@ public class DiscordMember {
 	long lastSeen = -1;
 	long joinTime;
 	long leaveTime;
-	Map<Long, String> oldNames = new HashMap<>();
+	TreeMap<Long, String> oldNames = new TreeMap<>(Comparator.comparing(Long::longValue).reversed());
 
 	public long getJoinTime() {
 		return joinTime;
@@ -43,7 +46,7 @@ public class DiscordMember {
 		return leaveTime;
 	}
 
-	public Map<Long, String> getOldNames() {
+	public TreeMap<Long, String> getOldNames() {
 		return oldNames;
 	}
 
@@ -92,8 +95,8 @@ public class DiscordMember {
 		if (leaveDate != null)
 			leaveTime = leaveDate.getTime() / 1000L;
 		if (oldNames != null)
-			this.oldNames = new Gson().fromJson(oldNames, new TypeToken<Map<Long, String>>() {
-			}.getType());
+			this.oldNames.putAll(new Gson().fromJson(oldNames, new TypeToken<Map<Long, String>>() {
+			}.getType()));
 	}
 
 	public DiscordMember(Member member) {
@@ -137,6 +140,10 @@ public class DiscordMember {
 		String newName = matcher.group(1);
 		if (name != null && !newName.equals(name)) {
 			oldNames.put(Utils.getCurrentTimeInSeconds(), name);
+			Iterator<Entry<Long, String>> it = oldNames.entrySet().iterator();
+			it.next();
+			while (it.hasNext() && oldNames.size() > 10)
+				oldNames.remove(it.next().getKey(), it.next().getValue());
 			name = newName;
 		} else
 			name = newName;

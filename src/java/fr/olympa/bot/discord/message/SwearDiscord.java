@@ -19,7 +19,7 @@ public class SwearDiscord {
 			return;
 		String messageRaw = swearHandler.testAndReplace(message.getContentRaw(), "**", "**");
 		if (messageRaw == null) {
-			message.clearReactions("☢️");
+			message.clearReactions("⚠️");
 			return;
 		}
 		message.addReaction("⚠️").queue();
@@ -29,6 +29,5 @@ public class SwearDiscord {
 		embed.setTimestamp(message.getTimeCreated());
 		embed.setColor(Color.MAGENTA);
 		WebHookHandler.send(embed.build(), olympaGuild.getLogChannel(), member);
-		//olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
 }

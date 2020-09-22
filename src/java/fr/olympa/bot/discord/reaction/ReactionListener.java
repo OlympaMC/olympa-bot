@@ -1,11 +1,16 @@
 package fr.olympa.bot.discord.reaction;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.JDA.Status;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -16,19 +21,36 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class ReactionListener extends ListenerAdapter {
 
+	static final List<String> BANNED_EMOJI = Arrays.asList("⚠️");
+
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		long messageId = event.getMessageIdLong();
+		ChannelType channelType = event.getChannelType();
 		User user = event.getUser();
 		if (user.isBot())
 			return;
 		MessageReaction react = event.getReaction();
+		ReactionEmote reactEmote = react.getReactionEmote();
+		if (reactEmote.isEmoji()) {
+			if (BANNED_EMOJI.contains(react.getReactionEmote().getAsCodepoints())) {
+				react.removeReaction(user).queue();
+				return;
+			}
+		} else if (reactEmote.isEmote()) {
+			if (channelType.isGuild() && !DiscordGroup.isStaff(event.getMember()) && reactEmote.getEmote().isManaged()) {
+				react.removeReaction(user).queue();
+				return;
+			}
+		} else
+			return;
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
 		if (reaction == null)
 			return;
 
 		if (!reaction.canInteract(user) || !reaction.hasReactionEmoji(react.getReactionEmote().getName())) {
-			react.removeReaction(user).queue();
+			if (channelType.isGuild())
+				react.removeReaction(user).queue();
 			return;
 		}
 		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {

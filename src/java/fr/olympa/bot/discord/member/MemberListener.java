@@ -102,7 +102,8 @@ public class MemberListener extends ListenerAdapter {
 			if (!user2.getUser().isBot())
 				usersTotal++;
 		GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
-		membersChannel.getManager().setName("Membres : " + usersTotal).queue();
+		if (membersChannel != null)
+			membersChannel.getManager().setName("Membres : " + usersTotal).queue();
 		return usersTotal;
 	}
 

@@ -16,6 +16,7 @@ import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.HelpCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
 import fr.olympa.bot.discord.commands.PlayersCommand;
+import fr.olympa.bot.discord.commands.PurgeCommand;
 import fr.olympa.bot.discord.commands.StartStopCommand;
 import fr.olympa.bot.discord.commands.UsurpCommand;
 import fr.olympa.bot.discord.groups.GroupCommand;
@@ -48,16 +49,16 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class OlympaDiscord {
 
-	public static long uptime = Utils.getCurrentTimeInSeconds();
-	public static long lastConnection;
+	private static final long UPTIME = Utils.getCurrentTimeInSeconds();
+	private static long lastConnection;
+	private static final int TIMETODELETE = 60;
 
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
 		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 	}
 
 	private JDA jda;
-	public int timeToDelete = 60;
 	private Color color = Color.YELLOW;
 	OlympaBots plugin;
 
@@ -75,7 +76,6 @@ public class OlympaDiscord {
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
 		builder.addEventListeners(new SupportListener());
-		//builder.addEventListeners(new ObserverListener());
 		builder.addEventListeners(new LinkListener());
 		builder.addEventListeners(new GroupListener());
 		builder.addEventListeners(new SpamListener());
@@ -102,6 +102,7 @@ public class OlympaDiscord {
 		new PlayersCommand().register();
 		new DeployCommand().register();
 		new SurveyCommand().register();
+		new PurgeCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {
@@ -132,5 +133,21 @@ public class OlympaDiscord {
 
 	public void setColor(Color color) {
 		this.color = color;
+	}
+
+	public static long getUptime() {
+		return UPTIME;
+	}
+
+	public static String connectedFrom() {
+		return Utils.timestampToDuration(OlympaDiscord.lastConnection);
+	}
+
+	public static void setLastConnection(long lastConnection) {
+		OlympaDiscord.lastConnection = lastConnection;
+	}
+
+	public static int getTimeToDelete() {
+		return TIMETODELETE;
 	}
 }
