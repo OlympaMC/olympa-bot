@@ -1,5 +1,6 @@
 package fr.olympa.bot;
 
+import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.redis.RedisAccess;
@@ -43,7 +44,7 @@ public class OlympaBots extends Plugin {
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		System.setErr(new ErrorOutputStream(System.err, stackTrace -> bungeeListener.sendError("bungee", stackTrace), run -> getProxy().getScheduler().schedule(this, run, 1, TimeUnit.SECONDS)));
+		System.setErr(new PrintStream(new ErrorOutputStream(System.err, stackTrace -> bungeeListener.sendError("bungee", stackTrace), run -> getProxy().getScheduler().schedule(this, run, 1, TimeUnit.SECONDS))));
 	}
 
 	@Override
