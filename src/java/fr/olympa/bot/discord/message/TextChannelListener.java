@@ -53,7 +53,7 @@ public class TextChannelListener extends ListenerAdapter {
 		if (!user.isFake() && message.getJDA().getSelfUser().getIdLong() != message.getAuthor().getIdLong())
 			message.getAttachments().forEach(att -> {
 				try {
-					map.put(att, FileHandler.addFile(att.getProxyUrl(), att.getFileName()));
+					map.put(att, FileHandler.tryAddFile(att.getProxyUrl(), att.getUrl(), att.getFileName()));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

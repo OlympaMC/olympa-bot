@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.entities.User;
 
 public class RefreshServersReaction extends ReactionDiscord {
 
-	public RefreshServersReaction(LinkedMap<String, String> map, Message msg, OlympaGuild guild) {
-		super(map, msg.getIdLong(), guild.getId());
+	public RefreshServersReaction(LinkedMap<String, String> map, Message msg, OlympaGuild guild, User... canReactUsers) {
+		super(map, msg.getIdLong(), guild.getId(), canReactUsers);
 	}
 
 	public RefreshServersReaction() {

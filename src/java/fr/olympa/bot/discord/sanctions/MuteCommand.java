@@ -57,7 +57,7 @@ public class MuteCommand extends DiscordCommand {
 			}
 			em.setDescription(sj.toString());
 			channel.sendMessage(em.build()).queue(m -> {
-				MuteChooseReaction reaction = new MuteChooseReaction(m, data, member.getIdLong());
+				MuteChooseReaction reaction = new MuteChooseReaction(m, data, member);
 				reaction.addToMessage(m);
 			});
 

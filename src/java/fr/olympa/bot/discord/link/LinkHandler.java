@@ -1,6 +1,7 @@
 package fr.olympa.bot.discord.link;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -55,14 +56,14 @@ public class LinkHandler {
 	public static void updateGroups(Member member, OlympaPlayer olympaPlayer) {
 		Guild guild = member.getGuild();
 		Set<OlympaGroup> groups = olympaPlayer.getGroups().keySet();
-		Set<Role> roles = DiscordGroup.get(groups).stream().map(g -> g.getRole(guild)).collect(Collectors.toSet());
+		Set<Role> roles = DiscordGroup.get(groups).stream().map(g -> g.getRole(guild)).filter(Objects::nonNull).collect(Collectors.toSet());
 		Set<Role> roleToRemoved = new HashSet<>(member.getRoles());
 		SetView<Role> communRole = Sets.intersection(roles, roleToRemoved);
 		roleToRemoved.removeAll(communRole);
 		roleToRemoved.removeAll(DiscordGroup.getSecondsRoles(guild));
 		roles.removeAll(communRole);
 		member.modifyNickname(olympaPlayer.getName()).reason("Utilisation du pseudo Minecraft : " + olympaPlayer.getName()).queue();
-		if (!roles.isEmpty() || !roleToRemoved.isEmpty())
+		if (!roles.isEmpty() && !roleToRemoved.isEmpty())
 			guild.modifyMemberRoles(member, roles, roleToRemoved).reason("Grade changer via Minecraft : " + olympaPlayer.getName()).queue();
 	}
 }

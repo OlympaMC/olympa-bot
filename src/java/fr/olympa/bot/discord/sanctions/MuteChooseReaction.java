@@ -7,6 +7,7 @@ import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.reaction.AwaitReaction;
 import fr.olympa.bot.discord.reaction.ReactionDiscord;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -15,7 +16,7 @@ import net.dv8tion.jda.api.entities.User;
 
 public class MuteChooseReaction extends ReactionDiscord {
 
-	public MuteChooseReaction(Message message, LinkedMap<String, String> data, long... canReactUserIds) {
+	public MuteChooseReaction(Message message, LinkedMap<String, String> data, IMentionable... canReactUserIds) {
 		super(data, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId(), canReactUserIds);
 	}
 

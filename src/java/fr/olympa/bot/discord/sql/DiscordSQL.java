@@ -11,8 +11,8 @@ import java.util.List;
 import com.google.gson.Gson;
 
 import fr.olympa.api.sql.DbConnection;
-import fr.olympa.api.sql.OlympaStatement;
-import fr.olympa.api.sql.StatementType;
+import fr.olympa.api.sql.statement.OlympaStatement;
+import fr.olympa.api.sql.statement.StatementType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sanctions.DiscordSanction;
 

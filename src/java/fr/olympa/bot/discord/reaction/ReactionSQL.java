@@ -8,8 +8,8 @@ import java.util.Set;
 
 import com.google.gson.Gson;
 
-import fr.olympa.api.sql.OlympaStatement;
-import fr.olympa.api.sql.StatementType;
+import fr.olympa.api.sql.statement.OlympaStatement;
+import fr.olympa.api.sql.statement.StatementType;
 
 public class ReactionSQL {
 	static String tableReaction = "discord.reactions";
@@ -83,5 +83,14 @@ public class ReactionSQL {
 		reactionIsInDB = statement.getGeneratedKeys().first();
 		statement.close();
 		return reactionIsInDB;
+	}
+
+	private static OlympaStatement purgeStatement = new OlympaStatement(StatementType.TRUNCATE, tableReaction);
+
+	public static int purge() throws SQLException {
+		PreparedStatement statement = purgeStatement.getStatement();
+		int rows = purgeStatement.execute();
+		statement.close();
+		return rows;
 	}
 }

@@ -87,7 +87,8 @@ public class LogsHandler {
 						editTime = "Edit n°" + (totalEdits - 23 + i);
 					else
 						editTime = "Edit n°" + i;
-					editTime += " (" + Utils.timeToDuration(mContent.getTime(lastMContent)) + " après)";
+					if (lastMContent != null && mContent.getTime() != null)
+						editTime += " (" + Utils.timeToDuration(mContent.getTime(lastMContent)) + " après)";
 				}
 				String content = mContent.getContent();
 				if (content != null && !content.isBlank()) {

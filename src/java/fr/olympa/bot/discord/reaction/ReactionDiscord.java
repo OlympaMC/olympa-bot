@@ -15,6 +15,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import fr.olympa.bot.discord.guild.GuildHandler;
+import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -73,11 +74,11 @@ public abstract class ReactionDiscord {
 	public ReactionDiscord() {
 	}
 
-	public ReactionDiscord(LinkedMap<String, String> reactionsEmojis, long messageId, long olympaGuildId, long... canReactUserIds) {
+	public ReactionDiscord(LinkedMap<String, String> reactionsEmojis, long messageId, long olympaGuildId, IMentionable... canReactUsers) {
 		this.reactionsEmojis = reactionsEmojis;
 		this.messageId = messageId;
 		this.olympaGuildId = olympaGuildId;
-		this.canReactUserIds = Arrays.stream(canReactUserIds).boxed().collect(Collectors.toList());
+		canReactUserIds = Arrays.stream(canReactUsers).mapToLong(IMentionable::getIdLong).boxed().collect(Collectors.toList());
 	}
 
 	public ReactionDiscord(LinkedMap<String, String> reactionsEmojis, long messageId, long olympaGuildId) {

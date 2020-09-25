@@ -32,7 +32,7 @@ public class ServersCommand extends DiscordCommand {
 		LinkedMap<String, String> map = new LinkedMap<>();
 		map.put("🔄", "refresh");
 		channel.sendMessage(getEmbed()).queue(msg -> {
-			RefreshServersReaction reaction = new RefreshServersReaction(map, msg, GuildHandler.getOlympaGuild(message.getGuild()));
+			RefreshServersReaction reaction = new RefreshServersReaction(map, msg, GuildHandler.getOlympaGuild(message.getGuild()), message.getAuthor());
 			reaction.addToMessage(msg);
 			reaction.saveToDB();
 		});
@@ -46,17 +46,17 @@ public class ServersCommand extends DiscordCommand {
 			if (!info.getName().contains("bungee")) {
 				ServerStatus status = info.getStatus();
 				StringJoiner sb = new StringJoiner("\n");
-				sb.add("**" + info.getName() + ":**\u200B __" + status.getName() + "__");
+				sb.add("**" + info.getName() + " : ** __" + status.getName() + "__");
 				if (info.getOnlinePlayers() != null)
-					sb.add("**Joueurs :** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "\u200B");
+					sb.add("**Joueurs :** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "");
 				if (info.getTps() != null)
-					sb.add("**TPS :** " + info.getTps() + "\u200B");
+					sb.add("**TPS :** " + info.getTps() + "");
 				if (!info.getRangeVersion().equals("unknown")) {
 					String ver = info.getRangeVersion();
-					sb.add("**Version " + (ver.contains("à") ? "s" : "") + " :** " + ver + "ms\u200B");
+					sb.add("**Version" + (ver.contains("à") ? "s" : "") + " : **" + ver + "");
 				}
 				if (info.getPing() != null)
-					sb.add("**Ping :** " + info.getPing() + "ms\u200B");
+					sb.add("**Ping :** " + info.getPing() + "ms");
 				if (info.getError() != null)
 					sb.add("Erreur : `" + info.getError() + "`");
 				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);

@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.Message;
 public class StartStopCommand extends DiscordCommand {
 
 	public StartStopCommand() {
-		super("stop", DiscordPermission.BUILDER, "restart", "start");
+		super("stop", DiscordPermission.BUILDER, "restart", "start", "stopserv", "restart", "restartserv");
 		description = "[serveurs]";
 		minArg = 1;
 		description = "Effectue une action (stop/start/restart) sur un serveur.";
@@ -18,6 +18,17 @@ public class StartStopCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
+		switch (label) {
+		case "stopserv":
+			label = "stop";
+			break;
+		case "startserv":
+			label = "start";
+			break;
+		case "restartserv":
+			label = "restart";
+			break;
+		}
 		OlympaRuntime.action(label, args[0], out -> {
 			message.getChannel().sendMessage(
 					new EmbedBuilder().setDescription(message.getAuthor().getAsMention() + " " + out.replaceAll("§.", "")).setColor(OlympaBots.getInstance().getDiscord().getColor()).build())

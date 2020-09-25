@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.commands;
 
+import fr.olympa.api.match.MatcherPattern;
 import fr.olympa.api.match.RegexMatcher;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
@@ -10,6 +11,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class ClearCommand extends DiscordCommand {
 
+	private boolean taskAll = false;
+
 	public ClearCommand() {
 		super("clear", DiscordPermission.ASSISTANT);
 		minArg = 1;
@@ -19,32 +22,67 @@ public class ClearCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
-		MessageChannel channel = message.getChannel();
 		Member member = message.getMember();
 
-		Integer i = (Integer) RegexMatcher.NUMBER.parse(args[0]);
-		if (i == null || i == 0) {
-			message.getChannel().sendMessage(member.getAsMention() + "➤ " + args[0] + " doit être un nombre valide.").queue();
-			return;
-		}
+		MatcherPattern nb = RegexMatcher.NUMBER;
+		if (nb.is(args[0])) {
+			Integer i = (Integer) nb.parse(args[0]);
+			deleteMessage(message);
 
-		deleteMessage(message);
+			new Thread(() -> clearMessage(member, message, i)).run();
+		} else if (!args[0].equals("ALL"))
+			message.getChannel().sendMessage(member.getAsMention() + "➤ " + args[0] + " doit être un nombre valide.").queue();
+		else {
+			deleteMessage(message);
+			if (taskAll) {
+				message.getChannel().sendMessage(member.getAsMention() + "➤ Je suis déjà en train de supprimer tous les messages d'un channel.").queue();
+				return;
+			}
+			taskAll = true;
+			clearAllMessage(member, message);
+			taskAll = false;
+		}
+	}
+
+	public void clearAllMessage(Member member, Message message) {
 		new Thread(() -> {
-			channel.getHistoryBefore(message.getIdLong(), i).queue(hists -> {
-				int deleted = channel.purgeMessages(hists.getRetrievedHistory()).size();
-				//				int deleted = 0;
-				//				for (Message hist : hists.getRetrievedHistory())
-				//					try {
-				//						hist.delete().queue();
-				//						hist.delete().queue();
-				//						channel.deleteMessageById(hist.getIdLong()).reason("Supprimer par " + message.getAuthor().getAsTag());
-				//						deleted++;
-				//					} catch (Exception e) {
-				//						DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Impossible de supprimer " + hist.getJumpUrl() + " : " + e.getMessage());
-				//					}
-				DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ " + deleted + "/" + hists.size() + " messages ont été supprimés.");
-			});
+			while (message.getChannel().getHistory().size() <= 100) {
+				MessageChannel channel = message.getChannel();
+				channel.getHistoryBefore(message.getIdLong(), 100).queue(hists -> {
+					channel.purgeMessages(hists.getRetrievedHistory());
+				});
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					taskAll = false;
+					//					clearAllMessage(member, message);
+					DiscordUtils.sendTempMessage(message.getChannel(), member.getAsMention() + " ➤ Une erreur est survenu. Réésaye. " + e.getMessage());
+					return;
+				}
+			}
+			DiscordUtils.sendTempMessage(message.getChannel(), member.getAsMention() + " ➤ La majorité des messages ont été supprimés.");
 		}).run();
 	}
 
+	public void clearMessage(Member member, Message message, int i) {
+		if (i > 100)
+			i = 100;
+		MessageChannel channel = message.getChannel();
+		channel.getHistoryBefore(message.getIdLong(), i).queue(hists -> {
+			channel.purgeMessages(hists.getRetrievedHistory());
+			//			int deleted = channel.purgeMessages(hists.getRetrievedHistory()).size();
+			//				int deleted = 0;
+			//				for (Message hist : hists.getRetrievedHistory())
+			//					try {
+			//						hist.delete().queue();
+			//						hist.delete().queue();
+			//						channel.deleteMessageById(hist.getIdLong()).reason("Supprimer par " + message.getAuthor().getAsTag());
+			//						deleted++;
+			//					} catch (Exception e) {
+			//						DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Impossible de supprimer " + hist.getJumpUrl() + " : " + e.getMessage());
+			//					}
+			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ " + hists.size() + " messages ont été supprimés.");
+			//			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ " + deleted + "/" + hists.size() + " messages ont été supprimés.");
+		});
+	}
 }

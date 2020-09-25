@@ -3,12 +3,12 @@ package fr.olympa.bot.discord.message.file;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.match.MatcherPattern;
 import fr.olympa.bot.OlympaBots;
 
@@ -28,8 +28,20 @@ public class FileHandler {
 		return new File(getFolder(), fileName);
 	}
 
-	public static String addFile(String fileURL, String fileName) throws IOException, MalformedURLException {
+	public static String addFile(String fileURL, String fileName) throws IOException {
 		return addFile(new URL(fileURL), fileName);
+	}
+
+	public static String tryAddFile(String primarURL, String secondURL, String fileName) throws IOException {
+		String file = null;
+		try {
+			file = addFile(new URL(primarURL), fileName);
+		} catch (IOException e) {
+			LinkSpigotBungee.Provider.link.sendMessage("Impossible de télécharger le fichier %s sur les serveurs discords, 2ème essai avec le lien original...", fileName);
+			e.printStackTrace();
+			file = addFile(new URL(secondURL), fileName);
+		}
+		return file;
 	}
 
 	public static String addFile(URL fileURL, String fileName) throws IOException {

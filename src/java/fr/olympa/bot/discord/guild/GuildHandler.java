@@ -37,17 +37,17 @@ public class GuildHandler {
 
 	public static TextChannel getStaffChannel() {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		return olympaGuild.getStaffChannel();
+		return olympaGuild != null ? olympaGuild.getStaffChannel() : null;
 	}
 
 	public static TextChannel getBugsChannel() {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		return olympaGuild.getBugsChannel();
+		return olympaGuild != null ? olympaGuild.getBugsChannel() : null;
 	}
 
 	public static TextChannel getMinecraftChannel() {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		return olympaGuild.getMinecraftChannel();
+		return olympaGuild != null ? olympaGuild.getMinecraftChannel() : null;
 	}
 
 	public static OlympaGuild getOlympaGuildByOlympaId(long guildId) {
