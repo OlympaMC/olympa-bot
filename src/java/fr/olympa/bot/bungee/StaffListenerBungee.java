@@ -116,6 +116,10 @@ public class StaffListenerBungee implements Listener {
 			WebHookHandler.send(message, channelStaffDiscord, event.getSender().getName(), "https://c7.uihere.com/files/250/925/132/computer-terminal-linux-console-computer-icons-command-line-interface-linux.jpg");
 	}
 
+	public void sendBungeeError(String stackTrace) {
+		sendError("bungee", stackTrace);
+	}
+	
 	public void sendError(String serverName, String stackTrace) {
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		List<String> strings = new ArrayList<>(2);

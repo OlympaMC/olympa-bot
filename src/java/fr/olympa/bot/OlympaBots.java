@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.redis.RedisAccess;
 import fr.olympa.api.redis.RedisChannel;
+import fr.olympa.api.utils.ErrorLoggerHandler;
 import fr.olympa.api.utils.ErrorOutputStream;
 import fr.olympa.bot.bungee.DiscordCommand;
 import fr.olympa.bot.bungee.LinkBungeListener;
@@ -44,7 +45,8 @@ public class OlympaBots extends Plugin {
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		System.setErr(new PrintStream(new ErrorOutputStream(System.err, stackTrace -> bungeeListener.sendError("bungee", stackTrace), run -> getProxy().getScheduler().schedule(this, run, 1, TimeUnit.SECONDS))));
+		System.setErr(new PrintStream(new ErrorOutputStream(System.err, bungeeListener::sendBungeeError, run -> getProxy().getScheduler().schedule(this, run, 1, TimeUnit.SECONDS))));
+		getLogger().addHandler(new ErrorLoggerHandler(bungeeListener::sendBungeeError));
 	}
 
 	@Override
