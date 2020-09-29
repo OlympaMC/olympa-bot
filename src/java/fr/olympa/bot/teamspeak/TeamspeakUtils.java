@@ -88,7 +88,9 @@ public class TeamspeakUtils {
 	}
 
 	public static void updateRank(OlympaPlayer olympaPlayer) throws InterruptedException {
-		int id = (int) olympaPlayer.getTeamspeakId();
+		int id = olympaPlayer.getTeamspeakId();
+		if (id == 0)
+			return;
 		TS3Api query = OlympaBots.getInstance().getTeamspeak().getQuery();
 		ClientInfo client = query.getClientInfo(id);
 		updateRank(olympaPlayer, client);

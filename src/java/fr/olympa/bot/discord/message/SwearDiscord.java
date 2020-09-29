@@ -12,11 +12,17 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class SwearDiscord {
-	static SwearHandler swearHandler = new SwearHandler(OlympaBungee.getInstance().getConfig().getStringList("chat.insult"));
+	static SwearHandler swearHandler;
+
+	public static void updatedConfig() {
+		swearHandler = new SwearHandler(OlympaBungee.getInstance().getConfig().getStringList("chat.insult"));
+	}
 
 	public static void check(Member member, TextChannel channel, Message message, OlympaGuild olympaGuild) {
 		if (!olympaGuild.isLogInsult())
 			return;
+		if (swearHandler == null)
+			updatedConfig();
 		String messageRaw = swearHandler.testAndReplace(message.getContentRaw(), "**", "**");
 		if (messageRaw == null) {
 			message.clearReactions("⚠️");
