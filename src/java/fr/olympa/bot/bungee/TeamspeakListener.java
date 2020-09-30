@@ -8,8 +8,8 @@ import net.md_5.bungee.event.EventHandler;
 public class TeamspeakListener implements Listener {
 
 	@EventHandler
-	public void PlayerQuitEvent(final PlayerDisconnectEvent event) {
-		final ProxiedPlayer player = event.getPlayer();
+	public void onPlayerQuitEvent(final PlayerDisconnectEvent event) {
+		ProxiedPlayer player = event.getPlayer();
 		TeamspeakCommand.remove(player);
 	}
 }

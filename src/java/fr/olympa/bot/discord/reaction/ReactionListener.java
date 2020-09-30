@@ -4,11 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.JDA.Status;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.User;
@@ -17,7 +15,9 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveAllEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEmoteEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class ReactionListener extends ListenerAdapter {
 
@@ -33,13 +33,13 @@ public class ReactionListener extends ListenerAdapter {
 		MessageReaction react = event.getReaction();
 		ReactionEmote reactEmote = react.getReactionEmote();
 		if (reactEmote.isEmoji()) {
-			if (BANNED_EMOJI.contains(react.getReactionEmote().getAsCodepoints())) {
-				react.removeReaction(user).queue();
+			if (BANNED_EMOJI.contains(react.getReactionEmote().getEmoji())) {
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
 				return;
 			}
 		} else if (reactEmote.isEmote()) {
 			if (channelType.isGuild() && !DiscordGroup.isStaff(event.getMember()) && reactEmote.getEmote().isManaged()) {
-				react.removeReaction(user).queue();
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
 				return;
 			}
 		} else
@@ -50,16 +50,15 @@ public class ReactionListener extends ListenerAdapter {
 
 		if (!reaction.canInteract(user) || !reaction.hasReactionEmoji(react.getReactionEmote().getName())) {
 			if (channelType.isGuild())
-				react.removeReaction(user).queue();
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
 			return;
 		}
-		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
-			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
+		event.getTextChannel().retrieveMessageById(messageId).queue(message -> {
 			long nb = 0;
 			if (!reaction.canMultiple())
 				nb = message.getReactions().stream().filter(r -> r.retrieveUsers().complete().contains(user)).count();
 			if (nb > 1 || !reaction.onReactAdd(message, event.getChannel(), user, react, reaction.getReactionsEmojis(react))) {
-				react.removeReaction(user).queue();
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
 				return;
 			}
 		});
@@ -73,10 +72,7 @@ public class ReactionListener extends ListenerAdapter {
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
 		if (reaction == null || user.isBot())
 			return;
-		OlympaBots.getInstance().getProxy().getScheduler().runAsync(OlympaBots.getInstance(), () -> {
-			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
-			reaction.onReactRemove(message, event.getChannel(), user, event.getReaction(), reaction.getReactionsEmojis(react));
-		});
+		event.getTextChannel().retrieveMessageById(messageId).queue(message -> reaction.onReactRemove(message, event.getChannel(), user, event.getReaction(), reaction.getReactionsEmojis(react)));
 	}
 
 	@Override

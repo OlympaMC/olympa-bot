@@ -3,12 +3,13 @@ package fr.olympa.bot;
 import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
 
+import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.redis.RedisAccess;
 import fr.olympa.api.redis.RedisChannel;
 import fr.olympa.api.utils.ErrorLoggerHandler;
 import fr.olympa.api.utils.ErrorOutputStream;
 import fr.olympa.bot.bungee.DiscordCommand;
-import fr.olympa.bot.bungee.LinkBungeListener;
+import fr.olympa.bot.bungee.LinkBungeeListener;
 import fr.olympa.bot.bungee.SpigotReceiveError;
 import fr.olympa.bot.bungee.StaffListenerBungee;
 import fr.olympa.bot.bungee.TeamspeakCommand;
@@ -16,7 +17,6 @@ import fr.olympa.bot.bungee.TeamspeakListener;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.teamspeak.OlympaTeamspeak;
 import fr.olympa.core.bungee.OlympaBungee;
-import fr.olympa.core.bungee.api.config.BungeeCustomConfig;
 import fr.olympa.core.bungee.utils.BungeeUtils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -37,14 +37,17 @@ public class OlympaBots extends Plugin {
 
 	@Override
 	public void onDisable() {
-		olympaTeamspeak.disconnect();
-		olympaDiscord.disconnect();
+		if (olympaTeamspeak != null)
+			olympaTeamspeak.disconnect();
+		if (olympaDiscord != null)
+			olympaDiscord.disconnect();
 		sendMessage("§4" + getDescription().getName() + "§c (" + getDescription().getVersion() + ") est désactivé.");
 	}
 
 	@Override
 	public void onLoad() {
 		super.onLoad();
+		bungeeListener = new StaffListenerBungee();
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, bungeeListener::sendBungeeError, run -> getProxy().getScheduler().schedule(this, run, 1, TimeUnit.SECONDS))));
 		getLogger().addHandler(new ErrorLoggerHandler(bungeeListener::sendBungeeError));
 	}
@@ -56,8 +59,8 @@ public class OlympaBots extends Plugin {
 		defaultConfig.loadSafe();
 		PluginManager pluginManager = getProxy().getPluginManager();
 		// swearHandler = new SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
-		pluginManager.registerListener(this, new LinkBungeListener());
-		pluginManager.registerListener(this, bungeeListener = new StaffListenerBungee());
+		pluginManager.registerListener(this, new LinkBungeeListener());
+		pluginManager.registerListener(this, bungeeListener);
 		pluginManager.registerListener(this, new TeamspeakListener());
 		new DiscordCommand(this).register();
 		new TeamspeakCommand(this).register();

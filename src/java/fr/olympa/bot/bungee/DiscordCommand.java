@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import fr.olympa.api.bungee.command.BungeeCommand;
 import fr.olympa.api.permission.OlympaCorePermissions;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
@@ -18,7 +19,6 @@ import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.core.bungee.api.command.BungeeCommand;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

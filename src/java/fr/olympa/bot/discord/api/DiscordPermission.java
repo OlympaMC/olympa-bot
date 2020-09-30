@@ -19,6 +19,7 @@ public enum DiscordPermission {
 	HIGH_DEV(DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
 	DEV(DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
 	BUILDER(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
+	STAFF(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.DEV, DiscordGroup.ASSISTANT, DiscordGroup.BUILDER, DiscordGroup.GRAPHISTE),
 	;
 
 	public static boolean hasPermission(DiscordPermission permission, Member member) {

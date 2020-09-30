@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.entities.User;
 public class InfoCommand extends DiscordCommand {
 
 	public InfoCommand() {
-		super("info", DiscordPermission.ASSISTANT, "credit", "info");
+		super("info", DiscordPermission.STAFF, "credit", "info");
 		description = "Donne diverses informations ";
 		usage = "[ancien|boost|nonsigne|signe|absent|bot|role]";
 		privateChannel = true;

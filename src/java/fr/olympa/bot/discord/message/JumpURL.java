@@ -17,8 +17,8 @@ public class JumpURL {
 		messageId = message.getId();
 	}
 
-	public JumpURL(Guild guild, TextChannel channel, String messageId) {
-		guildId = guild.getId();
+	public JumpURL(TextChannel channel, String messageId) {
+		guildId = channel.getGuild().getId();
 		channelId = channel.getId();
 		this.messageId = messageId;
 	}

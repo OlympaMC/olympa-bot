@@ -66,6 +66,8 @@ public class TsListener extends TS3EventAdapter {
 		int channelID = event.getTargetChannelId();
 		int clientID = event.getClientId();
 
+		//		ClientInfo client = query.getClientInfo(clientID);
+
 		ChannelInfo channelInfo = query.getChannelInfo(channelID);
 		Channel channel = query.getChannelByNameExact(channelInfo.getName(), false);
 		if (channel.getTotalClients() != 1)
@@ -73,9 +75,6 @@ public class TsListener extends TS3EventAdapter {
 
 		if (ts.helpChannels.stream().anyMatch(c -> c.getId() == channelID)) {
 			ClientInfo clientInfo = query.getClientInfo(clientID);
-			OlympaCorePermissions.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
-				ps.forEach(p -> p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide sur le teamspeak.", clientInfo.getNickname())));
-			});
 			int i = 0;
 			for (Client staff : query.getClients())
 				if (TeamspeakGroups.ASSISTANT.hasPermission(staff) || TeamspeakGroups.MOD.hasPermission(staff) || TeamspeakGroups.MODP.hasPermission(staff)) {
@@ -83,29 +82,54 @@ public class TsListener extends TS3EventAdapter {
 							+ TeamspeakUtils.getChannelURI(channelInfo));
 					i++;
 				}
-			if (i == 0) {
-				query.kickClientFromChannel("[color=green]Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.[/color]", clientID);
-				return;
-			}
-
-			query.pokeClient(clientID, "[color=green]Merci de patienter l'arrivée d'un Guide ou Modérateur.[/color]");
+			if (i == 0)
+				OlympaCorePermissions.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
+					int i2 = 0;
+					if (ps != null) {
+						i2 = ps.size();
+						ps.forEach(p -> p
+								.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide sur le Teamspeak dans %s. Aucun Modérateur/Assistant n'y est actuellement connecté.", clientInfo.getNickname(), channelInfo.getName())));
+					} else {
+						for (Client admin : query.getClients())
+							if (TeamspeakGroups.ADMIN.hasPermission(admin)) {
+								query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) +
+										"[color=red] a besoin de l'aide d'un Modérateur/Assistant mais aucun n'est disponible IG/TS dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
+								i2++;
+							}
+						if (i2 != 0) {
+							query.pokeClient(clientID, "[color=green]Tu es en attente d'un Assistant ou Modérateur. Aucun n'est actuellement disponible, merci de patienter ...[/color]");
+							return;
+						}
+					}
+					if (i2 == 0) {
+						query.kickClientFromChannel(clientID);
+						query.pokeClient(clientID, "Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.");
+					} else
+						query.pokeClient(clientID, "[color=green]Tu es en attente d'un Assistant ou Modérateur. Aucun Assistant ou Modérateur n'est actuellement disponible, merci de patienter quelques minutes ...[/color]");
+				});
+			else
+				query.pokeClient(clientID, "[color=green]Merci de patienter l'arrivée d'un Assitant ou Modérateur.[/color]");
 		} else if (ts.helpQueueChannel.getId() == channelID)
 			query.sendPrivateMessage(clientID, "[color=green]Bienvenue dans la salle d'attente. Glisses-toi dans un channel 'Demande d'aide' au dessus dès qu'il y a de la place.[/color]");
 		else if (ts.helpChannelsAdmin.getId() == channelID) {
 			ClientInfo clientInfo = query.getClientInfo(clientID);
-			OlympaCorePermissions.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
-				ps.forEach(p -> p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide d'Administrateur sur le teamspeak.", clientInfo.getNickname())));
-			});
 			int i = 0;
 			for (Client admin : query.getClients())
 				if (TeamspeakGroups.ADMIN.hasPermission(admin) || TeamspeakGroups.MODP.hasPermission(admin)) {
-					query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=red] a besoin de l'aide d'un Admin dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
+					query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=red] a besoin de l'aide d'un Administrateur dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
 					i++;
 				}
 			if (i == 0)
-				query.pokeClient(clientID, "[color=red]Aucun Administrateur n'est actuellement disponible, merci de patienter.[/color]");
+				OlympaCorePermissions.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
+					if (ps != null)
+						ps.forEach(p -> {
+							p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide d'Administrateur dans %s sur le Teamspeak.", clientInfo.getNickname(), channelInfo.getName()));
+
+						});
+					query.pokeClient(clientID, "[color=red]Aucun Administrateur n'est actuellement disponible, merci de patienter.[/color]");
+				});
 			else
-				query.pokeClient(clientID, "[color=red]Tu es en attente d'un administrateur. Merci de patienter ...[/color]");
+				query.pokeClient(clientID, "[color=green]Tu es en attente d'un Administrateur. Merci de patienter ...[/color]");
 		}
 	}
 

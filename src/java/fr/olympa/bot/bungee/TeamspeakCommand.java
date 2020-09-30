@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import fr.olympa.api.bungee.command.BungeeCommand;
 import fr.olympa.api.permission.OlympaCorePermissions;
 import fr.olympa.api.utils.ColorUtils;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.teamspeak.TeamspeakUtils;
-import fr.olympa.core.bungee.api.command.BungeeCommand;
+import fr.olympa.bot.teamspeak.TeamspeakHandler;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -49,7 +49,7 @@ public class TeamspeakCommand extends BungeeCommand {
 				return;
 			}
 			try {
-				TeamspeakUtils.check(player);
+				TeamspeakHandler.check(player);
 			} catch (InterruptedException e) {
 				sendError();
 				e.printStackTrace();

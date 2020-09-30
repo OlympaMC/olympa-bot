@@ -21,6 +21,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public abstract class ReactionDiscord {
 
@@ -51,7 +53,7 @@ public abstract class ReactionDiscord {
 
 	public Boolean remove(MessageChannel messageChannel) {
 		AwaitReaction.reactions.invalidate(messageId);
-		messageChannel.retrieveMessageById(messageId).queue(message -> message.clearReactions().queue());
+		messageChannel.retrieveMessageById(messageId).queue(message -> message.clearReactions().queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS)));
 		return removeFromDB();
 	}
 

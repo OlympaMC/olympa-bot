@@ -1,8 +1,10 @@
 package fr.olympa.bot.discord.member;
 
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
@@ -68,13 +70,13 @@ public class MemberListener extends ListenerAdapter {
 				DiscordSQL.updateMember(discordMember);
 			}
 			if (discordMember.getOlympaId() != 0)
-				//				OlympaBungee.getInstance().getTask().runTaskLater(() -> {
-				//					try {
-				LinkHandler.updateGroups(member, AccountProvider.get(discordMember.getOlympaId()));
-			//					} catch (SQLException e) {
-			//						e.printStackTrace();
-			//					}
-			//				}, 5 * 20);
+				LinkSpigotBungee.Provider.link.getTask().runTaskLater(() -> {
+					try {
+						LinkHandler.updateGroups(member, AccountProvider.get(discordMember.getOlympaId()));
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}, 5, TimeUnit.SECONDS);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

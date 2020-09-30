@@ -1,8 +1,8 @@
 package fr.olympa.bot.bungee;
 
+import fr.olympa.api.bungee.config.BungeeConfigReloadEvent;
 import fr.olympa.bot.discord.message.SwearDiscord;
 import fr.olympa.core.bungee.OlympaBungee;
-import fr.olympa.core.bungee.api.config.BungeeConfigReloadEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 

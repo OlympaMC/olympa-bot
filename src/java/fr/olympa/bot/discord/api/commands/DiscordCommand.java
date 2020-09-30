@@ -38,6 +38,7 @@ public abstract class DiscordCommand implements CommandEvent {
 	protected List<String> aliases;
 	protected boolean privateChannel = false;
 	protected boolean checkEditedMsg = true;
+	protected boolean otherDiscord = false;
 	protected DiscordPermission permission;
 	protected Integer minArg;
 	protected String description;

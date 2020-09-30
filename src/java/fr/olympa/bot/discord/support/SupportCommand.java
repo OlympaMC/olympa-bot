@@ -1,11 +1,13 @@
 package fr.olympa.bot.discord.support;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
+import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
@@ -21,6 +23,7 @@ public class SupportCommand extends DiscordCommand {
 	public SupportCommand() {
 		super("support", DiscordPermission.DEV, "aide", "ticket", "ticket", "tiket", "help");
 		description = "Permet de créer un ticket d'aide.";
+		otherDiscord = false;
 	}
 
 	@Override
@@ -54,22 +57,24 @@ public class SupportCommand extends DiscordCommand {
 				Role defaultRole = guild.getPublicRole();
 				PermissionOverrideAction permissionAction = cat.createPermissionOverride(defaultRole);
 				permissionAction.deny(Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MENTION_EVERYONE, Permission.VIEW_CHANNEL).queue(perm -> {
-					for (Member members : guild.getMembers().stream().filter(m -> !m.getUser().isBot()).collect(Collectors.toSet()))
-						cat.createTextChannel(members.getEffectiveName()).queue(textChannel -> {
+					for (Member member : guild.getMembers().stream().filter(m -> !m.getUser().isBot()).collect(Collectors.toSet()))
+						cat.createTextChannel(member.getEffectiveName()).queue(textChannel -> {
 							ChannelManager manager = textChannel.getManager();
 							manager.setSlowmode(5).queue();
-							manager.setTopic(members.getId() + " Ça c'est notre système de support écrit. Seul toi et le staff à accès aux messages.").queue();
-							PermissionOverrideAction permissionAction2 = textChannel.createPermissionOverride(members);
+							manager.setTopic(member.getId() + " Ça c'est notre système de support écrit. Seul toi et le staff à accès aux messages.").queue();
+							PermissionOverrideAction permissionAction2 = textChannel.createPermissionOverride(member);
 							permissionAction2.setAllow(Permission.MESSAGE_READ).queue();
 
-							List<Role> pententialRole = guild.getRolesByName("🏆 | Administrateur", true);
-							if (!pententialRole.isEmpty()) {
-								Role admin = pententialRole.get(0);
+							List<Role> pententialRole = new ArrayList<>();
+							pententialRole.add(DiscordGroup.FONDA.getRole(guild));
+							pententialRole.add(DiscordGroup.ADMIN.getRole(guild));
+							//							List<Role> pententialRole = guild.getRolesByName("🏆 | Administrateur", true);
+							for (Role admin : pententialRole) {
 								PermissionOverrideAction permissionAction3 = textChannel.createPermissionOverride(admin);
 								permissionAction3.setAllow(Permission.MESSAGE_READ, Permission.MESSAGE_MENTION_EVERYONE).queue();
 							}
-							PermissionOverrideAction permissionAction4 = textChannel.createPermissionOverride(author);
-							permissionAction4.setAllow(Permission.MESSAGE_READ).queue();
+							//							PermissionOverrideAction permissionAction4 = textChannel.createPermissionOverride(author);
+							//							permissionAction4.setAllow(Permission.MESSAGE_READ).queue();
 							textChannel.sendMessage("Pour formuler votre demande au support, merci de fournir un maximum de détails.").queue();
 						});
 				});

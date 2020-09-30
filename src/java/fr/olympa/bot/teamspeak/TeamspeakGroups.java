@@ -19,7 +19,7 @@ public enum TeamspeakGroups {
 	MOD("P-Modérateur", OlympaGroup.MOD),
 	ASSISTANT("P-Assistant", OlympaGroup.ASSISTANT),
 	DEV("P-Développeur", OlympaGroup.DEV, OlympaGroup.RESP_TECH),
-	ANIMATOR("P-Buildeur", OlympaGroup.ANIMATOR),
+	ANIMATOR("P-Animateur", OlympaGroup.ANIMATOR),
 	BUILDER("P-Buildeur", OlympaGroup.BUILDER),
 	TITLE("--- TITRE ---", true),
 	PERMISSION("--- PERMISSIONS ---", true),
@@ -49,6 +49,19 @@ public enum TeamspeakGroups {
 		return name;
 	}
 
+	public boolean isStaff() {
+		return groups != null && groups.length != 0;
+	}
+
+	public boolean hasPermission(Client client) {
+		return OlympaBots.getInstance().getTeamspeak().getQuery().getServerGroups().stream().anyMatch(sg -> client.isInServerGroup(sg.getId()) && sg.getName().equalsIgnoreCase(name));
+	}
+
+	public static boolean isStaff(Client client) {
+		return OlympaBots.getInstance().getTeamspeak().getQuery().getServerGroups().stream()
+				.anyMatch(sg -> client.isInServerGroup(sg.getId()) && Arrays.stream(TeamspeakGroups.values()).anyMatch(ts -> ts.isStaff() && sg.getName().equalsIgnoreCase(ts.getName())));
+	}
+
 	public static List<TeamspeakGroups> getSeperators() {
 		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.isSeperator).collect(Collectors.toList());
 	}
@@ -61,7 +74,4 @@ public enum TeamspeakGroups {
 		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.groups != null && Arrays.stream(tg.groups).anyMatch(g -> groups.stream().anyMatch(gs -> g.getId() == gs.getId()))).collect(Collectors.toList());
 	}
 
-	public boolean hasPermission(Client client) {
-		return OlympaBots.getInstance().getTeamspeak().getQuery().getServerGroups().stream().anyMatch(sg -> sg.getName().equalsIgnoreCase(name));
-	}
 }

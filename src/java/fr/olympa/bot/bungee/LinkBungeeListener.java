@@ -2,24 +2,25 @@ package fr.olympa.bot.bungee;
 
 import java.sql.SQLException;
 
+import fr.olympa.api.bungee.customevent.OlympaGroupChangeEvent;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.bot.teamspeak.TeamspeakUtils;
-import fr.olympa.core.bungee.api.customevent.OlympaGroupChangeEvent;
+import fr.olympa.bot.teamspeak.TeamspeakHandler;
 import net.dv8tion.jda.api.entities.Member;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-public class LinkBungeListener implements Listener {
+public class LinkBungeeListener implements Listener {
 
 	@EventHandler
 	public void onOlympaGroupChange(OlympaGroupChangeEvent event) {
+		System.out.println("update ok");
 		OlympaPlayer olympaPlayer = event.getOlympaPlayer();
 		//		ChangeType state = event.getState();
 		//		switch (state) {
@@ -50,7 +51,7 @@ public class LinkBungeListener implements Listener {
 			e.printStackTrace();
 		}
 		try {
-			TeamspeakUtils.updateRank(olympaPlayer);
+			TeamspeakHandler.updateRank(olympaPlayer);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
