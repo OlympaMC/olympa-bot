@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.JDA.Status;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.User;
@@ -53,7 +55,8 @@ public class ReactionListener extends ListenerAdapter {
 				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
 			return;
 		}
-		event.getTextChannel().retrieveMessageById(messageId).queue(message -> {
+		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
+			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
 			long nb = 0;
 			if (!reaction.canMultiple())
 				nb = message.getReactions().stream().filter(r -> r.retrieveUsers().complete().contains(user)).count();
@@ -62,6 +65,7 @@ public class ReactionListener extends ListenerAdapter {
 				return;
 			}
 		});
+
 	}
 
 	@Override
@@ -72,7 +76,10 @@ public class ReactionListener extends ListenerAdapter {
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
 		if (reaction == null || user.isBot())
 			return;
-		event.getTextChannel().retrieveMessageById(messageId).queue(message -> reaction.onReactRemove(message, event.getChannel(), user, event.getReaction(), reaction.getReactionsEmojis(react)));
+		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
+			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
+			reaction.onReactRemove(message, event.getChannel(), user, event.getReaction(), reaction.getReactionsEmojis(react));
+		});
 	}
 
 	@Override

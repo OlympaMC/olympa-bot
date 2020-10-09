@@ -30,7 +30,7 @@ public class SQLMessage extends SQLClass {
 			String contents = new Gson().toJson(discordMessage.getContents());
 			if (contents.length() > getMaxSizeContents())
 				updateSizeContents(contents.length());
-			statement.setString(i++, new Gson().toJson(contents));
+			statement.setString(i++, contents);
 		} else
 			statement.setObject(i++, null);
 		statement.setTimestamp(i, new Timestamp(discordMessage.getCreated() * 1000L));

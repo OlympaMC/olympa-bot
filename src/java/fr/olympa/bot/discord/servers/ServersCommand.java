@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.api.server.ServerStatus;
+import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.core.bungee.servers.MonitorInfo;
@@ -57,8 +58,10 @@ public class ServersCommand extends DiscordCommand {
 				}
 				if (info.getPing() != null)
 					sb.add("**Ping :** " + info.getPing() + "ms");
-				if (info.getError() != null)
+				if (info.getError() != null && !info.getError().isEmpty())
 					sb.add("Erreur : `" + info.getError() + "`");
+				if (info.getLastModifiedCore() != 0)
+					sb.add("Dernière MAJ Core : `" + Utils.timestampToDuration(info.getLastModifiedCore()) + "`");
 				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
 			}
 		});
