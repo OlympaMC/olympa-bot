@@ -107,8 +107,7 @@ public class DiscordSQL {
 	public static DiscordMember selectMemberByDiscordOlympaId(long discordId) throws SQLException {
 		PreparedStatement statement = selectMemberOlympaDiscordIdStatement.getStatement();
 		DiscordMember discordMember = null;
-		int i = 1;
-		statement.setLong(i++, discordId);
+		statement.setLong(1, discordId);
 		ResultSet resultSet = statement.executeQuery();
 		if (resultSet.next())
 			discordMember = DiscordMember.createObject(resultSet);
@@ -117,7 +116,7 @@ public class DiscordSQL {
 	}
 
 	private static OlympaStatement updateMemberStatement = new OlympaStatement(StatementType.UPDATE, tableMembers, "id",
-			new String[] { "discord_name", "discord_tag", "olympa_id", "xp", "last_seen", "join_date", "leave_date", "old_names" });
+			new String[] { "discord_name", "discord_tag", "olympa_id", "xp", "last_seen", "join_date", "leave_date", "old_names", "permissions" });
 
 	public static void updateMember(DiscordMember discordMember) throws SQLException {
 		PreparedStatement statement = updateMemberStatement.getStatement();
@@ -145,10 +144,13 @@ public class DiscordSQL {
 			statement.setString(i++, new Gson().toJson(discordMember.getOldNames()));
 		else
 			statement.setObject(i++, null);
-		statement.setLong(i++, discordMember.getId());
+		if (!discordMember.getPermissions().isEmpty())
+			statement.setString(i++, new Gson().toJson(discordMember.getPermissions()));
+		else
+			statement.setObject(i++, null);
+		statement.setLong(i, discordMember.getId());
 		statement.executeUpdate();
 		statement.close();
-		//		System.out.println("[DEBUG] discordMember update: " + discordMember.getName() + new Gson().toJson(discordMember));
 	}
 
 	private static OlympaStatement selectDiscordMembersIdsStatement = new OlympaStatement(StatementType.SELECT, tableMembers, (String[]) null, "discord_id");

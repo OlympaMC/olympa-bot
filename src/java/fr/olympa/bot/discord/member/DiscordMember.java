@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,9 @@ import fr.olympa.api.utils.Matcher;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.api.utils.UtilsCore;
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.api.DiscordPermission;
+import fr.olympa.bot.discord.guild.GuildHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -37,6 +41,7 @@ public class DiscordMember {
 	long joinTime;
 	long leaveTime;
 	TreeMap<Long, String> oldNames = new TreeMap<>(Comparator.comparing(Long::longValue).reversed());
+	Map<DiscordPermission, Long> permissionsOlympaDiscordGuildId = new HashMap<>();
 
 	public long getJoinTime() {
 		return joinTime;
@@ -78,10 +83,11 @@ public class DiscordMember {
 				resultSet.getTimestamp("last_seen"),
 				resultSet.getDate("join_date"),
 				resultSet.getDate("leave_date"),
-				resultSet.getString("old_names"));
+				resultSet.getString("old_names"),
+				resultSet.getString("permissions"));
 	}
 
-	public DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames) {
+	public DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames, String permissions) {
 		this.id = id;
 		this.discordId = discordId;
 		this.olympaId = olympaId;
@@ -96,6 +102,9 @@ public class DiscordMember {
 			leaveTime = leaveDate.getTime() / 1000L;
 		if (oldNames != null)
 			this.oldNames.putAll(new Gson().fromJson(oldNames, new TypeToken<Map<Long, String>>() {
+			}.getType()));
+		if (permissions != null)
+			permissionsOlympaDiscordGuildId.putAll(new Gson().fromJson(oldNames, new TypeToken<Map<DiscordPermission, Long>>() {
 			}.getType()));
 	}
 
@@ -180,5 +189,57 @@ public class DiscordMember {
 
 	public void updateLeaveTime(long leaveTime) {
 		this.leaveTime = leaveTime;
+	}
+
+	public Map<DiscordPermission, Long> getPermissions() {
+		return permissionsOlympaDiscordGuildId;
+	}
+
+	public Map<DiscordPermission, OlympaGuild> getPermissionsWithOlympaGuild() {
+		Map<DiscordPermission, OlympaGuild> permissions = new HashMap<>();
+		permissionsOlympaDiscordGuildId.entrySet().forEach(action -> {
+			if (action.getValue() != null)
+				permissions.put(action.getKey(), GuildHandler.getOlympaGuildById(action.getValue()));
+			else
+				permissions.put(action.getKey(), null);
+		});
+		return permissions;
+	}
+
+	public boolean addPermission(DiscordPermission permission, Guild guild) {
+		if (guild == null) {
+			addPermission(permission, (OlympaGuild) null);
+			return true;
+		}
+		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
+		if (olympaGuild != null) {
+			addPermission(permission, olympaGuild);
+			return true;
+		}
+		return false;
+	}
+
+	public void removePermission(DiscordPermission permission) {
+		permissionsOlympaDiscordGuildId.remove(permission);
+	}
+
+	public void addPermission(DiscordPermission permission, OlympaGuild olympaGuild) {
+		Long guildId;
+		if (olympaGuild != null)
+			guildId = olympaGuild.getId();
+		else
+			guildId = null;
+		permissionsOlympaDiscordGuildId.put(permission, guildId);
+	}
+
+	public boolean hasPermission(DiscordPermission permission, Guild guild) {
+		if (permissionsOlympaDiscordGuildId.containsKey(permission)) {
+			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
+			if (olympaGuild != null) {
+				Long guildId = permissionsOlympaDiscordGuildId.get(permission);
+				return guildId == null ? true : olympaGuild.getId() == permissionsOlympaDiscordGuildId.get(permission);
+			}
+		}
+		return false;
 	}
 }

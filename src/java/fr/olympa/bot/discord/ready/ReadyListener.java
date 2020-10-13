@@ -132,8 +132,8 @@ public class ReadyListener extends ListenerAdapter {
 			logChannel.sendMessage(embed.build()).queue();
 		}
 		OlympaDiscord.setLastConnection(Utils.getCurrentTimeInSeconds());
-		// En test
 		ReactionHandler.initReactions();
+		OlympaBots.getInstance().bungeeListener.sendErrorsInQueue();
 	}
 
 	@Override

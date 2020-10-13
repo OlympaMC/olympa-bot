@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.api.commands;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +9,12 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.match.RegexMatcher;
+import fr.olympa.api.player.OlympaPlayer;
+import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordPermission;
+import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -72,8 +77,26 @@ public abstract class DiscordCommand implements CommandEvent {
 			member = members.get(0);
 		else if (RegexMatcher.DISCORD_TAG.is(arg))
 			member = guild.getMemberByTag(arg);
-		if (member == null)
+		if (member == null && RegexMatcher.DISCORD_TAG.is(arg))
 			member = guild.getMemberById(arg);
+		if (member == null && RegexMatcher.USERNAME.is(arg))
+			try {
+				member = getMemberByMinecraftName(guild, arg);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		return member;
+	}
+
+	public Member getMemberByMinecraftName(Guild guild, String arg) throws SQLException {
+		Member member = null;
+		DiscordMember discordMember;
+		OlympaPlayer olympaPlayer = AccountProvider.get(arg);
+		if (olympaPlayer != null) {
+			discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+			if (discordMember != null)
+				member = guild.getMemberById(discordMember.getDiscordId());
+		}
 		return member;
 	}
 

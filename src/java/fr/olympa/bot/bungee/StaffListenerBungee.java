@@ -2,12 +2,25 @@ package fr.olympa.bot.bungee;
 
 import java.awt.Color;
 import java.sql.SQLException;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Random;
 import java.util.StringTokenizer;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ArrayListMultimap;
+import com.vdurmont.emoji.Emoji;
+import com.vdurmont.emoji.EmojiManager;
 
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
+import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
@@ -18,8 +31,11 @@ import fr.olympa.core.bungee.staffchat.StaffChatEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -116,14 +132,38 @@ public class StaffListenerBungee implements Listener {
 			WebHookHandler.send(message, channelStaffDiscord, event.getSender().getName(), "https://c7.uihere.com/files/250/925/132/computer-terminal-linux-console-computer-icons-command-line-interface-linux.jpg");
 	}
 
+	ArrayListMultimap<String, String> queue = ArrayListMultimap.create();
+
+	public void sendErrorsInQueue() {
+		for (Entry<String, String> e : queue.entries())
+			sendError(e.getKey(), e.getValue());
+		queue.clear();
+	}
+
+	Cache<Entry<String, String>, Message> cache = CacheBuilder.newBuilder().maximumSize(50).build();
+
 	public void sendBungeeError(String stackTrace) {
 		sendError("bungee", stackTrace);
 	}
-	
+
 	public void sendError(String serverName, String stackTrace) {
+		OlympaDiscord olympaDiscord = OlympaBots.getInstance().getDiscord();
+		if (olympaDiscord == null || olympaDiscord.getJda() == null) {
+			if (!queue.containsKey(serverName) || !queue.get(serverName).contains(stackTrace))
+				queue.put(serverName, stackTrace);
+			return;
+		}
+
+		SimpleEntry<String, String> entry = new AbstractMap.SimpleEntry<>(serverName, stackTrace);
+		Message message = cache.getIfPresent(entry);
+		if (message != null) {
+			Collection<Emoji> emojis = EmojiManager.getAll();
+			message.addReaction(emojis.stream().skip(new Random().nextInt(emojis.size())).findFirst().orElse(null).getUnicode()).queue(null, ErrorResponseException.ignore(ErrorResponse.TOO_MANY_REACTIONS, ErrorResponse.REACTION_BLOCKED));
+			return;
+		}
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		List<String> strings = new ArrayList<>(2);
-		int maxSize = 2000 - 100;
+		int maxSize = 2000 - 50;
 		if (stackTrace.length() < maxSize)
 			strings.add(stackTrace);
 		else {
@@ -143,11 +183,8 @@ public class StaffListenerBungee implements Listener {
 			}
 			strings.add(output.toString());
 		}
-		//		for (int i = 0; i < strings.size(); i++)
-		// channelStaffDiscord.sendMessage(new EmbedBuilder().setTitle("Erreur sur " + serverName + " (" + (i + 1) + "/" + strings.size() + ")").setDescription("```" + strings.get(i) + "```").setColor(Color.RED).build()).queue();
-
-		channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").queue();
-		for (int i = 0; i < strings.size(); i++)
+		channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```").queue(msg -> cache.put(entry, msg));
+		for (int i = 1; i < strings.size(); i++)
 			channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
 	}
 }

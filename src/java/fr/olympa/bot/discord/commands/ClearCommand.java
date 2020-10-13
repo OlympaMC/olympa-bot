@@ -14,7 +14,8 @@ public class ClearCommand extends DiscordCommand {
 	private boolean taskAll = false;
 
 	public ClearCommand() {
-		super("clear", DiscordPermission.ASSISTANT);
+		// TODO Change to ASSISTANT & + and DEV
+		super("clear", DiscordPermission.STAFF);
 		minArg = 1;
 		description = "Supprime le nombre lignes en argument.";
 		usage = "<nombre>";

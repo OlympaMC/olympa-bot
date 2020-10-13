@@ -16,6 +16,10 @@ public class GuildHandler {
 		return getOlympaGuildByDiscordId(guild.getIdLong());
 	}
 
+	public static OlympaGuild getOlympaGuildById(long olympaDiscordGuildId) {
+		return guilds.stream().filter(g -> g.getId() == olympaDiscordGuildId).findFirst().orElse(null);
+	}
+
 	public static OlympaGuild getOlympaGuildByDiscordId(long discordGuildId) {
 		return guilds.stream().filter(g -> g.getDiscordId() == discordGuildId).findFirst().orElse(null);
 	}

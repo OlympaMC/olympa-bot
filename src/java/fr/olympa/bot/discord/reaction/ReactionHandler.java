@@ -34,6 +34,7 @@ public class ReactionHandler {
 	}
 
 	public static String toString(ReactionDiscord reaction) throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		return Arrays.stream(ReactionHandler.class.getFields()).filter(f -> f.getType().getSimpleName().equals(reaction.getClass().getSimpleName())).map(Field::getName).findFirst().orElse(null);
+		//		return Arrays.stream(ReactionHandler.class.getFields()).filter(f -> f.getType().getSimpleName().equals(reaction.getClass().getSimpleName())).map(Field::getName).findFirst().orElse(null);
+		return Arrays.stream(ReactionHandler.class.getFields()).filter(f -> f.getType().isAssignableFrom(reaction.getClass())).map(Field::getName).findFirst().orElse(null);
 	}
 }

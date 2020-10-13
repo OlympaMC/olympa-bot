@@ -148,7 +148,7 @@ public class InfoCommand extends DiscordCommand {
 			if (!members.isEmpty())
 				memberTarget = members.get(0);
 			else
-				memberTarget = getMember(message.getGuild(), args[1]);
+				memberTarget = getMember(message.getGuild(), buildText(1, args));
 			if (memberTarget == null) {
 				embed.setTitle("Erreur");
 				embed.setDescription("Membre " + (args.length > 1 ? args[1] : "") + " introuvable.");

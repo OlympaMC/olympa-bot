@@ -4,7 +4,7 @@ import fr.olympa.bot.OlympaBots;
 import redis.clients.jedis.JedisPubSub;
 
 public class SpigotReceiveError extends JedisPubSub {
-	
+
 	@Override
 	public void onMessage(String channel, String message) {
 		int index = message.indexOf(':');
@@ -12,5 +12,5 @@ public class SpigotReceiveError extends JedisPubSub {
 		String stackTrace = message.substring(index + 1);
 		OlympaBots.getInstance().bungeeListener.sendError(serverName, stackTrace);
 	}
-	
+
 }

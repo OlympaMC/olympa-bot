@@ -15,6 +15,7 @@ import fr.olympa.bot.discord.commands.DeployCommand;
 import fr.olympa.bot.discord.commands.EmoteCommand;
 import fr.olympa.bot.discord.commands.HelpCommand;
 import fr.olympa.bot.discord.commands.InfoCommand;
+import fr.olympa.bot.discord.commands.PermissionCommand;
 import fr.olympa.bot.discord.commands.PlayersCommand;
 import fr.olympa.bot.discord.commands.PurgeCommand;
 import fr.olympa.bot.discord.commands.StartStopCommand;
@@ -103,6 +104,7 @@ public class OlympaDiscord {
 		new DeployCommand().register();
 		new SurveyCommand().register();
 		new PurgeCommand().register();
+		new PermissionCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {

@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.api;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,26 +8,55 @@ import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
-public enum DiscordPermission {
+public class DiscordPermission {
 
-	HIGH_STAFF(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF, DiscordGroup.RESP_BUILDER),
-	MODERATOR(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA),
-	ASSISTANT(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ASSISTANT),
-	HIGH_DEV(DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
-	DEV(DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
-	BUILDER(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
-	STAFF(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.DEV, DiscordGroup.ASSISTANT, DiscordGroup.BUILDER, DiscordGroup.GRAPHISTE),
-	;
+	//	HIGH_STAFF(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF, DiscordGroup.RESP_BUILDER),
+	//	MODERATOR(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA),
+	//	ASSISTANT(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ASSISTANT),
+	//	HIGH_DEV(DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
+	//	DEV(DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
+	//	BUILDER(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
+	//	STAFF(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.DEV, DiscordGroup.ASSISTANT, DiscordGroup.BUILDER, DiscordGroup.GRAPHISTE),
+	//	;
+	final public static DiscordPermission ADMIN = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH);
+	final public static DiscordPermission HIGH_STAFF = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF,
+			DiscordGroup.RESP_BUILDER);
+	final public static DiscordPermission MODERATOR = new DiscordPermission(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA);
+	final public static DiscordPermission ASSISTANT = new DiscordPermission(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ASSISTANT);
+	final public static DiscordPermission HIGH_DEV = new DiscordPermission(DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA);
+	final public static DiscordPermission DEV = new DiscordPermission(DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA);
+	final public static DiscordPermission BUILDER = new DiscordPermission(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA);
+	final public static DiscordPermission STAFF = new DiscordPermission(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.DEV, DiscordGroup.ASSISTANT, DiscordGroup.BUILDER,
+			DiscordGroup.GRAPHISTE);
+
+	public static DiscordPermission getByName(String name) {
+		return Arrays.stream(DiscordPermission.class.getFields()).map(f -> {
+			if (f != null && f.getName().equals(name))
+				try {
+					return (DiscordPermission) f.get(null);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			return null;
+		}).filter(p -> p != null).findFirst().orElse(null);
+	}
 
 	public static boolean hasPermission(DiscordPermission permission, Member member) {
-		return permission == null || permission.hasPermission(member);
+		try {
+			return permission == null || permission.hasPermission(member) || CacheDiscordSQL.getDiscordMember(member.getUser()).hasPermission(permission, member.getGuild());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	List<DiscordGroup> allow;
+	String name;
 
 	private DiscordPermission(DiscordGroup... allow) {
 		this.allow = Arrays.asList(allow);
@@ -34,6 +64,22 @@ public enum DiscordPermission {
 
 	public List<DiscordGroup> getAllow() {
 		return allow;
+	}
+
+	public String getName() {
+		if (name != null)
+			return name;
+		return name = Arrays.stream(DiscordPermission.class.getFields()).map(f -> {
+			if (f != null)
+				try {
+					DiscordPermission this2 = (DiscordPermission) f.get(null);
+					if (equals(this2))
+						return f.getName();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			return "unknown";
+		}).filter(s -> !s.equals("unknown")).findFirst().orElse("unknown");
 	}
 
 	public boolean hasPermission(Member member) {
