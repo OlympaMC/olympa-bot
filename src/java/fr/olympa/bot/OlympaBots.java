@@ -49,7 +49,11 @@ public class OlympaBots extends Plugin {
 		super.onLoad();
 		bungeeListener = new StaffListenerBungee();
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, bungeeListener::sendBungeeError, run -> getProxy().getScheduler().schedule(this, run, 1, TimeUnit.SECONDS))));
-		getLogger().addHandler(new ErrorLoggerHandler(bungeeListener::sendBungeeError));
+		ErrorLoggerHandler errorHandler = new ErrorLoggerHandler(bungeeListener::sendBungeeError);
+		for (Plugin plugin : getProxy().getPluginManager().getPlugins()) {
+			plugin.getLogger().addHandler(errorHandler);
+			sendMessage("Hooked dans le logger de §6" + plugin.getDescription().getName());
+		}
 	}
 
 	@Override
