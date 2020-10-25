@@ -44,6 +44,7 @@ public enum DiscordGroup {
 	WARNING2(593167088617652329L, 0, null, false),
 	NITRO(682522717563518996L, 587672022382018569L, null, false),
 	OLDER(0, 684335098312917026L, null, false),
+	BETA_ACCES(0, 764195523396763658L, null, false),
 	MUTED(0, 566627971276865576L, null, false);
 
 	public static Set<DiscordGroup> get(Collection<OlympaGroup> groups) {

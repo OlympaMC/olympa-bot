@@ -104,7 +104,7 @@ public class DiscordMember {
 			this.oldNames.putAll(new Gson().fromJson(oldNames, new TypeToken<Map<Long, String>>() {
 			}.getType()));
 		if (permissions != null)
-			permissionsOlympaDiscordGuildId.putAll(new Gson().fromJson(oldNames, new TypeToken<Map<DiscordPermission, Long>>() {
+			permissionsOlympaDiscordGuildId.putAll(new Gson().fromJson(permissions, new TypeToken<Map<DiscordPermission, Long>>() {
 			}.getType()));
 	}
 
@@ -152,7 +152,7 @@ public class DiscordMember {
 			Iterator<Entry<Long, String>> it = oldNames.entrySet().iterator();
 			it.next();
 			while (it.hasNext() && oldNames.size() > 10)
-				oldNames.remove(it.next().getKey(), it.next().getValue());
+				oldNames.remove(it.next().getKey()); // ConcurrentModificationException
 			name = newName;
 		} else
 			name = newName;

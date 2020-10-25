@@ -93,8 +93,7 @@ public class DiscordSQL {
 	public static DiscordMember selectMemberByDiscordId(long discordId) throws SQLException {
 		PreparedStatement statement = selectMemberDiscordIdStatement.getStatement();
 		DiscordMember discordMember = null;
-		int i = 1;
-		statement.setLong(i++, discordId);
+		statement.setLong(1, discordId);
 		ResultSet resultSet = statement.executeQuery();
 		if (resultSet.next())
 			discordMember = DiscordMember.createObject(resultSet);
