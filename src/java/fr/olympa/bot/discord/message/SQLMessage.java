@@ -34,7 +34,7 @@ public class SQLMessage extends SQLClass {
 		} else
 			statement.setObject(i++, null);
 		statement.setTimestamp(i, new Timestamp(discordMessage.getCreated() * 1000L));
-		insertMessageStatement.execute();
+		insertMessageStatement.executeUpdate();
 		statement.close();
 	}
 
@@ -47,7 +47,7 @@ public class SQLMessage extends SQLClass {
 		statement.setLong(i++, guildId);
 		statement.setLong(i++, channelId);
 		statement.setLong(i, messageId);
-		ResultSet resultSet = statement.executeQuery();
+		ResultSet resultSet = selectMessageStatement.executeQuery();
 		if (resultSet.next())
 			discordMessage = DiscordMessage.createObject(resultSet);
 		resultSet.close();
@@ -83,7 +83,7 @@ public class SQLMessage extends SQLClass {
 		statement.setLong(i++, discordMessage.getGuildId());
 		statement.setLong(i++, discordMessage.getChannelId());
 		statement.setLong(i, discordMessage.getMessageId());
-		updateMessageStatement.execute();
+		updateMessageStatement.executeUpdate();
 		statement.close();
 	}
 
@@ -96,7 +96,7 @@ public class SQLMessage extends SQLClass {
 		statement.setLong(i++, discordMessage.getGuildId());
 		statement.setLong(i++, discordMessage.getChannelId());
 		statement.setLong(i, discordMessage.getMessageId());
-		updateMessageStatement2.execute();
+		updateMessageStatement2.executeUpdate();
 		statement.close();
 	}
 
@@ -106,7 +106,7 @@ public class SQLMessage extends SQLClass {
 		PreparedStatement statement = updateSizeContentsStatement.getStatement();
 		int i = 1;
 		statement.setLong(i, size);
-		updateSizeContentsStatement.execute();
+		updateSizeContentsStatement.executeUpdate();
 		statement.close();
 	}
 
@@ -114,7 +114,7 @@ public class SQLMessage extends SQLClass {
 
 	public static int purge() throws SQLException {
 		PreparedStatement statement = purgeStatement.getStatement();
-		int rows = purgeStatement.execute();
+		int rows = purgeStatement.executeUpdate();
 		statement.close();
 		maxSizeContents = -1;
 		updateSizeContents(getMaxSizeContents());

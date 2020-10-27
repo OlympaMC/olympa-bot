@@ -17,7 +17,7 @@ public class GuildSQL {
 
 	static String tableGuild = OlympaStatement.formatTableName("discord.guilds");
 
-	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, "guild_id", "guild_name");
+	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, "guild_id", "guild_name").returnGeneratedKeys();
 
 	public static OlympaGuild addGuild(Guild guild) throws SQLException {
 		PreparedStatement statement = insertGuildStatement.getStatement();
@@ -26,7 +26,7 @@ public class GuildSQL {
 		statement.setLong(i++, guild.getIdLong());
 		statement.setString(i, guild.getName());
 		statement.executeUpdate();
-		ResultSet resultSet = insertGuildStatement.executeQuery();
+		ResultSet resultSet = statement.getGeneratedKeys();
 		resultSet.next();
 		olympaGuild = OlympaGuild.createObject(resultSet);
 		resultSet.close();
@@ -97,7 +97,7 @@ public class GuildSQL {
 			statement.setObject(i++, null);
 		statement.setInt(i++, olympaGuild.getType().ordinal());
 		statement.setLong(i, olympaGuild.getId());
-		updateGuildStatement.execute();
+		updateGuildStatement.executeUpdate();
 		statement.close();
 	}
 }

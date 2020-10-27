@@ -45,16 +45,15 @@ public class DiscordSQL {
 	public static DiscordSanction selectSanction(long id) throws SQLException {
 		PreparedStatement statement = selectSanctionStatement.getStatement();
 		DiscordSanction sanction = null;
-		int i = 1;
-		statement.setLong(i++, id);
-		ResultSet resultSet = statement.executeQuery();
+		statement.setLong(1, id);
+		ResultSet resultSet = selectSanctionStatement.executeQuery();
 		if (resultSet.next())
 			sanction = DiscordSanction.createObject(resultSet);
 		resultSet.close();
 		return sanction;
 	}
 
-	private static OlympaStatement insertPlayerStatement = new OlympaStatement(StatementType.INSERT, tableMembers, new String[] { "discord_id", "discord_name", "olympa_id" });
+	private static OlympaStatement insertPlayerStatement = new OlympaStatement(StatementType.INSERT, tableMembers, new String[] { "discord_id", "discord_name", "olympa_id" }).returnGeneratedKeys();
 
 	public static DiscordMember addMember(DiscordMember discordMember) throws SQLException {
 		PreparedStatement statement = insertPlayerStatement.getStatement();
@@ -62,9 +61,9 @@ public class DiscordSQL {
 		statement.setLong(i++, discordMember.getDiscordId());
 		statement.setString(i++, discordMember.getName());
 		if (discordMember.getOlympaId() != 0)
-			statement.setLong(i++, discordMember.getOlympaId());
+			statement.setLong(i, discordMember.getOlympaId());
 		else
-			statement.setObject(i++, null);
+			statement.setObject(i, null);
 		statement.executeUpdate();
 		ResultSet resultSet = statement.getGeneratedKeys();
 		resultSet.next();
@@ -79,9 +78,8 @@ public class DiscordSQL {
 	public static DiscordMember selectMemberByOlympaId(long olympaId) throws SQLException {
 		PreparedStatement statement = selectMemberOlympaIdStatement.getStatement();
 		DiscordMember discordMember = null;
-		int i = 1;
-		statement.setLong(i++, olympaId);
-		ResultSet resultSet = statement.executeQuery();
+		statement.setLong(1, olympaId);
+		ResultSet resultSet = selectMemberOlympaIdStatement.executeQuery();
 		if (resultSet.next())
 			discordMember = DiscordMember.createObject(resultSet);
 		resultSet.close();
@@ -94,7 +92,7 @@ public class DiscordSQL {
 		PreparedStatement statement = selectMemberDiscordIdStatement.getStatement();
 		DiscordMember discordMember = null;
 		statement.setLong(1, discordId);
-		ResultSet resultSet = statement.executeQuery();
+		ResultSet resultSet = selectMemberDiscordIdStatement.executeQuery();
 		if (resultSet.next())
 			discordMember = DiscordMember.createObject(resultSet);
 		resultSet.close();
@@ -107,7 +105,7 @@ public class DiscordSQL {
 		PreparedStatement statement = selectMemberOlympaDiscordIdStatement.getStatement();
 		DiscordMember discordMember = null;
 		statement.setLong(1, discordId);
-		ResultSet resultSet = statement.executeQuery();
+		ResultSet resultSet = selectMemberOlympaDiscordIdStatement.executeQuery();
 		if (resultSet.next())
 			discordMember = DiscordMember.createObject(resultSet);
 		resultSet.close();
@@ -157,7 +155,7 @@ public class DiscordSQL {
 	public static List<Long> selectDiscordMembersIds() throws SQLException {
 		PreparedStatement statement = selectDiscordMembersIdsStatement.getStatement();
 		List<Long> membersIds = new ArrayList<>();
-		ResultSet resultSet = statement.executeQuery();
+		ResultSet resultSet = selectDiscordMembersIdsStatement.executeQuery();
 		while (resultSet.next())
 			membersIds.add(resultSet.getLong(1));
 		resultSet.close();

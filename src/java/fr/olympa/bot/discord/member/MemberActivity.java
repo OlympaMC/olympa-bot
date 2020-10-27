@@ -54,8 +54,7 @@ public class MemberActivity {
 	public static MemberActivity getFromDB(String name, ActivityType type, String url) throws SQLException {
 		PreparedStatement statement = selectStatement.getStatement();
 		MemberActivity activity = null;
-		int i = 1;
-		statement.setString(i++, name);
+		statement.setString(1, name);
 		ResultSet resultSet = statement.executeQuery();
 		if (resultSet.next())
 			activity = new MemberActivity(resultSet);
@@ -70,7 +69,7 @@ public class MemberActivity {
 			updateToDb();
 	}
 
-	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, table, "name", "type", "url", "emoji", "usersIds");
+	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, table, "name", "type", "url", "emoji", "usersIds").returnGeneratedKeys();
 
 	private void insertToDb() throws SQLException {
 		PreparedStatement statement = insertSanctionStatement.getStatement();
@@ -81,12 +80,11 @@ public class MemberActivity {
 		statement.setString(i++, emoji);
 		if (usersIds != null && !usersIds.isEmpty()) {
 			StringJoiner joiner = new StringJoiner(",");
-			usersIds.forEach(id -> joiner.add(String.valueOf(id)));
-			statement.setString(i++, joiner.toString());
+			usersIds.forEach(userId -> joiner.add(String.valueOf(userId)));
+			statement.setString(i, joiner.toString());
 		} else
-			statement.setString(i++, null);
+			statement.setString(i, null);
 		statement.executeUpdate();
-		statement.getGeneratedKeys();
 		ResultSet resultSet = statement.getGeneratedKeys();
 		resultSet.next();
 		id = resultSet.getInt("id");

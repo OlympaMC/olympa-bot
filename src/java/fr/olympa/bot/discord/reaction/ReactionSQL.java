@@ -34,7 +34,7 @@ public class ReactionSQL {
 		statement.setString(i++, new Gson().toJson(reaction.getDatas()));
 		statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
 		statement.setInt(i++, reaction.isRemoveWhenModClearAll() ? 1 : 0);
-		statement.setLong(i++, reaction.getOlympaGuildId());
+		statement.setLong(i, reaction.getOlympaGuildId());
 		statement.executeUpdate();
 		statement.close();
 	}
@@ -45,8 +45,8 @@ public class ReactionSQL {
 		PreparedStatement statement = selectReactionStatement.getStatement();
 		ReactionDiscord reaction = null;
 		int i = 1;
-		statement.setLong(i++, messageId);
-		ResultSet resultSet = statement.executeQuery();
+		statement.setLong(i, messageId);
+		ResultSet resultSet = selectReactionStatement.executeQuery();
 		if (resultSet.next()) {
 			reaction = ReactionHandler.getByName(resultSet.getString("name"));
 			reaction.createObject(resultSet);
@@ -58,10 +58,9 @@ public class ReactionSQL {
 	private static OlympaStatement selectAllReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, (String[]) null, (String[]) null);
 
 	public static Set<ReactionDiscord> selectAllReactions() throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		PreparedStatement statement = selectAllReactionStatement.getStatement();
 		Set<ReactionDiscord> reactions = new HashSet<>();
 		ReactionDiscord reaction;
-		ResultSet resultSet = statement.executeQuery();
+		ResultSet resultSet = selectAllReactionStatement.executeQuery();
 		while (resultSet.next()) {
 			reaction = ReactionHandler.getByName(resultSet.getString("name"));
 			reaction.createObject(resultSet);
@@ -74,11 +73,9 @@ public class ReactionSQL {
 	private static OlympaStatement removeReactionStatement = new OlympaStatement(StatementType.DELETE, tableReaction, "message_id");
 
 	public static boolean removeReaction(ReactionDiscord reaction) throws SQLException {
-
 		PreparedStatement statement = removeReactionStatement.getStatement();
 		boolean reactionIsInDB;
-		int i = 1;
-		statement.setLong(i++, reaction.getMessageId());
+		statement.setLong(1, reaction.getMessageId());
 		statement.executeUpdate();
 		reactionIsInDB = statement.getGeneratedKeys().first();
 		statement.close();
@@ -89,7 +86,7 @@ public class ReactionSQL {
 
 	public static int purge() throws SQLException {
 		PreparedStatement statement = purgeStatement.getStatement();
-		int rows = purgeStatement.execute();
+		int rows = purgeStatement.executeUpdate();
 		statement.close();
 		return rows;
 	}
