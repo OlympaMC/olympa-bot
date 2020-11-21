@@ -2,7 +2,7 @@ package fr.olympa.bot.bungee;
 
 import java.sql.SQLException;
 
-import fr.olympa.api.bungee.customevent.OlympaGroupChangeEvent;
+import fr.olympa.api.bungee.customevent.BungeeOlympaGroupChangeEvent;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
@@ -19,7 +19,7 @@ import net.md_5.bungee.event.EventHandler;
 public class LinkBungeeListener implements Listener {
 
 	@EventHandler
-	public void onOlympaGroupChange(OlympaGroupChangeEvent event) {
+	public void onOlympaGroupChange(BungeeOlympaGroupChangeEvent event) {
 		System.out.println("update ok");
 		OlympaPlayer olympaPlayer = event.getOlympaPlayer();
 		//		ChangeType state = event.getState();
