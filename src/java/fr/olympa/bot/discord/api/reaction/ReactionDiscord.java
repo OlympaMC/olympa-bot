@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.reaction;
+package fr.olympa.bot.discord.api.reaction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +13,7 @@ import org.apache.commons.collections4.map.LinkedMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.vdurmont.emoji.EmojiManager;
 
 import fr.olympa.bot.discord.guild.GuildHandler;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -25,45 +26,6 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public abstract class ReactionDiscord {
-
-	public boolean isRemoveWhenModClearAll() {
-		return removeWhenModClearAll;
-	}
-
-	public void addToMessage(Message message) {
-		AwaitReaction.reactions.put(message.getIdLong(), this);
-
-		addReaction(message, getEmojis());
-		setMessageId(message.getIdLong());
-		setOlympaGuildId(GuildHandler.getOlympaGuild(message.getGuild()).getId());
-	}
-
-	private void addReaction(Message message, List<String> emojis) {
-		emojis.forEach(emoji -> message.addReaction(emoji).queue());
-	}
-
-	public Boolean removeFromDB() {
-		try {
-			return ReactionSQL.removeReaction(this);
-		} catch (SecurityException | SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public Boolean remove(MessageChannel messageChannel) {
-		AwaitReaction.reactions.invalidate(messageId);
-		messageChannel.retrieveMessageById(messageId).queue(message -> message.clearReactions().queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS)));
-		return removeFromDB();
-	}
-
-	public void saveToDB() {
-		try {
-			ReactionSQL.addReaction(this);
-		} catch (InstantiationException | IllegalAccessException | NoSuchFieldException | SecurityException | SQLException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public LinkedMap<String, String> reactionsEmojis;
 
@@ -122,8 +84,6 @@ public abstract class ReactionDiscord {
 	}
 
 	public List<String> getEmojis() {
-		if (reactionsEmojis.firstKey().equals("question"))
-			return reactionsEmojis.asList().subList(1, reactionsEmojis.size());
 		return reactionsEmojis.asList();
 	}
 
@@ -168,4 +128,42 @@ public abstract class ReactionDiscord {
 		olympaGuildId = resultSet.getLong("guild_id");
 	}
 
+	public boolean isRemoveWhenModClearAll() {
+		return removeWhenModClearAll;
+	}
+
+	public void addToMessage(Message message) {
+		AwaitReaction.reactions.put(message.getIdLong(), this);
+
+		addReaction(message, getEmojis());
+		setMessageId(message.getIdLong());
+		setOlympaGuildId(GuildHandler.getOlympaGuild(message.getGuild()).getId());
+	}
+
+	private void addReaction(Message message, List<String> emojis) {
+		emojis.stream().filter(e -> EmojiManager.isEmoji(e)).forEach(emoji -> message.addReaction(emoji).queue());
+	}
+
+	public Boolean removeFromDB() {
+		try {
+			return ReactionSQL.removeReaction(this);
+		} catch (SecurityException | SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Boolean remove(MessageChannel messageChannel) {
+		AwaitReaction.reactions.invalidate(messageId);
+		messageChannel.retrieveMessageById(messageId).queue(message -> message.clearReactions().queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS)));
+		return removeFromDB();
+	}
+
+	public void saveToDB() {
+		try {
+			ReactionSQL.addReaction(this);
+		} catch (InstantiationException | IllegalAccessException | NoSuchFieldException | SecurityException | SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

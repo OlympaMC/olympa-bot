@@ -2,10 +2,10 @@ package fr.olympa.bot.discord.sanctions;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
+import fr.olympa.bot.discord.api.reaction.AwaitReaction;
+import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
-import fr.olympa.bot.discord.reaction.AwaitReaction;
-import fr.olympa.bot.discord.reaction.ReactionDiscord;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;

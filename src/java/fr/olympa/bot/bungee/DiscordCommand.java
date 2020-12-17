@@ -94,25 +94,24 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 				return;
 			}
 			if (discordMember != null) {
-				sendError("Tu as déjà un compte Discord relié.");
+				OlympaBots.getInstance().getDiscord();
+				sendError("Tu as déjà relier ton compte avec &4%s&c.", discordMember.getTagName());
 				return;
 			}
 
 			String code = LinkHandler.getCode(proxiedPlayer);
 			if (code == null)
 				code = LinkHandler.addWaiting(proxiedPlayer);
-			//sendMessage("&5[&dDiscord&5] ➤ &dPour relier ton compte Discord & Olympa, envoie le code &5&l" + code + "&d en privé à &7@&5OlympaBot#5503&d.");
-
-			TextComponent message = new TextComponent(TextComponent.fromLegacyText("§5[§dDiscord§5] ➤ §dPour relier ton compte Discord & Olympa, envoie le code "));
+			TextComponent msg = new TextComponent(TextComponent.fromLegacyText("§5[§dDiscord§5] ➤ §dPour relier ton compte Discord & Olympa, envoie le code "));
 			TextComponent codeComponent = new TextComponent(code);
 			codeComponent.setColor(ChatColor.DARK_PURPLE);
 			codeComponent.setBold(true);
 			codeComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§eClique ici pour copier le code dans le press-papier")));
 			codeComponent.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, code));
-			message.addExtra(codeComponent);
+			msg.addExtra(codeComponent);
 			for (BaseComponent baseComponent : TextComponent.fromLegacyText("§d en privé à §7@§5OlympaBot#5503§d, trouve le dans #informations sur Discord."))
-				message.addExtra(baseComponent);
-			proxiedPlayer.sendMessage(message);
+				msg.addExtra(baseComponent);
+			proxiedPlayer.sendMessage(msg);
 
 			break;
 		case "info":

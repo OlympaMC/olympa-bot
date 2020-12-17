@@ -14,7 +14,7 @@ import fr.olympa.api.sql.statement.StatementType;
 public class SQLMessage extends SQLClass {
 
 	static {
-		init("discord", "messages", "createTable");
+		init("discord", "messages");
 	}
 
 	private static OlympaStatement insertMessageStatement = new OlympaStatement(StatementType.INSERT, table, "guild_discord_id", "channel_discord_id", "message_discord_id", "author_id", "contents", "created");

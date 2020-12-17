@@ -4,9 +4,9 @@ import java.util.Map.Entry;
 
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordUtils;
+import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.message.JumpURL;
-import fr.olympa.bot.discord.reaction.ReactionDiscord;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

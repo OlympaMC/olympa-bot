@@ -11,13 +11,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import fr.olympa.api.utils.Matcher;
+import fr.olympa.api.match.RegexMatcher;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.api.utils.UtilsCore;
 import fr.olympa.bot.OlympaBots;
@@ -40,7 +41,7 @@ public class DiscordMember {
 	long lastSeen = -1;
 	long joinTime;
 	long leaveTime;
-	TreeMap<Long, String> oldNames = new TreeMap<>(Comparator.comparing(Long::longValue).reversed());
+	SortedMap<Long, String> oldNames = new TreeMap<>(Comparator.comparing(Long::longValue).reversed());
 	Map<DiscordPermission, Long> permissionsOlympaDiscordGuildId = new HashMap<>();
 
 	public long getJoinTime() {
@@ -51,7 +52,7 @@ public class DiscordMember {
 		return leaveTime;
 	}
 
-	public TreeMap<Long, String> getOldNames() {
+	public SortedMap<Long, String> getOldNames() {
 		return oldNames;
 	}
 
@@ -61,9 +62,9 @@ public class DiscordMember {
 		List<Member> targets = guild.getMembersByEffectiveName(name, true);
 		if (targets.isEmpty())
 			targets = guild.getMembersByName(name, true);
-		if (targets.isEmpty() && Matcher.isDiscordTag(name))
+		if (targets.isEmpty() && RegexMatcher.DISCORD_TAG.is(name))
 			targets = Arrays.asList(guild.getMemberByTag(name));
-		if (targets.isEmpty() && Matcher.isInt(name))
+		if (targets.isEmpty() && RegexMatcher.INT.is(name))
 			targets = Arrays.asList(guild.getMemberById(name));
 		if (targets.isEmpty())
 			targets = UtilsCore.similarWords(name, guild.getMembers().stream().map(Member::getEffectiveName)
@@ -132,6 +133,10 @@ public class DiscordMember {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getTagName() {
+		return name + "#" + tag;
 	}
 
 	public long getOlympaId() {

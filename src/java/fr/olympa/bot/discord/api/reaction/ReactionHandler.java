@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.reaction;
+package fr.olympa.bot.discord.api.reaction;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;

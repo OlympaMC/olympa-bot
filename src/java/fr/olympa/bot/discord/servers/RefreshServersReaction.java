@@ -2,8 +2,8 @@ package fr.olympa.bot.discord.servers;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
+import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
 import fr.olympa.bot.discord.guild.OlympaGuild;
-import fr.olympa.bot.discord.reaction.ReactionDiscord;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageReaction;

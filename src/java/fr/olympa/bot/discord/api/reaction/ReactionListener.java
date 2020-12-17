@@ -1,4 +1,4 @@
-package fr.olympa.bot.discord.reaction;
+package fr.olympa.bot.discord.api.reaction;
 
 import java.util.Arrays;
 import java.util.List;
@@ -76,10 +76,7 @@ public class ReactionListener extends ListenerAdapter {
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
 		if (reaction == null || user.isBot())
 			return;
-		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
-			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
-			reaction.onReactRemove(message, event.getChannel(), user, event.getReaction(), reaction.getReactionsEmojis(react));
-		});
+		event.getTextChannel().retrieveMessageById(messageId).queue(message -> reaction.onReactRemove(message, event.getChannel(), user, event.getReaction(), reaction.getReactionsEmojis(react)));
 	}
 
 	@Override

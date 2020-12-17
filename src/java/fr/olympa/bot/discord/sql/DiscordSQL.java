@@ -153,7 +153,6 @@ public class DiscordSQL {
 	private static OlympaStatement selectDiscordMembersIdsStatement = new OlympaStatement(StatementType.SELECT, tableMembers, (String[]) null, "discord_id");
 
 	public static List<Long> selectDiscordMembersIds() throws SQLException {
-		PreparedStatement statement = selectDiscordMembersIdsStatement.getStatement();
 		List<Long> membersIds = new ArrayList<>();
 		ResultSet resultSet = selectDiscordMembersIdsStatement.executeQuery();
 		while (resultSet.next())

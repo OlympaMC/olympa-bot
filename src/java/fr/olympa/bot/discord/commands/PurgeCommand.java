@@ -4,8 +4,8 @@ import java.sql.SQLException;
 
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
+import fr.olympa.bot.discord.api.reaction.ReactionSQL;
 import fr.olympa.bot.discord.message.SQLMessage;
-import fr.olympa.bot.discord.reaction.ReactionSQL;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
