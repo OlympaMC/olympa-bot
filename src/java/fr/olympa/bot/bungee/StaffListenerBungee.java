@@ -186,4 +186,9 @@ public class StaffListenerBungee implements Listener {
 		for (int i = 1; i < strings.size(); i++)
 			channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
 	}
+	
+	public void sendErrorFlushInfo() {
+		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
+		channelStaffDiscord.sendMessage("__Le bot a redémarré ~ vidage du cache__").queue();
+	}
 }

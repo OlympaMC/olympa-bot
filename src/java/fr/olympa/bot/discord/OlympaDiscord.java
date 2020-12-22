@@ -110,6 +110,7 @@ public class OlympaDiscord {
 			try {
 				GuildHandler.guilds = GuildSQL.selectGuilds();
 				jda = builder.build();
+				plugin.getProxy().getScheduler().schedule(plugin, OlympaBots.getInstance().bungeeListener::sendErrorFlushInfo, 2, TimeUnit.SECONDS);
 			} catch (LoginException | SQLException e) {
 				e.printStackTrace();
 				return;
