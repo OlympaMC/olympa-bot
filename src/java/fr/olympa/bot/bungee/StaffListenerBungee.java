@@ -5,17 +5,13 @@ import java.sql.SQLException;
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.StringTokenizer;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ArrayListMultimap;
-import com.vdurmont.emoji.Emoji;
-import com.vdurmont.emoji.EmojiManager;
 
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
@@ -34,8 +30,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -157,8 +151,13 @@ public class StaffListenerBungee implements Listener {
 		SimpleEntry<String, String> entry = new AbstractMap.SimpleEntry<>(serverName, stackTrace);
 		Message message = cache.getIfPresent(entry);
 		if (message != null) {
-			Collection<Emoji> emojis = EmojiManager.getAll();
-			message.addReaction(emojis.stream().skip(new Random().nextInt(emojis.size())).findFirst().orElse(null).getUnicode()).queue(null, ErrorResponseException.ignore(ErrorResponse.TOO_MANY_REACTIONS, ErrorResponse.REACTION_BLOCKED));
+			String content = message.getContentRaw();
+			int xIndex = content.lastIndexOf('x');
+			int times = Integer.parseInt(content.substring(xIndex + 1));
+			times++;
+			message.editMessage(content.substring(0, xIndex + 1) + times).queue();
+			/*Collection<Emoji> emojis = EmojiManager.getAll();
+			message.addReaction(emojis.stream().skip(new Random().nextInt(emojis.size())).findFirst().orElse(null).getUnicode()).queue(null, ErrorResponseException.ignore(ErrorResponse.TOO_MANY_REACTIONS, ErrorResponse.REACTION_BLOCKED));*/
 			return;
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
@@ -183,7 +182,7 @@ public class StaffListenerBungee implements Listener {
 			}
 			strings.add(output.toString());
 		}
-		channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```").queue(msg -> cache.put(entry, msg));
+		channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```\nx1").queue(msg -> cache.put(entry, msg));
 		for (int i = 1; i < strings.size(); i++)
 			channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
 	}
