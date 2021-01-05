@@ -50,12 +50,12 @@ public class InviteCommand extends DiscordCommand {
 				StringBuilder smallSb = new StringBuilder();
 				int maxAge = 0;
 				int maxInvite = 0;
+				int uses = 0;
 				if (invite.isExpanded()) {
 					maxAge = invite.getMaxAge();
 					maxInvite = invite.getMaxUses();
+					uses = invite.getUses();
 				}
-				int uses = invite.getUses();
-				maxInvite = invite.getMaxUses();
 				String timeCreated = invite.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
 				smallSb.append("Utilisé " + uses + " fois ");

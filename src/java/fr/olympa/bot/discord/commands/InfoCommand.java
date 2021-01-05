@@ -184,8 +184,7 @@ public class InfoCommand extends DiscordCommand {
 				if (!discordMember.getOldNames().isEmpty())
 					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
 				embed.addField("XP", new DecimalFormat("0.#").format(discordMember.getXp()), true);
-				OnlineStatus onlineStatus = memberTarget.getOnlineStatus();
-				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
+				if (discordMember.getLastSeenTime() != 0)
 					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
 			} catch (SQLException e) {
 				e.printStackTrace();

@@ -43,6 +43,7 @@ public class MemberListener extends ListenerAdapter {
 			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
+			discordMember.updateLastSeen();
 			if (type == DiscordGuildType.STAFF) {
 				EmbedBuilder em = new EmbedBuilder();
 				em.setTitle("Bienvenue sur le Discord du Staff de Olympa " + member.getEffectiveName() + " !");
@@ -86,13 +87,13 @@ public class MemberListener extends ListenerAdapter {
 	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
 		Guild guild = event.getGuild();
 		Member member = event.getMember();
-		if (GuildHandler.getOlympaGuild(guild).getType() != DiscordGuildType.PUBLIC)
-			return;
-		updateChannelMember(guild);
+		if (GuildHandler.getOlympaGuild(guild).getType() == DiscordGuildType.PUBLIC)
+			updateChannelMember(guild);
 		User user = member.getUser();
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLeaveTime(Utils.getCurrentTimeInSeconds());
+			discordMember.updateLastSeen();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -117,6 +118,7 @@ public class MemberListener extends ListenerAdapter {
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateName(user);
+			discordMember.updateLastSeen();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -139,7 +141,7 @@ public class MemberListener extends ListenerAdapter {
 		for (Activity value : event.getNewValue())
 			System.out.println("Name " + value.getName() + " Type " + value.getType().name() + " URL " + value.getUrl() + " Emoji " + value.getEmoji()
 					+ (value.getTimestamps() != null ? " Depuis " + Utils.timestampToDuration(value.getTimestamps().getStart())
-							+ (value.getTimestamps().getEnd() != 0 ? " Termine " + Utils.timestampToDuration(value.getTimestamps().getEnd()) : "") : ""));
+							+ (value.getTimestamps().getEnd() != 0 ? " Termine dans  " + Utils.timestampToDuration(value.getTimestamps().getEnd()) : "") : ""));
 	}
 
 	@Override
