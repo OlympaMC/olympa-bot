@@ -22,6 +22,16 @@ public class DiscordSQL {
 	static String tableMembers = "discord.members";
 	static String tableSanction = "discord.sanctions";
 
+	public static List<DiscordMember> debug() throws SQLException {
+		List<DiscordMember> discordMembers = new ArrayList<>();
+		PreparedStatement statement = new OlympaStatement("SELECT * FROM discord.members WHERE discord_tag IS NULL").getStatement();
+		ResultSet resultSet = statement.executeQuery();
+		while (resultSet.next())
+			discordMembers.add(DiscordMember.createObject(resultSet));
+		resultSet.close();
+		return discordMembers;
+	}
+
 	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, tableSanction, "target_id", "author_id", "type", "reason", "expire");
 
 	public static void addSanction(DiscordSanction discordSanction) throws SQLException {

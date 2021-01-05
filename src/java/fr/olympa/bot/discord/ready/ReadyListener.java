@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.server.ServerStatus;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
@@ -14,6 +15,7 @@ import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import fr.olympa.bot.discord.invites.InvitesHandler;
 import fr.olympa.core.bungee.OlympaBungee;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -134,6 +136,28 @@ public class ReadyListener extends ListenerAdapter {
 		OlympaDiscord.setLastConnection(Utils.getCurrentTimeInSeconds());
 		ReactionHandler.initReactions();
 		OlympaBots.getInstance().bungeeListener.sendErrorsInQueue();
+
+		// DEBUG if some DiscordMember has tag enmpty
+		//		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
+		//			try {
+		//				List<DiscordMember> list = DiscordSQL.debug();
+		//				System.out.println("list " + list.size());
+		//				for (DiscordMember dm : list)
+		//					OlympaBots.getInstance().getDiscord().getJda().retrieveUserById(dm.getDiscordId()).queue(u -> {
+		//						dm.updateName(u);
+		//						try {
+		//							DiscordSQL.updateMember(dm);
+		//						} catch (SQLException e) {
+		//							e.printStackTrace();
+		//						}
+		//					});
+		//			} catch (SQLException e) {
+		//				e.printStackTrace();
+		//			}
+		//		});
+		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
+			InvitesHandler.init();
+		});
 	}
 
 	@Override

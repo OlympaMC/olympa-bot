@@ -44,7 +44,6 @@ public class GuildsListener extends ListenerAdapter {
 			discordMembers = CacheDiscordSQL.getDiscordMember(user);
 			if (discordMembers == null) {
 				DiscordMember joinTime = new DiscordMember(member);
-				joinTime.updateJoinTime(member.getTimeJoined().toEpochSecond());
 				DiscordSQL.addMember(joinTime);
 			}
 		} catch (SQLException e) {

@@ -7,10 +7,12 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -75,7 +77,7 @@ public class DiscordMember {
 	}
 
 	public static DiscordMember createObject(ResultSet resultSet) throws SQLException {
-		return new DiscordMember(resultSet.getLong("id"),
+		DiscordMember dm = new DiscordMember(resultSet.getLong("id"),
 				resultSet.getLong("discord_id"),
 				resultSet.getLong("olympa_id"),
 				resultSet.getString("discord_name"),
@@ -86,9 +88,12 @@ public class DiscordMember {
 				resultSet.getDate("leave_date"),
 				resultSet.getString("old_names"),
 				resultSet.getString("permissions"));
+		//		if (dm.getTag() == null)
+		//			OlympaBots.getInstance().getDiscord().getJda().retrieveUserById(dm.getDiscordId()).queue(u -> dm.updateName(u));
+		return dm;
 	}
 
-	public DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames, String permissions) {
+	private DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames, String permissions) {
 		this.id = id;
 		this.discordId = discordId;
 		this.olympaId = olympaId;
@@ -113,6 +118,11 @@ public class DiscordMember {
 		discordId = member.getIdLong();
 		joinTime = member.getTimeJoined().toEpochSecond();
 		updateName(member.getUser());
+	}
+
+	public DiscordMember(User user) {
+		discordId = user.getIdLong();
+		updateName(user);
 	}
 
 	private JDA getJDA() {
@@ -149,19 +159,23 @@ public class DiscordMember {
 
 	public void updateName(User user) {
 		java.util.regex.Matcher matcher = User.USER_TAG.matcher(user.getAsTag());
-		if (!matcher.find())
+		if (!matcher.find()) {
+			new IllegalAccessError("Unable to get tag of " + user.getAsTag()).printStackTrace();
 			return;
+		}
 		String newName = matcher.group(1);
+		tag = matcher.group(2);
 		if (name != null && !newName.equals(name)) {
 			oldNames.put(Utils.getCurrentTimeInSeconds(), name);
+			Set<Long> nameToRemove = new HashSet<>();
 			Iterator<Entry<Long, String>> it = oldNames.entrySet().iterator();
 			it.next();
 			while (it.hasNext() && oldNames.size() > 10)
-				oldNames.remove(it.next().getKey()); // ConcurrentModificationException
+				nameToRemove.add(it.next().getKey());
+			nameToRemove.forEach(k -> oldNames.remove(k));
 			name = newName;
 		} else
 			name = newName;
-		tag = matcher.group(2);
 	}
 
 	public void setOlympaId(long olympaId) {

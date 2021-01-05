@@ -15,6 +15,7 @@ import fr.olympa.bot.bungee.StaffListenerBungee;
 import fr.olympa.bot.bungee.TeamspeakCommand;
 import fr.olympa.bot.bungee.TeamspeakListener;
 import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.teamspeak.OlympaTeamspeak;
 import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.bungee.utils.BungeeUtils;
@@ -77,6 +78,7 @@ public class OlympaBots extends Plugin {
 
 		//new TwitterAPI(this).connect();
 		OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), new SpigotReceiveError(), RedisChannel.SPIGOT_RECEIVE_ERROR.name());
+		CacheDiscordSQL.debug();
 		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
 	}
 
