@@ -155,7 +155,10 @@ public class StaffListenerBungee implements Listener {
 			int xIndex = content.lastIndexOf('x');
 			int times = Integer.parseInt(content.substring(xIndex + 1));
 			times++;
-			message.editMessage(content.substring(0, xIndex + 1) + times).queue();
+			message.editMessage(content.substring(0, xIndex + 1) + times).queue(null, x -> {
+				cache.invalidate(entry);
+				sendError(serverName, stackTrace);
+			});
 			/*Collection<Emoji> emojis = EmojiManager.getAll();
 			message.addReaction(emojis.stream().skip(new Random().nextInt(emojis.size())).findFirst().orElse(null).getUnicode()).queue(null, ErrorResponseException.ignore(ErrorResponse.TOO_MANY_REACTIONS, ErrorResponse.REACTION_BLOCKED));*/
 			return;
@@ -186,7 +189,7 @@ public class StaffListenerBungee implements Listener {
 		for (int i = 1; i < strings.size(); i++)
 			channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
 	}
-	
+
 	public void sendErrorFlushInfo() {
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		channelStaffDiscord.sendMessage("__Le bot a redémarré ~ vidage du cache__").queue();
