@@ -20,7 +20,6 @@ public class InvitesListener extends ListenerAdapter {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		//		invite.get
 	}
 
 	@Override
@@ -31,10 +30,6 @@ public class InvitesListener extends ListenerAdapter {
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Member member = event.getMember();
-		event.getGuild().retrieveInvites().queue(invites -> {
-			for (Invite inv : invites) {
 
-			}
-		});
 	}
 }

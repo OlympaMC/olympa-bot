@@ -22,6 +22,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceSelfDeafenEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceSelfMuteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateActivityOrderEvent;
@@ -173,6 +177,50 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		User user = event.getAuthor();
+		try {
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
+			discordMember.updateLastSeen();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+		User user = event.getEntity().getUser();
+		try {
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
+			discordMember.updateLastSeen();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+		User user = event.getEntity().getUser();
+		try {
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
+			discordMember.updateLastSeen();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent event) {
+		User user = event.getMember().getUser();
+		try {
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
+			discordMember.updateLastSeen();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onGuildVoiceSelfDeafen(GuildVoiceSelfDeafenEvent event) {
+		User user = event.getMember().getUser();
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();

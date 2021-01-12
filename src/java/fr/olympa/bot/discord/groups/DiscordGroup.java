@@ -20,14 +20,15 @@ public enum DiscordGroup {
 
 	FONDA(OlympaGroup.FONDA, 610410821868060673L, 606161934126940193L, null, false),
 	ADMIN(OlympaGroup.ADMIN, 558322950680346624L, 544594116932272139L, "Ils sont très occupés, utilise plutôt le forum pour discuter avec eux.", false),
+	RESP(OlympaGroup.RESP, 731215969128808508L, 731225340655173632L, null, false),
 	MODP(OlympaGroup.MODP, 558322952009941012L, 558179276973932546L, null, false),
 	RESP_TECH(OlympaGroup.RESP_TECH, 571755659557601290L, 600770206192762908L, null, false),
-	MOD(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur liée aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum.", true),
-	ASSISTANT(OlympaGroup.ASSISTANT, 558322953314631690L, 558168138848403456L, "Question ou autre demande. Il saura t'aider pour toute autre situation.", true),
 	RESP_STAFF(OlympaGroup.RESP_STAFF, 600766523354644491L, 600770102006120452L, null, false),
 	RESP_COM(OlympaGroup.RESP_COM, 731215969128808508L, 731225340655173632L, null, false),
 	RESP_BUILDER(OlympaGroup.RESP_BUILDER, 570320569443155983L, 560935286289203202L, null, false),
 	RESP_ANIMATION(OlympaGroup.RESP_ANIMATION, 606158641355292723L, 606162089903521827L, null, false),
+	MOD(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur liée aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum.", true),
+	ASSISTANT(OlympaGroup.ASSISTANT, 558322953314631690L, 558168138848403456L, "Question ou autre demande. Il saura t'aider pour toute autre situation.", true),
 	GAMEMASTER(OlympaGroup.GAMEMASTER, 730161035088101416L, 730164373418541057L, "Question spécifique au fonctionnement d'un de nos jeux Minecraft.", true),
 	DEVP(OlympaGroup.DEVP, 558322951250771978L, 0, null, false),
 	DEV(OlympaGroup.DEV, 558322951250771978L, 558441264140386304L, "Signalement de bugs, quelque soit la platforme (Minecraft, Site, Forum, Discord, Teamspeak ...).", true),
@@ -44,7 +45,7 @@ public enum DiscordGroup {
 	WARNING2(593167088617652329L, 0, null, false),
 	NITRO(682522717563518996L, 587672022382018569L, null, false),
 	OLDER(0, 684335098312917026L, null, false),
-	BETA_ACCES(0, 764195523396763658L, null, false),
+	BETA_ACCES(0, 792136154584842311L, null, false),
 	OMEGA_ACCES(0, 772149895339573259L, null, false),
 	MUTED(0, 566627971276865576L, null, false);
 

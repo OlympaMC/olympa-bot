@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.message.DiscordMessage;
@@ -17,8 +18,13 @@ import net.dv8tion.jda.api.entities.User;
 
 public class CacheDiscordSQL {
 
+	public static void debug() {
+		LinkSpigotBungee link = LinkSpigotBungee.Provider.link;
+		link.getTask().scheduleSyncRepeatingTask(() -> link.sendMessage("§dNombre de DiscordMember en cache §5" + cacheMembers.size()), 29, 60, TimeUnit.MINUTES);
+	}
+
 	// <discordId, DiscordMember>
-	private static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).removalListener(notification -> {
+	private static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).removalListener(notification -> {
 		try {
 			DiscordSQL.updateMember((DiscordMember) notification.getValue());
 		} catch (SQLException e) {
@@ -30,7 +36,17 @@ public class CacheDiscordSQL {
 		return getDiscordMember(user.getIdLong());
 	}
 
-	public static DiscordMember getDiscordMemberWtihoutCaaching(long userDiscordId) throws SQLException {
+	public static DiscordMember getDiscordMemberAndCreateIfNotExist(User user) throws SQLException {
+		DiscordMember discordMember = getDiscordMember(user.getIdLong());
+		if (discordMember == null) {
+			discordMember = new DiscordMember(user);
+			DiscordSQL.addMember(discordMember);
+			setDiscordMember(user.getIdLong(), discordMember);
+		}
+		return discordMember;
+	}
+
+	public static DiscordMember getDiscordMemberWithoutCaching(long userDiscordId) throws SQLException {
 		DiscordMember discordMember = cacheMembers.asMap().get(userDiscordId);
 		if (discordMember == null)
 			discordMember = DiscordSQL.selectMemberByDiscordId(userDiscordId);

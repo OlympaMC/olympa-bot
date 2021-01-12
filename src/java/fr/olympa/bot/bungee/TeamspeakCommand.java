@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import fr.olympa.api.bungee.command.BungeeCommand;
+import fr.olympa.api.chat.ColorUtils;
 import fr.olympa.api.permission.OlympaCorePermissions;
-import fr.olympa.api.utils.ColorUtils;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
