@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.invites;
 
-import java.time.format.DateTimeFormatter;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,20 +10,23 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
+import fr.olympa.bot.discord.guild.GuildHandler;
+import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
 
 public class InviteCommand extends DiscordCommand {
 
 	public InviteCommand() {
-		super("invite", DiscordPermission.DEV);
+		super("invite", DiscordPermission.STAFF);
 		description = "Donnes des stats concernant les invitations.";
 	}
 
@@ -31,60 +34,16 @@ public class InviteCommand extends DiscordCommand {
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
 		Guild guild = message.getGuild();
-
-		if (args.length != 0 && args[0].equalsIgnoreCase("show")) {
-			EmbedBuilder em = new EmbedBuilder();
-			List<Invite> invites = guild.retrieveInvites().complete();
-			Set<Long> invitesPeruser = invites.stream().map(invite -> invite.getInviter().getIdLong()).collect(Collectors.toSet());
-
-			em.setTitle("💌 Invitations");
-			em.setDescription("Il y a " + invites.size() + " invations par " + invitesPeruser.size() + " membres.\n");
-			for (Invite invite : invites) {
-				User user = invite.getInviter();
-				Member member = guild.getMember(user);
-				String inviterName;
-				if (member != null)
-					inviterName = member.getAsMention();
-				else
-					inviterName = "🚪 " + user.getName();
-				StringBuilder smallSb = new StringBuilder();
-				int maxAge = 0;
-				int maxInvite = 0;
-				int uses = 0;
-				if (invite.isExpanded()) {
-					maxAge = invite.getMaxAge();
-					maxInvite = invite.getMaxUses();
-					uses = invite.getUses();
-				}
-				String timeCreated = invite.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-
-				smallSb.append("Utilisé " + uses + " fois ");
-				if (maxInvite != 0 || maxAge != 0) {
-					smallSb.append("Valable ");
-					if (maxInvite != 0)
-						smallSb.append(maxInvite + " fois ");
-					if (maxAge != 0) {
-						if (maxInvite != 0)
-							smallSb.append("et ");
-						smallSb.append("pendant " + maxAge + " secondes ");
-					}
-				}
-				smallSb.append("Crée le " + timeCreated + " ");
-				em.appendDescription(inviterName + ": " + smallSb.toString() + "\n");
-				if (em.getDescriptionBuilder().length() > 1900) {
-					channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(60, TimeUnit.SECONDS));
-					em = new EmbedBuilder();
-				}
-			}
-			channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(60, TimeUnit.SECONDS));
-		} else {
-			Map<User, Integer> stats = new HashMap<>();
-			guild.retrieveInvites().queue(invites -> {
+		OlympaGuild opGuild = GuildHandler.getOlympaGuild(guild);
+		try {
+			List<DiscordInvite> invites = DiscordInvite.getAll(opGuild);
+			if (args.length == 0) {
+				Map<Long, Integer> stats = new HashMap<>();
 				EmbedBuilder em = new EmbedBuilder();
 				em.setTitle("💌 Invitations");
-				for (Invite invite : invites) {
-					User user = invite.getInviter();
-					int uses = invite.getUses();
+				for (DiscordInvite invite : invites) {
+					long user = invite.getAuthorId();
+					int uses = invite.getRealUse();
 					Integer actualNb = stats.get(user);
 					if (uses != 0) {
 						if (actualNb != null)
@@ -93,22 +52,19 @@ public class InviteCommand extends DiscordCommand {
 					}
 				}
 				int nb = 1;
-				TreeMap<User, Integer> statsSorted = new TreeMap<>((o1, o2) -> {
-					Integer o1Value = stats.get(o1);
-					Integer o2Value = stats.get(o2);
-					return o2Value.compareTo(o1Value);
-				});
+				TreeMap<Long, Integer> statsSorted = new TreeMap<>((o1, o2) -> stats.get(o2).compareTo(stats.get(o1)));
 				statsSorted.putAll(stats);
 				em.setDescription("Il y a " + stats.size() + " joueurs qui ont ramener " + stats.values().stream().mapToInt(Integer::valueOf).sum() + " joueurs.\n");
-				for (Entry<User, Integer> entry : statsSorted.entrySet()) {
-					User user = entry.getKey();
-					Integer uses = entry.getValue();
-					Member member = guild.getMember(user);
+				for (Entry<Long, Integer> entry : statsSorted.entrySet()) {
+					int uses = entry.getValue();
+					Member member = guild.getMemberById(entry.getKey());
 					String inviterName;
-					if (member == null)
-						inviterName = "🚪 " + user.getName();
-					else
-						inviterName = user.getAsMention();
+					if (member != null)
+						inviterName = member.getAsMention() + "(" + member.getUser().getAsTag() + ")";
+					else {
+						DiscordMember author = CacheDiscordSQL.getDiscordMember(entry.getKey());
+						inviterName = author.getAsMention() + "(" + author.getAsTag() + ")" + " (🚪 " + Utils.tsToShortDur(author.getLeaveTime()) + ")";
+					}
 					em.appendDescription(nb++ + " | " + uses + " joueurs " + inviterName + ".\n");
 					if (em.getDescriptionBuilder().length() > 1800) {
 						channel.sendMessage(em.build()).queue();
@@ -116,8 +72,34 @@ public class InviteCommand extends DiscordCommand {
 					}
 				}
 				channel.sendMessage(em.build()).queue();
-			});
 
+			} else {
+				EmbedBuilder em = new EmbedBuilder();
+				Set<Long> invitesPeruser = invites.stream().map(invite -> invite.getAuthorId()).collect(Collectors.toSet());
+				em.setTitle("💌 Invitations");
+				em.setDescription("Il y a " + invitesPeruser.size() + " invitations par " + invitesPeruser.size() + " membres.\n");
+				for (DiscordInvite invite : invites) {
+					DiscordMember author;
+					author = invite.getAuthor();
+					Member member = author.getMember(guild);
+					String inviterName;
+					if (member != null)
+						inviterName = member.getAsMention() + "(" + member.getUser().getAsTag() + ")";
+					else
+						inviterName = author.getAsMention() + "(" + author.getAsTag() + ")" + " (🚪 " + Utils.tsToShortDur(author.getLeaveTime()) + ")";
+					StringBuilder smallSb = new StringBuilder();
+
+					smallSb.append("Utilisé ~~" + invite.getUses() + "~~ " + invite.getRealUse() + " fois *" + invite.getUsesLeaver() + " ont quittés*");
+					em.appendDescription(inviterName + ": " + smallSb.toString() + "\n");
+					if (em.getDescriptionBuilder().length() > 1900) {
+						channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(60, TimeUnit.SECONDS));
+						em = new EmbedBuilder();
+					}
+				}
+				channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(60, TimeUnit.SECONDS));
+			}
+		} catch (SQLException | IllegalAccessException e) {
+			e.printStackTrace();
 		}
 	}
 }

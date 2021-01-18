@@ -7,6 +7,7 @@ import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.chat.ColorUtils;
 import fr.olympa.api.redis.RedisAccess;
 import fr.olympa.api.redis.RedisChannel;
+import fr.olympa.api.utils.CacheStats;
 import fr.olympa.api.utils.ErrorLoggerHandler;
 import fr.olympa.api.utils.ErrorOutputStream;
 import fr.olympa.bot.bungee.DiscordCommand;
@@ -16,6 +17,9 @@ import fr.olympa.bot.bungee.StaffListenerBungee;
 import fr.olympa.bot.bungee.TeamspeakCommand;
 import fr.olympa.bot.bungee.TeamspeakListener;
 import fr.olympa.bot.discord.OlympaDiscord;
+import fr.olympa.bot.discord.api.reaction.AwaitReaction;
+import fr.olympa.bot.discord.invites.InvitesHandler;
+import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.teamspeak.OlympaTeamspeak;
 import fr.olympa.core.bungee.OlympaBungee;
@@ -79,6 +83,11 @@ public class OlympaBots extends Plugin {
 		//new TwitterAPI(this).connect();
 		OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), new SpigotReceiveError(), RedisChannel.SPIGOT_RECEIVE_ERROR.name());
 		CacheDiscordSQL.debug();
+		CacheStats.addCache("DISCORD_ERROR_SEND", StaffListenerBungee.cache);
+		CacheStats.addCache("DISCORD_AWAIT_REACTIONS", AwaitReaction.reactions);
+		CacheStats.addCache("DISCORD_INVITES", InvitesHandler.cache);
+		CacheStats.addCache("DISCORD_LINK_CODE", LinkHandler.waiting);
+		CacheStats.addCache("DISCORD_MEMBERS", CacheDiscordSQL.cacheMembers);
 		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
 	}
 

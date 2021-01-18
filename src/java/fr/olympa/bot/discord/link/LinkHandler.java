@@ -22,7 +22,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class LinkHandler {
 
-	private static Cache<String, ProxiedPlayer> waiting = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
+	public static Cache<String, ProxiedPlayer> waiting = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
 
 	public static String addWaiting(ProxiedPlayer p) {
 		String code = LinkHandler.generateRandomWord(6);

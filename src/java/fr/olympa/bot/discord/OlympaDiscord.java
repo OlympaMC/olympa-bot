@@ -28,6 +28,8 @@ import fr.olympa.bot.discord.guild.GuildSQL;
 import fr.olympa.bot.discord.guild.GuildsListener;
 import fr.olympa.bot.discord.guild.SettingsCommand;
 import fr.olympa.bot.discord.invites.InviteCommand;
+import fr.olympa.bot.discord.invites.InvitesListener;
+import fr.olympa.bot.discord.invites.VanillaInviteCommand;
 import fr.olympa.bot.discord.link.LinkListener;
 import fr.olympa.bot.discord.member.MemberListener;
 import fr.olympa.bot.discord.message.TextChannelListener;
@@ -44,20 +46,12 @@ import fr.olympa.bot.discord.suvey.SurveyCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class OlympaDiscord {
 
 	private static final long UPTIME = Utils.getCurrentTimeInSeconds();
 	private static long lastConnection;
 	private static final int TIMETODELETE = 60;
-
-	@Deprecated(forRemoval = true)
-	public static void sendTempMessageToChannel(MessageChannel channel, String msg) {
-		channel.sendMessage(msg).queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES, null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE)));
-	}
 
 	private JDA jda;
 	private Color color = Color.YELLOW;
@@ -87,12 +81,13 @@ public class OlympaDiscord {
 		builder.addEventListeners(new LogListener());
 		builder.addEventListeners(new MemberListener());
 		builder.addEventListeners(new StaffListener());
+		builder.addEventListeners(new InvitesListener());
 		new AnnonceCommand().register();
 		new EmoteCommand().register();
 		new SupportCommand().register();
 		new InfoCommand().register();
 		new ClearCommand().register();
-		new InviteCommand().register();
+		new VanillaInviteCommand().register();
 		new GroupCommand().register();
 		new MuteCommand().register();
 		new SettingsCommand().register();
@@ -105,6 +100,7 @@ public class OlympaDiscord {
 		new SurveyCommand().register();
 		new PurgeCommand().register();
 		new PermissionCommand().register();
+		new InviteCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {

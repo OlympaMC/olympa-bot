@@ -77,7 +77,7 @@ public class DiscordMember {
 	}
 
 	public static DiscordMember createObject(ResultSet resultSet) throws SQLException {
-		DiscordMember dm = new DiscordMember(resultSet.getLong("id"),
+		return new DiscordMember(resultSet.getLong("id"),
 				resultSet.getLong("discord_id"),
 				resultSet.getLong("olympa_id"),
 				resultSet.getString("discord_name"),
@@ -90,7 +90,7 @@ public class DiscordMember {
 				resultSet.getString("permissions"));
 		//		if (dm.getTag() == null)
 		//			OlympaBots.getInstance().getDiscord().getJda().retrieveUserById(dm.getDiscordId()).queue(u -> dm.updateName(u));
-		return dm;
+		//		return dm;
 	}
 
 	private DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames, String permissions) {
@@ -131,6 +131,10 @@ public class DiscordMember {
 
 	public User getUser() {
 		return getJDA().getUserById(discordId);
+	}
+
+	public Member getMember(Guild guild) {
+		return guild.getMemberById(discordId);
 	}
 
 	public long getDiscordId() {
@@ -183,6 +187,8 @@ public class DiscordMember {
 	}
 
 	public String getTag() {
+		if (tag == null)
+			updateName(getUser());
 		return tag;
 	}
 
@@ -260,5 +266,13 @@ public class DiscordMember {
 			}
 		}
 		return false;
+	}
+
+	public String getAsMention() {
+		return "<@" + discordId + ">";
+	}
+
+	public String getAsTag() {
+		return name + "#" + tag;
 	}
 }

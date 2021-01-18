@@ -1,7 +1,6 @@
 package fr.olympa.bot.discord.observer;
 
 import java.awt.Color;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,28 +31,14 @@ public class LogListener extends ListenerAdapter {
 
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-		Guild guild = event.getGuild();
 		Member member = event.getMember();
-		User user = member.getUser();
+		Guild guild = event.getGuild();
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		if (olympaGuild.getType() == DiscordGuildType.PUBLIC) {
 			Role defaultRole = DiscordGroup.PLAYER.getRole(guild);
 			guild.addRoleToMember(member, defaultRole).queue();
 		}
-		if (!olympaGuild.isLogEntries())
-			return;
-		EmbedBuilder embed = LogsHandler.get("✅ Un nouveau joueur est arrivé !", null, member.getAsMention() + " est le **" + DiscordUtils.getMembersSize(guild) + "ème** a rejoindre le discord.", member);
-		embed.setColor(Color.GREEN);
-		long time = user.getTimeCreated().toEpochSecond();
-		long duration = Utils.getCurrentTimeInSeconds() - time;
-		String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
-		if (duration < 60 * 12 * 31)
-			embed.addField("Nouveau compte", "Crée il y a `" + t + "`", true);
-		else {
-			String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-			embed.addField("Création du compte", "Crée le " + date + " (" + t + ")", true);
-		}
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+		// other stuff MOVED TO fr.olympa.bot.discord.invites.InvitesListener
 	}
 
 	@Override
@@ -67,7 +52,7 @@ public class LogListener extends ListenerAdapter {
 		String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
 		String name = " (" + member.getEffectiveName() + ")";
 		if (member.getEffectiveName().equals(user.getName()))
-			name = new String();
+			name = "";
 		String desc = "`" + user.getAsTag() + "`" + name + " est resté `" + time + "` Nous sommes `" + DiscordUtils.getMembersSize(guild) + "`.";
 		EmbedBuilder embed = LogsHandler.get("❌ Un joueur a quitté", null, desc, member);
 		embed.setColor(Color.RED);
@@ -116,7 +101,7 @@ public class LogListener extends ListenerAdapter {
 		embed.setColor(Color.RED);
 		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
-	
+
 	@Override
 	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
 		Guild guild = event.getGuild();

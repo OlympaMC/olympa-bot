@@ -24,7 +24,7 @@ public class CacheDiscordSQL {
 	}
 
 	// <discordId, DiscordMember>
-	private static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).removalListener(notification -> {
+	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).maximumSize(500).removalListener(notification -> {
 		try {
 			DiscordSQL.updateMember((DiscordMember) notification.getValue());
 		} catch (SQLException e) {

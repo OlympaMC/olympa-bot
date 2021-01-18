@@ -13,6 +13,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ArrayListMultimap;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.bot.OlympaBots;
@@ -134,7 +135,7 @@ public class StaffListenerBungee implements Listener {
 		queue.clear();
 	}
 
-	Cache<Entry<String, String>, Message> cache = CacheBuilder.newBuilder().maximumSize(50).build();
+	public static Cache<Entry<String, String>, Message> cache = CacheBuilder.newBuilder().maximumSize(50).build();
 
 	public void sendBungeeError(String stackTrace) {
 		sendError("bungee", stackTrace);
@@ -147,7 +148,6 @@ public class StaffListenerBungee implements Listener {
 				queue.put(serverName, stackTrace);
 			return;
 		}
-
 		SimpleEntry<String, String> entry = new AbstractMap.SimpleEntry<>(serverName, stackTrace);
 		Message message = cache.getIfPresent(entry);
 		if (message != null) {
@@ -164,6 +164,10 @@ public class StaffListenerBungee implements Listener {
 			return;
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
+		if (channelStaffDiscord == null) {
+			LinkSpigotBungee.Provider.link.sendMessage("&cImpossible de print une erreur (de &4serverName = %s&c) sur discord, le bot discord est pas connecté.", serverName);
+			return;
+		}
 		List<String> strings = new ArrayList<>(2);
 		int maxSize = 2000 - 50;
 		if (stackTrace.length() < maxSize)
@@ -185,13 +189,11 @@ public class StaffListenerBungee implements Listener {
 			}
 			strings.add(output.toString());
 		}
-		channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```\nx1").queue(msg -> cache.put(entry, msg));
-		for (int i = 1; i < strings.size(); i++)
-			channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
 	}
 
 	public void sendErrorFlushInfo() {
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
-		channelStaffDiscord.sendMessage("__Le bot a redémarré ~ vidage du cache__").queue();
+		if (channelStaffDiscord != null)
+			channelStaffDiscord.sendMessage("__Le bot a redémarré ~ vidage du cache__").queue();
 	}
 }

@@ -128,7 +128,7 @@ public class MemberListener extends ListenerAdapter {
 		}
 	}
 
-	// NOT LOAD
+	// Only custom
 	@Override
 	public void onUserUpdateActivityOrder(UserUpdateActivityOrderEvent event) {
 		User user = event.getEntity();
