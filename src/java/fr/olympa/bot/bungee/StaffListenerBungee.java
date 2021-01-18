@@ -188,6 +188,10 @@ public class StaffListenerBungee implements Listener {
 				lineLen += word.length();
 			}
 			strings.add(output.toString());
+			channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```\nx1").queue(msg -> cache.put(entry, msg));
+			for (int i = 1; i < strings.size(); i++)
+				channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
+
 		}
 	}
 

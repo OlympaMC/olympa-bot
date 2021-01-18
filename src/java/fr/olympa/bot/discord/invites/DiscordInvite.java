@@ -160,7 +160,6 @@ public class DiscordInvite extends DiscordSmallInvite {
 		pastUsersIds = stringToListUsersIds(rs.getString(COLUMN_USERS_PAST_OLYMPA_DISCORD_ID.getCleanName()), pastUsersIds);
 		leaveUsersIds = stringToListUsersIds(rs.getString(COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID.getCleanName()), leaveUsersIds);
 		isUpWithDb = true;
-		InvitesHandler.addInvite(this);
 	}
 
 	public void removeLeaver(DiscordMember member) {
