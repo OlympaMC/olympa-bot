@@ -52,13 +52,13 @@ public class InvitesListener extends ListenerAdapter {
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Member member = event.getMember();
-		OlympaGuild opGuild = GuildHandler.getOlympaGuild(event.getGuild());
+		Guild guild = event.getGuild();
+		OlympaGuild opGuild = GuildHandler.getOlympaGuild(guild);
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member.getIdLong());
 			InvitesHandler.detectNewInvite(opGuild,
 					inviter -> {
-						LinkSpigotBungee.Provider.link.sendMessage("&e[DISCORD INVITE] %s a été invité par %s", member.getUser().getAsTag(), inviter.getAsTag());
-						Guild guild = event.getGuild();
+						LinkSpigotBungee.Provider.link.sendMessage("&e[DISCORD INVITE] %s a été invité par %s sur %s", member.getUser().getAsTag(), inviter.getAsTag(), guild.getName()); // TODO remove this debug msg
 						User user = member.getUser();
 						OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 						if (!olympaGuild.isLogEntries())

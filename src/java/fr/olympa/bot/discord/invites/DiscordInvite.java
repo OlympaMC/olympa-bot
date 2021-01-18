@@ -69,14 +69,11 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	protected static List<DiscordInvite> getByUser(SQLColumn<DiscordInvite> column, DiscordMember dm, OlympaGuild opGuild) {
 		List<DiscordInvite> dis = new ArrayList<>();
-		OlympaStatement getUsers = new OlympaStatement("SELECT * FROM ? WHERE ? REGEXP ? AND ? = ?");
+		OlympaStatement getUsers = new OlympaStatement("SELECT * FROM " + inviteTable.getName() + " WHERE " + column.getName() + " REGEXP ? AND " + COLUMN_OLYMPA_GUILD_ID.getName() + " = ?");
 		try {
 			PreparedStatement statement = getUsers.getStatement();
 			int i = 1;
-			statement.setString(i++, inviteTable.getName());
-			statement.setString(i++, column.getName());
 			statement.setString(i++, String.format("\\b(%d)\\b", dm.getId()));
-			statement.setString(i++, COLUMN_OLYMPA_GUILD_ID.getName());
 			statement.setLong(i, opGuild.getId());
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next())
