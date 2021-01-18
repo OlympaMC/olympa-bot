@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.match.RegexMatcher;
 import fr.olympa.api.sql.SQLColumn;
+import fr.olympa.api.sql.SQLNullObject;
 import fr.olympa.api.sql.SQLTable;
 import fr.olympa.api.sql.statement.OlympaStatement;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -94,7 +95,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 	public DiscordInvite createNew() throws SQLException {
 		ResultSet resultSet = inviteTable.insert(
 				getGuild().getId(),
-				getAuthor().getId(),
+				getAuthorId(),
 				getUses(),
 				new Timestamp(getCreated() * 1000L),
 				getCode());
@@ -234,15 +235,15 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return listUsersIdsToListUsers(leaveUsersIds);
 	}
 
-	public String getUsersToDB() {
+	public Object getUsersToDB() {
 		return listUsersToString(usersIds);
 	}
 
-	public String getPastUsersToDB() {
+	public Object getPastUsersToDB() {
 		return listUsersToString(pastUsersIds);
 	}
 
-	public String getLeaveUsersToDB() {
+	public Object getLeaveUsersToDB() {
 		return listUsersToString(leaveUsersIds);
 	}
 
@@ -274,8 +275,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return leaveUsersIds;
 	}
 
-	private String listUsersToString(List<Long> list) {
-		return list == null || list.isEmpty() ? null : list.stream().map(id -> String.valueOf(id)).collect(Collectors.joining(";"));
+	private Object listUsersToString(List<Long> list) {
+		return list == null || list.isEmpty() ? new SQLNullObject() : list.stream().map(id -> String.valueOf(id)).collect(Collectors.joining(";"));
 	}
 
 	private boolean listIdsContainsUser(List<Long> list, DiscordMember dm) {
