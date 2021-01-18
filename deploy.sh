@@ -1,1 +1,1 @@
-git pull && mvn install && cp target/Olympa*.jar /home/serveurs/bungee1/plugins/ && mc restart bungee1
+git pull && mvn install
