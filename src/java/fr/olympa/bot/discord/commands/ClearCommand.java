@@ -17,7 +17,7 @@ public class ClearCommand extends DiscordCommand {
 		// TODO Change to ASSISTANT & + and DEV
 		super("clear", DiscordPermission.STAFF);
 		minArg = 1;
-		description = "Supprime le nombre lignes en argument.";
+		description = "Supprime le nombre de lignes en argument (ou ALL).";
 		usage = "<nombre>";
 	}
 
@@ -57,7 +57,7 @@ public class ClearCommand extends DiscordCommand {
 				} catch (InterruptedException e) {
 					taskAll = false;
 					//					clearAllMessage(member, message);
-					DiscordUtils.sendTempMessage(message.getChannel(), member.getAsMention() + " ➤ Une erreur est survenu. Réésaye. " + e.getMessage());
+					DiscordUtils.sendTempMessage(message.getChannel(), member.getAsMention() + " ➤ Une erreur est survenue. Réésaye. " + e.getMessage());
 					return;
 				}
 			}

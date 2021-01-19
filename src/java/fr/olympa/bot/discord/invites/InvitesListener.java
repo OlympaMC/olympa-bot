@@ -69,13 +69,13 @@ public class InvitesListener extends ListenerAdapter {
 						long duration = Utils.getCurrentTimeInSeconds() - time;
 						String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
 						if (duration < 60 * 12 * 31)
-							embed.addField("Nouveau compte", "Crée il y a `" + t + "`", true);
+							embed.addField("Nouveau compte", "Créé il y a `" + t + "`", true);
 						else {
 							String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-							embed.addField("Création du compte", "Crée le " + date + " (" + t + ")", true);
+							embed.addField("Création du compte", "Créé le " + date + " (" + t + ")", true);
 						}
 						if (inviter != null)
-							embed.addField("Inviter par", inviter.getAsMention() + " (" + inviter.getAsTag() + ")", true);
+							embed.addField("Invité par", inviter.getAsMention() + " (" + inviter.getAsTag() + ")", true);
 						olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 					}, discordMember);
 			InvitesHandler.removeLeaverUser(discordMember, opGuild);

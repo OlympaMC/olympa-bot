@@ -68,7 +68,7 @@ public class MemberListener extends ListenerAdapter {
 				long usersTotal = updateChannelMember(guild);
 				EmbedBuilder em = new EmbedBuilder();
 				em.setTitle("Bienvenue sur notre discord " + member.getEffectiveName() + " !");
-				em.setDescription("Tu es le " + usersTotal + " ème membre à rejoindre le discord.\n❌ Le serveur est actuellement en développement, suit les dernières informations dans <#558148715286888448>.");
+				em.setDescription("Tu es le " + usersTotal + " ème membre à rejoindre le discord.\n❌ Le serveur est actuellement en développement, suis les dernières informations dans <#558148715286888448>.");
 				em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 				member.getUser().openPrivateChannel().queue(ch -> ch.sendMessage(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 				discordMember.updateJoinTime(member.getTimeJoined().toEpochSecond());

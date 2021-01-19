@@ -37,7 +37,7 @@ public class LinkListener extends ListenerAdapter {
 			if (player == null) {
 				EmbedBuilder embed = new EmbedBuilder();
 				embed.setTitle("Bonjour " + user.getName());
-				embed.setDescription("Si tu souhaite relier ton compte Olympa et ton compte Discord, fais **/discord link** sur Minecraft et donne moi ici le code obtenu.");
+				embed.setDescription("Si tu souhaites relier ton compte Olympa et ton compte Discord, fais **/discord link** sur Minecraft et donne moi ici le code obtenu.");
 				channel.sendMessage(embed.build()).queue();
 				return;
 			}
@@ -57,10 +57,10 @@ public class LinkListener extends ListenerAdapter {
 			if (memberStaff != null)
 				LinkHandler.updateGroups(memberStaff, olympaPlayer);
 			EmbedBuilder embed = new EmbedBuilder();
-			embed.setDescription("Tu a relié ton compte Olympa " + player.getName() + " avec ton compte discord " + user.getAsMention() + ". Tu as reçu les bons rôles sur discord.");
+			embed.setDescription("Tu as relié ton compte Olympa " + player.getName() + " avec ton compte discord " + user.getAsMention() + ". Tu as reçu les bons rôles sur discord.");
 			channel.sendMessage(embed.build()).queue();
 		} catch (SQLException e) {
-			channel.sendMessage("⚠  Une erreur est survenu.").queue();
+			channel.sendMessage("⚠  Une erreur est survenue.").queue();
 			e.printStackTrace();
 		}
 
