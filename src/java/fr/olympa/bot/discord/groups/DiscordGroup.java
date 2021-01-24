@@ -30,7 +30,7 @@ public enum DiscordGroup {
 	MOD(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur liée aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum.", true),
 	ASSISTANT(OlympaGroup.ASSISTANT, 558322953314631690L, 558168138848403456L, "Question ou autre demande. Il saura t'aider pour toute autre situation.", true),
 	GAMEMASTER(OlympaGroup.GAMEMASTER, 730161035088101416L, 730164373418541057L, "Question spécifique au fonctionnement d'un de nos jeux Minecraft.", true),
-	DEVP(OlympaGroup.DEVP, 630451982775353347L, 0, null, false),
+	DEVP(OlympaGroup.DEVP, 630451982775353347L, 802968569209421884L, null, false),
 	DEV(OlympaGroup.DEV, 558322951250771978L, 558441264140386304L, "Signalement de bugs, quelque soit la platforme (Minecraft, Site, Forum, Discord, Teamspeak ...).", true),
 	BUILDER(OlympaGroup.BUILDER, 558322957798080514L, 558441911271161867L, null, false),
 	ANIMATEUR(OlympaGroup.ANIMATOR, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
