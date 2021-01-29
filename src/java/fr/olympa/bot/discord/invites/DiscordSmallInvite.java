@@ -10,19 +10,20 @@ import net.dv8tion.jda.api.entities.Invite;
 
 public class DiscordSmallInvite {
 
-	OlympaGuild guild;
+	OlympaGuild discordGuild;
 	int uses;
 	String code;
+	boolean isExpand = false;
 
 	public DiscordSmallInvite(Invite invite) {
-		guild = GuildHandler.getOlympaGuildByDiscordId(invite.getGuild().getIdLong());
+		discordGuild = GuildHandler.getOlympaGuildByDiscordId(invite.getGuild().getIdLong());
 		uses = invite.getUses();
 		code = invite.getCode();
 	}
 
 	DiscordSmallInvite(ResultSet rs) {
 		try {
-			guild = GuildHandler.getOlympaGuildById(rs.getInt(DiscordInvite.COLUMN_OLYMPA_GUILD_ID.getCleanName()));
+			discordGuild = GuildHandler.getOlympaGuildById(rs.getLong(DiscordInvite.COLUMN_OLYMPA_GUILD_ID.getCleanName()));
 			uses = rs.getInt(DiscordInvite.COLUMN_USES.getCleanName());
 			code = rs.getString(DiscordInvite.COLUMN_CODE.getCleanName());
 		} catch (SQLException e) {
@@ -31,7 +32,7 @@ public class DiscordSmallInvite {
 	}
 
 	DiscordSmallInvite(OlympaGuild guild, ResultSet rs) {
-		this.guild = guild;
+		discordGuild = guild;
 		try {
 			uses = rs.getInt(DiscordInvite.COLUMN_USES.getCleanName());
 			code = rs.getString(DiscordInvite.COLUMN_CODE.getCleanName());
@@ -40,12 +41,29 @@ public class DiscordSmallInvite {
 		}
 	}
 
+	public OlympaGuild getDiscordGuild() {
+		return discordGuild;
+	}
+
 	public int getUses() {
 		return uses;
 	}
 
 	public String getCode() {
 		return code;
+	}
+
+	public DiscordInvite expand() {
+		DiscordSmallInvite discordInvite2 = InvitesHandler.cache.getIfPresent(code);
+		if (discordInvite2 instanceof DiscordInvite)
+			return (DiscordInvite) discordInvite2;
+		else
+			try {
+				return DiscordInvite.getByCode(code);
+			} catch (IllegalAccessException | SQLException e) {
+				e.printStackTrace();
+				return null;
+			}
 	}
 
 	public String getUrl() {
@@ -57,7 +75,7 @@ public class DiscordSmallInvite {
 	}
 
 	public void getInvite(Consumer<Invite> successCallback) {
-		guild.getGuild().retrieveInvites().queue(invs -> {
+		discordGuild.getGuild().retrieveInvites().queue(invs -> {
 			Invite invite = invs.stream().filter(iv -> iv.getCode().equals(code)).findFirst().orElse(null);
 			if (invite != null)
 				successCallback.accept(invite);

@@ -77,7 +77,7 @@ public abstract class DiscordCommand implements CommandEvent {
 			member = members.get(0);
 		else if (RegexMatcher.DISCORD_TAG.is(arg))
 			member = guild.getMemberByTag(arg);
-		if (member == null && RegexMatcher.DISCORD_TAG.is(arg))
+		if (member == null && RegexMatcher.LONG.is(arg))
 			member = guild.getMemberById(arg);
 		if (member == null && RegexMatcher.USERNAME.is(arg))
 			try {

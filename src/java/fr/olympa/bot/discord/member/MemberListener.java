@@ -90,10 +90,9 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
 		Guild guild = event.getGuild();
-		Member member = event.getMember();
+		User user = event.getUser();
 		if (GuildHandler.getOlympaGuild(guild).getType() == DiscordGuildType.PUBLIC)
 			updateChannelMember(guild);
-		User user = member.getUser();
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLeaveTime(Utils.getCurrentTimeInSeconds());

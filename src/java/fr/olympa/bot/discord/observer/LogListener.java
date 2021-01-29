@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.utils.Utils;
-import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -17,7 +16,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
@@ -39,24 +37,6 @@ public class LogListener extends ListenerAdapter {
 			guild.addRoleToMember(member, defaultRole).queue();
 		}
 		// other stuff MOVED TO fr.olympa.bot.discord.invites.InvitesListener
-	}
-
-	@Override
-	public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
-		Guild guild = event.getGuild();
-		Member member = event.getMember();
-		User user = event.getUser();
-		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-		if (!olympaGuild.isLogEntries())
-			return;
-		String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
-		String name = " (" + member.getEffectiveName() + ")";
-		if (member.getEffectiveName().equals(user.getName()))
-			name = "";
-		String desc = "`" + user.getAsTag() + "`" + name + " est resté `" + time + "` Nous sommes `" + DiscordUtils.getMembersSize(guild) + "`.";
-		EmbedBuilder embed = LogsHandler.get("❌ Un joueur a quitté", null, desc, member);
-		embed.setColor(Color.RED);
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
 	}
 
 	@Override

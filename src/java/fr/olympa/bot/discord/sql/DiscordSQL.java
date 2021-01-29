@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 
@@ -162,8 +164,8 @@ public class DiscordSQL {
 
 	private static OlympaStatement selectDiscordMembersIdsStatement = new OlympaStatement(StatementType.SELECT, tableMembers, (String[]) null, "discord_id");
 
-	public static List<Long> selectDiscordMembersIds() throws SQLException {
-		List<Long> membersIds = new ArrayList<>();
+	public static Set<Long> selectDiscordMembersIds() throws SQLException {
+		Set<Long> membersIds = new HashSet<>();
 		ResultSet resultSet = selectDiscordMembersIdsStatement.executeQuery();
 		while (resultSet.next())
 			membersIds.add(resultSet.getLong(1));

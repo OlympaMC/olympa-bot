@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.invites;
 
+import java.awt.Color;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,8 +8,17 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.LinkSpigotBungee;
@@ -17,10 +27,15 @@ import fr.olympa.api.sql.SQLColumn;
 import fr.olympa.api.sql.SQLNullObject;
 import fr.olympa.api.sql.SQLTable;
 import fr.olympa.api.sql.statement.OlympaStatement;
+import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 
 public class DiscordInvite extends DiscordSmallInvite {
 
@@ -39,11 +54,11 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	static final List<SQLColumn<DiscordInvite>> COLUMNS = Arrays.asList(COLUMN_ID, COLUMN_OLYMPA_GUILD_ID, COLUMN_OLYMPA_DISCORD_ID, COLUMN_USES, COLUMN_USES_UNIQUE, COLUMN_USES_LEAVER, COLUMN_CREATED, COLUMN_CODE,
 			COLUMN_USERS_OLYMPA_DISCORD_ID, COLUMN_USERS_PAST_OLYMPA_DISCORD_ID, COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, COLUMN_DELETED);
-	private static SQLTable<DiscordInvite> inviteTable;
+	static SQLTable<DiscordInvite> table;
 
 	static {
 		try {
-			inviteTable = new SQLTable<>("discord.invites", COLUMNS, t -> {
+			table = new SQLTable<>("discord.invites", COLUMNS, t -> {
 				try {
 					return new DiscordInvite(t);
 				} catch (IllegalArgumentException | SQLException e) {
@@ -63,13 +78,57 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return null;
 	}
 
+	public static Set<DiscordSmallInvite> getAllSmalls(OlympaGuild opGuild) throws SQLException {
+		if (opGuild.isCacheComplete())
+			return InvitesHandler.cache.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).collect(Collectors.toSet());
+		ResultSet result = DiscordInvite.COLUMN_OLYMPA_GUILD_ID.selectBasic(opGuild.getId(), DiscordInvite.COLUMN_USES.getCleanName(), DiscordInvite.COLUMN_CODE.getCleanName());
+		Set<DiscordSmallInvite> invites = new HashSet<>();
+		while (result.next())
+			invites.add(new DiscordSmallInvite(opGuild, result));
+		result.close();
+		opGuild.cacheComplete();
+		return invites;
+	}
+
 	public static List<DiscordInvite> getAll(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
-		return COLUMN_OLYMPA_DISCORD_ID.select(opGuild.getId());
+		if (opGuild.isCacheComplete())
+			return InvitesHandler.cache.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).collect(Collectors.toList());
+		List<DiscordInvite> list = COLUMN_OLYMPA_GUILD_ID.select(opGuild.getId());
+		list.forEach(l -> InvitesHandler.addInvite(l));
+		opGuild.cacheComplete();
+		return list;
+	}
+
+	public static Map<Long, Integer> getStats(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
+		Map<Long, Integer> stats = new HashMap<>();
+		for (DiscordInvite invite : getAll(opGuild)) {
+			long user = invite.getAuthorId();
+			int uses = invite.getRealUse();
+			Integer actualNb = stats.get(user);
+			if (uses != 0) {
+				if (actualNb != null)
+					uses += actualNb;
+				stats.put(user, uses);
+			}
+		}
+		return stats.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+	}
+
+	public static int getPosOfAuthor(OlympaGuild opGuild, DiscordMember dm) throws SQLException, IllegalAccessException {
+		Map<Long, Integer> stats = getStats(opGuild);
+		int pos = 1;
+		Iterator<Entry<Long, Integer>> it = stats.entrySet().iterator();
+		Entry<Long, Integer> entry = null;
+		while (it.hasNext() && (entry = it.next()).getKey() != dm.getId())
+			pos++;
+		if (entry != null && entry.getKey() == dm.getId())
+			return pos;
+		return -1;
 	}
 
 	protected static List<DiscordInvite> getByUser(SQLColumn<DiscordInvite> column, DiscordMember dm, OlympaGuild opGuild) {
 		List<DiscordInvite> dis = new ArrayList<>();
-		OlympaStatement getUsers = new OlympaStatement("SELECT * FROM " + inviteTable.getName() + " WHERE " + column.getName() + " REGEXP ? AND " + COLUMN_OLYMPA_GUILD_ID.getName() + " = ?");
+		OlympaStatement getUsers = new OlympaStatement("SELECT * FROM " + table.getName() + " WHERE " + column.getName() + " REGEXP ? AND " + COLUMN_OLYMPA_GUILD_ID.getName() + " = ?");
 		try {
 			PreparedStatement statement = getUsers.getStatement();
 			int i = 1;
@@ -77,7 +136,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			statement.setLong(i, opGuild.getId());
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next())
-				dis.add(inviteTable.initializeFromRow.apply(resultSet));
+				dis.add(table.initializeFromRow.apply(resultSet));
 			resultSet.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -89,39 +148,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return COLUMN_OLYMPA_DISCORD_ID.select(discordMember.getId());
 	}
 
-	public DiscordInvite createNew() throws SQLException {
-		ResultSet resultSet = inviteTable.insert(
-				getGuild().getId(),
-				getAuthorId(),
-				getUses(),
-				new Timestamp(getCreated() * 1000L),
-				getCode());
-		resultSet.next();
-		id = resultSet.getInt("id");
-		resultSet.close();
-		isUpWithDb = true;
-		return this;
-	}
-
-	public void update() throws SQLException {
-		if (isUpWithDb)
-			return;
-		inviteTable.updateAsync(this, Map.of(COLUMN_USES, getUses(), COLUMN_USERS_OLYMPA_DISCORD_ID, getUsersToDB(), COLUMN_USERS_PAST_OLYMPA_DISCORD_ID, getPastUsersToDB(), COLUMN_USES_LEAVER, getUsesLeaver(), COLUMN_DELETED, deleted,
-				COLUMN_USES_UNIQUE, usesUnique), null, null);
-		isUpWithDb = true;
-	}
-
-	public void update(Invite invite) throws SQLException {
-		int inviteUses = invite.getUses();
-		if (inviteUses != uses) {
-			LinkSpigotBungee.Provider.link.sendMessage("&e[DISCORD INVITE] &cL'invitation %s par %s n'était pas à jour dans la bdd ...", invite.getCode(), invite.getInviter().getAsTag());
-			isUpWithDb = false;
-			uses = invite.getUses();
-			update();
-		}
-	}
-
 	int id;
+	DiscordMember author;
 	long authorId;
 	int usesLeaver;
 	int usesUnique;
@@ -143,29 +171,75 @@ public class DiscordInvite extends DiscordSmallInvite {
 		usesLeaver = 0;
 		usesUnique = 0;
 		created = invite.getTimeCreated().toEpochSecond();
-		InvitesHandler.addInvite(this);
+		isExpand = true;
 	}
 
 	private DiscordInvite(ResultSet rs) throws SQLException {
 		super(rs);
 		id = rs.getInt(COLUMN_ID.getCleanName());
-		authorId = rs.getInt(COLUMN_OLYMPA_GUILD_ID.getCleanName());
+		authorId = rs.getInt(COLUMN_OLYMPA_DISCORD_ID.getCleanName());
 		uses = rs.getInt(COLUMN_USES.getCleanName());
 		usesUnique = rs.getInt(COLUMN_USES_UNIQUE.getCleanName());
 		usesLeaver = rs.getInt(COLUMN_USES_LEAVER.getCleanName());
 		created = rs.getTimestamp(COLUMN_CREATED.getCleanName()).getTime() / 1000L;
 		code = rs.getString(COLUMN_CODE.getCleanName());
 		deleted = rs.getBoolean(COLUMN_DELETED.getCleanName());
-		usersIds = stringToListUsersIds(rs.getString(COLUMN_USERS_OLYMPA_DISCORD_ID.getCleanName()), usersIds);
-		pastUsersIds = stringToListUsersIds(rs.getString(COLUMN_USERS_PAST_OLYMPA_DISCORD_ID.getCleanName()), pastUsersIds);
-		leaveUsersIds = stringToListUsersIds(rs.getString(COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID.getCleanName()), leaveUsersIds);
+		stringToListUsersIds(rs.getString(COLUMN_USERS_OLYMPA_DISCORD_ID.getCleanName()), usersIds);
+		stringToListUsersIds(rs.getString(COLUMN_USERS_PAST_OLYMPA_DISCORD_ID.getCleanName()), pastUsersIds);
+		stringToListUsersIds(rs.getString(COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID.getCleanName()), leaveUsersIds);
+		isUpWithDb = true;
+		isExpand = true;
+	}
+
+	public DiscordInvite createNew() throws SQLException {
+		ResultSet resultSet = table.insert(
+				getDiscordGuild().getId(),
+				getAuthorId(),
+				getUses(),
+				new Timestamp(getCreated() * 1000L),
+				getCode());
+		resultSet.next();
+		id = resultSet.getInt("id");
+		resultSet.close();
+		isUpWithDb = true;
+		return this;
+	}
+
+	public void update() throws SQLException {
+		if (isUpWithDb)
+			return;
+		table.updateAsync(this, Map.of(COLUMN_USES, getUses(), COLUMN_USERS_OLYMPA_DISCORD_ID, getUsersToDB(), COLUMN_USERS_PAST_OLYMPA_DISCORD_ID, getPastUsersToDB(), COLUMN_USES_LEAVER, getUsesLeaver(), COLUMN_DELETED, deleted,
+				COLUMN_USES_UNIQUE, usesUnique), null, null);
 		isUpWithDb = true;
 	}
 
+	public void update(Invite invite) throws SQLException {
+		//		fixInvite(); // TODO remove this for performance
+		if (isDeleted())
+			throw new IllegalAccessError("Unable to update deleted DiscordInvite");
+		int inviteUses = invite.getUses();
+		if (inviteUses != uses) {
+			LinkSpigotBungee.Provider.link.sendMessage("&e[DISCORD INVITE] &cL'invitation %s par %s n'était pas à jour dans la bdd ...", invite.getCode(), invite.getInviter().getAsTag());
+			isUpWithDb = false;
+			uses = invite.getUses();
+		}
+		update();
+	}
+
+	@Override
+	public DiscordInvite expand() {
+		return this;
+	}
+
 	public void removeLeaver(DiscordMember member) {
-		if (listIdsContainsUser(leaveUsersIds, member)) {
+		removeLeaver(member.getId());
+	}
+
+	public void removeLeaver(long memberId) {
+		if (leaveUsersIds.contains(memberId)) {
 			usesLeaver--;
-			leaveUsersIds.remove(member.getId());
+			usesUnique--;
+			leaveUsersIds.remove(memberId);
 			isUpWithDb = false;
 		}
 	}
@@ -199,20 +273,126 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return id;
 	}
 
-	public OlympaGuild getGuild() {
-		return guild;
+	public void retreiveInvite(Consumer<Invite> succes, Consumer<Throwable> fail) {
+		getDiscordGuild().getGuild().retrieveInvites().queue(t -> {
+			if (t != null) {
+				Invite invite = t.stream().filter(i -> i.getCode().equals(code)).findFirst().orElse(null);
+				if (invite != null) {
+					succes.accept(invite);
+					return;
+				}
+			}
+			fail.accept(new Exception("Unable to get Invite for code " + code + "."));
+		});
+	}
+
+	public boolean fixInvite() throws SQLException {
+		Guild guild = getDiscordGuild().getGuild();
+		//		guild = guild.getGuild();
+		for (Long userId : usersIds) {
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
+			if (discordMember == null)
+				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
+			User user = discordMember.getUser();
+			if (user != null && !guild.isMember(user)) {
+				removeUser(discordMember);
+				discordMember.updateLeaveTime(Utils.getCurrentTimeInSeconds());
+				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c removeUser");
+			}
+		}
+		for (Long userId : leaveUsersIds) {
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
+			if (discordMember == null)
+				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
+			User user = discordMember.getUser();
+			if (user != null && guild.isMember(user)) {
+				removeLeaver(discordMember);
+				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c user removeLeaver");
+			}
+		}
+		if (leaveUsersIds.size() != usesLeaver)
+			if (leaveUsersIds.size() > usesLeaver) {
+				usesLeaver = leaveUsersIds.size();
+				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() > usesLeaver");
+			} else {
+				int iLeavers = 0;
+				for (Long userId : pastUsersIds) {
+					DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
+					if (discordMember == null)
+						throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
+					User user = discordMember.getUser();
+					if (user != null && !guild.isMember(user))
+						iLeavers++;
+				}
+				usesLeaver = iLeavers;
+				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() < usesLeaver");
+			}
+		if (pastUsersIds.size() != usesUnique) {
+			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique (was " + usesUnique + ").");
+			if (pastUsersIds.size() < usesUnique) {
+				List<Long> userToAdd = usersIds.stream().filter(u -> pastUsersIds.contains(u)).collect(Collectors.toList());
+				userToAdd.addAll(leaveUsersIds.stream().filter(u -> pastUsersIds.contains(u)).collect(Collectors.toList()));
+				if (!userToAdd.isEmpty()) {
+					for (Long users : userToAdd)
+						pastUsersIds.add(users);
+					isUpWithDb = false;
+				}
+			}
+			usesUnique = pastUsersIds.size();
+		}
+		return isUpWithDb;
 	}
 
 	public DiscordMember getAuthor() throws SQLException {
-		return CacheDiscordSQL.getDiscordMember(authorId);
+		if (author == null)
+			author = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(authorId);
+		return author;
+	}
+
+	public User getAuthorUser() throws SQLException {
+		return getAuthor().getUser();
+	}
+
+	public void sendNewJoinToAuthor(Member member) {
+		try {
+			DiscordMember dm = getAuthor();
+			User user = dm.getUser();
+			EmbedBuilder em = new EmbedBuilder();
+			em.setColor(Color.GREEN);
+			em.setTitle(member.getEffectiveName() + " est arrivé sur **" + discordGuild.getName() + "** grâce à toi !");
+			List<DiscordInvite> invites = InvitesHandler.getByAuthor(discordGuild, dm);
+			if (invites.size() > 1) {
+				int nbJoueurs = invites.stream().mapToInt(DiscordInvite::getRealUse).sum();
+				int nbJoueursLeave = invites.stream().mapToInt(DiscordInvite::getUsesLeaver).sum();
+				em.setDescription("Tu as déjà invité `" + nbJoueurs + " joueurs`");
+				if (nbJoueursLeave != 0)
+					em.appendDescription(" Et malheureusement, " + nbJoueursLeave + " joueurs sont partis...");
+				if (nbJoueurs > 3) {
+					int i = getPosOfAuthor(getDiscordGuild(), dm);
+					if (i != -1)
+						em.appendDescription("\nTop " + i + " sur " + discordGuild.getName() + ".");
+				}
+				List<String> msg = Arrays.asList("Merci à toi !", "Tu es sur la bonne voie !", "Encore encore", "Tu peux mieux faire", "Plus, plus, toujours plus",
+						"On aime voir ça !", "T'es le boss !", "Stonks", "Badass quoi");
+				em.appendDescription("\n" + msg.get(new Random().nextInt(msg.size())));
+			} else
+				em.setDescription("\n" + "Plus tu invites de joueurs, plus tu seras récompensé....");
+			user.openPrivateChannel().queue(pv -> pv.sendMessage(em.build()).queue());
+		} catch (SQLException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public int getUsesLeaver() {
 		return usesLeaver;
 	}
 
+	public int getRealUsesLeaver() {
+		return pastUsersIds.size() - usersIds.size();
+	}
+
 	public int getRealUse() {
-		return usesLeaver - usesUnique;
+		return usesUnique - usesLeaver;
 	}
 
 	public long getCreated() {
@@ -272,15 +452,15 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	private Object listUsersToString(List<Long> list) {
-		return list == null || list.isEmpty() ? new SQLNullObject() : list.stream().map(id -> String.valueOf(id)).collect(Collectors.joining(";"));
+		return list == null || list.isEmpty() ? new SQLNullObject() : list.stream().map(i -> String.valueOf(i)).collect(Collectors.joining(";"));
 	}
 
 	private boolean listIdsContainsUser(List<Long> list, DiscordMember dm) {
 		return list == null || list.isEmpty() ? false : list.contains(dm.getId());
 	}
 
-	private List<Long> stringToListUsersIds(String s, List<Long> list) throws SQLException {
-		if (s != null)
+	private List<Long> stringToListUsersIds(String s, List<Long> list) {
+		if (s != null && !s.isEmpty())
 			for (String idOlympaDiscord : s.split(";"))
 				list.add((long) RegexMatcher.LONG.parse(idOlympaDiscord));
 		return list;
