@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,7 @@ public class InviteCommand extends DiscordCommand {
 				em.setTitle("💌 Invitations de " + member.getEffectiveName());
 				em.addField("Utilisation", String.valueOf(mInv.getRealUses()), true);
 				em.addField("Nombre de leave", String.valueOf(mInv.getRealLeaves()), true);
-				em.addField("Dont réinviter", String.valueOf(mInv.getReinvited()), true);
+				em.addField("Dont réinvité", String.valueOf(mInv.getReinvited()), true);
 				em.addField("Utilisations Totales", String.valueOf(mInv.getTotalUses()), true);
 				em.addField("Joueurs parrainés", mInv.getUsers().stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", ")), true);
 				em.addField("Classement du serveur", "n°" + DiscordInvite.getPosOfAuthor(opGuild, discordMember), true);
@@ -55,7 +54,7 @@ public class InviteCommand extends DiscordCommand {
 				Map<Long, Integer> stats = DiscordInvite.getStats(opGuild);
 				em.setTitle("💌 Invitations");
 				int nb = 1;
-				em.setDescription("Il y a " + stats.size() + " joueurs qui ont ramener " + stats.values().stream().mapToInt(Integer::valueOf).sum() + " joueurs.\n");
+				em.setDescription("Il y a " + stats.size() + " membres qui ont ramené " + stats.values().stream().mapToInt(Integer::valueOf).sum() + " joueurs.\n");
 				for (Entry<Long, Integer> entry : stats.entrySet()) {
 					int uses = entry.getValue();
 					long userId = entry.getKey();
@@ -75,9 +74,9 @@ public class InviteCommand extends DiscordCommand {
 				channel.sendMessage(em.build()).queue();
 			} else if (label.equalsIgnoreCase("inviteall") && DiscordPermission.STAFF.hasPermission(member)) {
 				List<DiscordInvite> invites = DiscordInvite.getAll(opGuild);
-				Set<Long> invitesPerUser = invites.stream().map(invite -> invite.getAuthorId()).distinct().collect(Collectors.toSet());
+				long invitesPerUser = invites.stream().map(invite -> invite.getAuthorId()).distinct().count();
 				em.setTitle("💌 Invitations");
-				em.setDescription("Il y a " + invites.size() + " invitations par " + invitesPerUser.size() + " membres.\n");
+				em.setDescription("Il y a " + invites.size() + " invitations par " + invitesPerUser + " membres.\n");
 				for (DiscordInvite invite : invites.stream().sorted(InvitesHandler.getComparator()).collect(Collectors.toList())) {
 					DiscordMember author;
 					author = invite.getAuthor();

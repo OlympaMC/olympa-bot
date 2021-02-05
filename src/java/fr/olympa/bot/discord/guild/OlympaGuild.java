@@ -43,7 +43,7 @@ public class OlympaGuild {
 	private DiscordGuildType type;
 	private List<Long> excludeChannelsIds;
 
-	private boolean isCacheComplete = false;
+	private boolean isCacheComplete;
 
 	public static OlympaGuild createObject(ResultSet resultSet) throws JsonSyntaxException, SQLException {
 		String excludeChIds = resultSet.getString("exclude_channels_ids");
@@ -99,6 +99,7 @@ public class OlympaGuild {
 		this.minecraftChannelId = minecraftChannelId;
 		this.excludeChannelsIds = excludeChannelsIds;
 		this.type = DiscordGuildType.get(type);
+		isCacheComplete = false;
 	}
 
 	public String getName() {
