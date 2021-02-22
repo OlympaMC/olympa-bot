@@ -25,9 +25,9 @@ public class ClearCommand extends DiscordCommand {
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		Member member = message.getMember();
 
-		MatcherPattern nb = RegexMatcher.NUMBER;
+		MatcherPattern<Integer> nb = RegexMatcher.NUMBER;
 		if (nb.is(args[0])) {
-			Integer i = (Integer) nb.parse(args[0]);
+			Integer i = nb.parse(args[0]);
 			deleteMessage(message);
 
 			new Thread(() -> clearMessage(member, message, i)).run();

@@ -46,23 +46,23 @@ public class FileHandler {
 
 	public static String addFile(URL fileURL, String fileName) throws IOException {
 		String[] fileNameAndExt = fileName.split("\\.");
-		String newName = fileNameAndExt[0];
+		StringBuilder sb = new StringBuilder(fileNameAndExt[0]);
 		String ext = fileNameAndExt.length > 1 ? "." + fileNameAndExt[1] : new String();
 		File attFile;
 		int i = 0;
 		do {
 			if (i == 1)
-				newName += " (" + i + ")";
+				sb.append(" (" + i + ")");
 			else if (i > 1)
-				if (new MatcherPattern("\\(\\d\\)$").contains(newName))
-					newName = newName.replace("\\(\\d\\)$", "(" + i + ")");
+				if (new MatcherPattern<String>("\\(\\d\\)$").contains(sb.toString()))
+					sb = new StringBuilder(sb.toString().replace("\\(\\d\\)$", "(" + i + ")"));
 				else
-					newName += " (" + i + ")";
-			attFile = new File(getFolder(), newName + ext);
+					sb.append(" (" + i + ")");
+			attFile = new File(getFolder(), sb.toString() + ext);
 			i++;
 		} while (attFile.exists() && i < 1000);
 		InputStream in = fileURL.openStream();
 		Files.copy(in, Paths.get(attFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
-		return newName + ext;
+		return sb.toString() + ext;
 	}
 }
