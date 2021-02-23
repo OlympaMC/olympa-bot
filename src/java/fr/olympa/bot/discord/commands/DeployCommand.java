@@ -19,8 +19,6 @@ public class DeployCommand extends DiscordCommand {
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		String argument = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
-		OlympaRuntime.action(label, argument, out -> {
-			message.getChannel().sendMessage(message.getAuthor().getAsMention() + "```" + out.replaceAll("§.", "") + "```").queue(m -> deleteMessageAfter(m));
-		}).start();
+		OlympaRuntime.action(label, argument, out -> message.getChannel().sendMessage(message.getAuthor().getAsMention() + "```" + out.replaceAll("§.", "") + "```").queue(m -> deleteMessageAfter(m))).start();
 	}
 }
