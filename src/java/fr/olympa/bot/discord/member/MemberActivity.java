@@ -52,14 +52,15 @@ public class MemberActivity {
 	}
 
 	public static MemberActivity getFromDB(String name, ActivityType type, String url) throws SQLException {
-		PreparedStatement statement = selectStatement.getStatement();
-		MemberActivity activity = null;
-		statement.setString(1, name);
-		ResultSet resultSet = statement.executeQuery();
-		if (resultSet.next())
-			activity = new MemberActivity(resultSet);
-		resultSet.close();
-		return activity;
+		try (PreparedStatement statement = selectStatement.createStatement()) {
+			MemberActivity activity = null;
+			statement.setString(1, name);
+			ResultSet resultSet = selectStatement.executeQuery(statement);
+			if (resultSet.next())
+				activity = new MemberActivity(resultSet);
+			resultSet.close();
+			return activity;
+		}
 	}
 
 	public void update() throws SQLException {
@@ -72,38 +73,38 @@ public class MemberActivity {
 	private static OlympaStatement insertSanctionStatement = new OlympaStatement(StatementType.INSERT, table, "name", "type", "url", "emoji", "usersIds").returnGeneratedKeys();
 
 	private void insertToDb() throws SQLException {
-		PreparedStatement statement = insertSanctionStatement.getStatement();
-		int i = 1;
-		statement.setString(i++, name);
-		statement.setInt(i++, type.getKey());
-		statement.setString(i++, url);
-		statement.setString(i++, emoji);
-		if (usersIds != null && !usersIds.isEmpty()) {
-			StringJoiner joiner = new StringJoiner(",");
-			usersIds.forEach(userId -> joiner.add(String.valueOf(userId)));
-			statement.setString(i, joiner.toString());
-		} else
-			statement.setString(i, null);
-		statement.executeUpdate();
-		ResultSet resultSet = statement.getGeneratedKeys();
-		resultSet.next();
-		id = resultSet.getInt("id");
-		statement.close();
+		try (PreparedStatement statement = insertSanctionStatement.createStatement()) {
+			int i = 1;
+			statement.setString(i++, name);
+			statement.setInt(i++, type.getKey());
+			statement.setString(i++, url);
+			statement.setString(i++, emoji);
+			if (usersIds != null && !usersIds.isEmpty()) {
+				StringJoiner joiner = new StringJoiner(",");
+				usersIds.forEach(userId -> joiner.add(String.valueOf(userId)));
+				statement.setString(i, joiner.toString());
+			}else
+				statement.setString(i, null);
+			insertSanctionStatement.executeUpdate(statement);
+			ResultSet resultSet = statement.getGeneratedKeys();
+			resultSet.next();
+			id = resultSet.getInt("id");
+		}
 	}
 
 	private static OlympaStatement updateGuildStatement = new OlympaStatement(StatementType.UPDATE, table, "id", new String[] { "usersIds" });
 
 	private void updateToDb() throws SQLException {
-		PreparedStatement statement = updateGuildStatement.getStatement();
-		int i = 1;
-		if (usersIds != null && !usersIds.isEmpty()) {
-			StringJoiner joiner = new StringJoiner(",");
-			usersIds.forEach(id -> joiner.add(String.valueOf(id)));
-			statement.setString(i++, joiner.toString());
-		} else
-			statement.setString(i++, null);
-		statement.executeUpdate();
-		statement.close();
+		try (PreparedStatement statement = updateGuildStatement.createStatement()) {
+			int i = 1;
+			if (usersIds != null && !usersIds.isEmpty()) {
+				StringJoiner joiner = new StringJoiner(",");
+				usersIds.forEach(id -> joiner.add(String.valueOf(id)));
+				statement.setString(i++, joiner.toString());
+			}else
+				statement.setString(i++, null);
+			updateGuildStatement.executeUpdate(statement);
+		}
 	}
 
 	public void addUser(User user) throws SQLException {

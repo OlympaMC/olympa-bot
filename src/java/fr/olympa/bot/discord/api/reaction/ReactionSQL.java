@@ -23,36 +23,37 @@ public class ReactionSQL {
 			System.out.println("Impossible de sauvegarder dans la BDD la réaction " + reaction.getClass().getName() + " : " + "elle n'est pas dans " + ReactionHandler.class.getName() + ".");
 			return;
 		}
-		PreparedStatement statement = insertReactionStatement.getStatement();
-		int i = 1;
-		statement.setString(i++, ReactionHandler.toString(reaction));
-		statement.setLong(i++, reaction.getMessageId());
-		if (reaction.getCanReactUserIds() != null && !reaction.getCanReactUserIds().isEmpty())
-			statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
-		else
-			statement.setString(i++, null);
-		statement.setString(i++, new Gson().toJson(reaction.getDatas()));
-		statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
-		statement.setInt(i++, reaction.isRemoveWhenModClearAll() ? 1 : 0);
-		statement.setLong(i, reaction.getOlympaGuildId());
-		statement.executeUpdate();
-		statement.close();
+		try (PreparedStatement statement = insertReactionStatement.createStatement()) {
+			int i = 1;
+			statement.setString(i++, ReactionHandler.toString(reaction));
+			statement.setLong(i++, reaction.getMessageId());
+			if (reaction.getCanReactUserIds() != null && !reaction.getCanReactUserIds().isEmpty())
+				statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
+			else
+				statement.setString(i++, null);
+			statement.setString(i++, new Gson().toJson(reaction.getDatas()));
+			statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
+			statement.setInt(i++, reaction.isRemoveWhenModClearAll() ? 1 : 0);
+			statement.setLong(i, reaction.getOlympaGuildId());
+			insertReactionStatement.executeUpdate(statement);
+		}
 	}
 
 	private static OlympaStatement selectReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, "message_id", null);
 
 	public static ReactionDiscord selectReaction(long messageId) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		PreparedStatement statement = selectReactionStatement.getStatement();
-		ReactionDiscord reaction = null;
-		int i = 1;
-		statement.setLong(i, messageId);
-		ResultSet resultSet = selectReactionStatement.executeQuery();
-		if (resultSet.next()) {
-			reaction = ReactionHandler.getByName(resultSet.getString("name"));
-			reaction.createObject(resultSet);
+		try (PreparedStatement statement = selectReactionStatement.createStatement()) {
+			ReactionDiscord reaction = null;
+			int i = 1;
+			statement.setLong(i, messageId);
+			ResultSet resultSet = selectReactionStatement.executeQuery(statement);
+			if (resultSet.next()) {
+				reaction = ReactionHandler.getByName(resultSet.getString("name"));
+				reaction.createObject(resultSet);
+			}
+			resultSet.close();
+			return reaction;
 		}
-		resultSet.close();
-		return reaction;
 	}
 
 	private static OlympaStatement selectAllReactionStatement = new OlympaStatement(StatementType.SELECT, tableReaction, (String[]) null, (String[]) null);
@@ -60,34 +61,35 @@ public class ReactionSQL {
 	public static Set<ReactionDiscord> selectAllReactions() throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		Set<ReactionDiscord> reactions = new HashSet<>();
 		ReactionDiscord reaction;
-		ResultSet resultSet = selectAllReactionStatement.executeQuery();
-		while (resultSet.next()) {
-			reaction = ReactionHandler.getByName(resultSet.getString("name"));
-			reaction.createObject(resultSet);
-			reactions.add(reaction);
+		try (PreparedStatement statement = selectAllReactionStatement.createStatement()) {
+			ResultSet resultSet = selectAllReactionStatement.executeQuery(statement);
+			while (resultSet.next()) {
+				reaction = ReactionHandler.getByName(resultSet.getString("name"));
+				reaction.createObject(resultSet);
+				reactions.add(reaction);
+			}
+			resultSet.close();
+			return reactions;
 		}
-		resultSet.close();
-		return reactions;
 	}
 
 	private static OlympaStatement removeReactionStatement = new OlympaStatement(StatementType.DELETE, tableReaction, "message_id");
 
 	public static boolean removeReaction(ReactionDiscord reaction) throws SQLException {
-		PreparedStatement statement = removeReactionStatement.getStatement();
-		boolean reactionIsInDB;
-		statement.setLong(1, reaction.getMessageId());
-		statement.executeUpdate();
-		reactionIsInDB = statement.getGeneratedKeys().first();
-		statement.close();
-		return reactionIsInDB;
+		try (PreparedStatement statement = removeReactionStatement.createStatement()) {
+			boolean reactionIsInDB;
+			statement.setLong(1, reaction.getMessageId());
+			removeReactionStatement.executeUpdate(statement);
+			reactionIsInDB = statement.getGeneratedKeys().first();
+			return reactionIsInDB;
+		}
 	}
 
 	private static OlympaStatement purgeStatement = new OlympaStatement(StatementType.TRUNCATE, tableReaction);
 
 	public static int purge() throws SQLException {
-		PreparedStatement statement = purgeStatement.getStatement();
-		int rows = purgeStatement.executeUpdate();
-		statement.close();
-		return rows;
+		try (PreparedStatement statement = purgeStatement.createStatement()) {
+			return purgeStatement.executeUpdate(statement);
+		}
 	}
 }

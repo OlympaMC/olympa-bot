@@ -20,42 +20,44 @@ public class GuildSQL {
 	private static OlympaStatement insertGuildStatement = new OlympaStatement(StatementType.INSERT, tableGuild, "guild_id", "guild_name").returnGeneratedKeys();
 
 	public static OlympaGuild addGuild(Guild guild) throws SQLException {
-		PreparedStatement statement = insertGuildStatement.getStatement();
-		OlympaGuild olympaGuild = null;
-		int i = 1;
-		statement.setLong(i++, guild.getIdLong());
-		statement.setString(i, guild.getName());
-		statement.executeUpdate();
-		ResultSet resultSet = statement.getGeneratedKeys();
-		resultSet.next();
-		olympaGuild = OlympaGuild.createObject(resultSet);
-		resultSet.close();
-		statement.close();
-		return olympaGuild;
+		try (PreparedStatement statement = insertGuildStatement.createStatement()) {
+			OlympaGuild olympaGuild = null;
+			int i = 1;
+			statement.setLong(i++, guild.getIdLong());
+			statement.setString(i, guild.getName());
+			insertGuildStatement.executeUpdate(statement);
+			ResultSet resultSet = statement.getGeneratedKeys();
+			resultSet.next();
+			olympaGuild = OlympaGuild.createObject(resultSet);
+			resultSet.close();
+			return olympaGuild;
+		}
 	}
 
 	private static OlympaStatement selectGuildIdStatement = new OlympaStatement(StatementType.SELECT, tableGuild, "id", null);
 
 	public static OlympaGuild selectGuildById(long id) throws SQLException {
-		PreparedStatement statement = selectGuildIdStatement.getStatement();
-		OlympaGuild olympaGuild = null;
-		statement.setLong(1, id);
-		ResultSet resultSet = selectGuildIdStatement.executeQuery();
-		if (resultSet.next())
-			olympaGuild = OlympaGuild.createObject(resultSet);
-		resultSet.close();
-		return olympaGuild;
+		try (PreparedStatement statement = selectGuildIdStatement.createStatement()) {
+			OlympaGuild olympaGuild = null;
+			statement.setLong(1, id);
+			ResultSet resultSet = selectGuildIdStatement.executeQuery(statement);
+			if (resultSet.next())
+				olympaGuild = OlympaGuild.createObject(resultSet);
+			resultSet.close();
+			return olympaGuild;
+		}
 	}
 
 	private static OlympaStatement selectGuildsIdStatement = new OlympaStatement(StatementType.SELECT, tableGuild, (String[]) null, (String[]) null);
 
 	public static List<OlympaGuild> selectGuilds() throws SQLException {
-		List<OlympaGuild> olympaGuilds = new ArrayList<>();
-		ResultSet resultSet = selectGuildsIdStatement.executeQuery();
-		while (resultSet.next())
-			olympaGuilds.add(OlympaGuild.createObject(resultSet));
-		resultSet.close();
-		return olympaGuilds;
+		try (PreparedStatement statement = selectGuildsIdStatement.createStatement()) {
+			List<OlympaGuild> olympaGuilds = new ArrayList<>();
+			ResultSet resultSet = selectGuildsIdStatement.executeQuery(statement);
+			while (resultSet.next()) olympaGuilds.add(OlympaGuild.createObject(resultSet));
+			resultSet.close();
+			return olympaGuilds;
+		}
 	}
 
 	private static OlympaStatement updateGuildStatement = new OlympaStatement(StatementType.UPDATE, tableGuild, "id", new String[] {
@@ -64,40 +66,40 @@ public class GuildSQL {
 			"guild_type" });
 
 	public static void updateGuild(OlympaGuild olympaGuild) throws SQLException {
-		PreparedStatement statement = updateGuildStatement.getStatement();
-		int i = 1;
-		statement.setString(i++, olympaGuild.getName());
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogVoice()));
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogMsg()));
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogUsername()));
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogAttachment()));
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogRoles()));
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogEntries()));
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogInsult()));
-		statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isStatusMessageEnabled()));
-		if (olympaGuild.getLogChannelId() != 0)
-			statement.setLong(i++, olympaGuild.getLogChannelId());
-		else
-			statement.setObject(i++, null);
-		if (olympaGuild.getStaffChannelId() != 0)
-			statement.setLong(i++, olympaGuild.getStaffChannelId());
-		else
-			statement.setObject(i++, null);
-		if (olympaGuild.getBugsChannelId() != 0)
-			statement.setLong(i++, olympaGuild.getBugsChannelId());
-		else
-			statement.setObject(i++, null);
-		if (olympaGuild.getMinecraftChannelId() != 0)
-			statement.setLong(i++, olympaGuild.getMinecraftChannelId());
-		else
-			statement.setObject(i++, null);
-		if (!olympaGuild.getExcludeChannelsIds().isEmpty())
-			statement.setString(i++, new Gson().toJson(olympaGuild.getExcludeChannelsIds()));
-		else
-			statement.setObject(i++, null);
-		statement.setInt(i++, olympaGuild.getType().ordinal());
-		statement.setLong(i, olympaGuild.getId());
-		updateGuildStatement.executeUpdate();
-		statement.close();
+		try (PreparedStatement statement = updateGuildStatement.createStatement()) {
+			int i = 1;
+			statement.setString(i++, olympaGuild.getName());
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogVoice()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogMsg()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogUsername()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogAttachment()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogRoles()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogEntries()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogInsult()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isStatusMessageEnabled()));
+			if (olympaGuild.getLogChannelId() != 0)
+				statement.setLong(i++, olympaGuild.getLogChannelId());
+			else
+				statement.setObject(i++, null);
+			if (olympaGuild.getStaffChannelId() != 0)
+				statement.setLong(i++, olympaGuild.getStaffChannelId());
+			else
+				statement.setObject(i++, null);
+			if (olympaGuild.getBugsChannelId() != 0)
+				statement.setLong(i++, olympaGuild.getBugsChannelId());
+			else
+				statement.setObject(i++, null);
+			if (olympaGuild.getMinecraftChannelId() != 0)
+				statement.setLong(i++, olympaGuild.getMinecraftChannelId());
+			else
+				statement.setObject(i++, null);
+			if (!olympaGuild.getExcludeChannelsIds().isEmpty())
+				statement.setString(i++, new Gson().toJson(olympaGuild.getExcludeChannelsIds()));
+			else
+				statement.setObject(i++, null);
+			statement.setInt(i++, olympaGuild.getType().ordinal());
+			statement.setLong(i, olympaGuild.getId());
+			updateGuildStatement.executeUpdate(statement);
+		}
 	}
 }
