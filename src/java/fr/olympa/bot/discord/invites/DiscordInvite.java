@@ -135,7 +135,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			statement.setLong(i, opGuild.getId());
 			ResultSet resultSet = getUsers.executeQuery(statement);
 			while (resultSet.next())
-				dis.add(table.initializeFromRow.apply(resultSet));
+				dis.add(table.initializeFromRow.initialize(resultSet));
 			resultSet.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
