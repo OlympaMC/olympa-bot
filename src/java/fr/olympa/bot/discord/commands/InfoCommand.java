@@ -181,6 +181,9 @@ public class InfoCommand extends DiscordCommand {
 					date = Utils.timestampToDate(discordMember.getLeaveTime());
 					embed.addField("Nous a quitté le ", date + " (" + t + ")", true);
 				}
+				if (discordMember.getPermissions() != null && discordMember.getPermissions().isEmpty())
+					embed.addField("Permissions extra " + discordMember.getPermissions().size(), discordMember.getPermissions().keySet().stream().map(dp -> dp.getName()).collect(Collectors.joining(", ")), true);
+				embed.addField("Membre depuis", date + " (" + t + ")", true);
 				if (!discordMember.getOldNames().isEmpty())
 					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
 				embed.addField("XP", new DecimalFormat("0.#").format(discordMember.getXp()), true);

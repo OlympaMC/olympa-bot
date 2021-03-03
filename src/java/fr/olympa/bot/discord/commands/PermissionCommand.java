@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class PermissionCommand extends DiscordCommand {
 
 	public PermissionCommand() {
-		super("permission", DiscordPermission.ADMIN, "p");
+		super("permission", DiscordPermission.ADMIN, "p", "removepermission", "addpermission");
 		description = "Donne des permissions pour les commandes du bots.";
 		usage = "<pseudo|idDiscord|tag> [permission]";
 		minArg = 1;
@@ -75,7 +75,8 @@ public class PermissionCommand extends DiscordCommand {
 			embed.setTitle("Permission retirée à " + memberTarget.getEffectiveName() + ".");
 		} else {
 			discordMember.addPermission(newPermission, (OlympaGuild) null);
-			embed.setTitle("Permission ajoutée à " + memberTarget.getEffectiveName() + ".");
+			embed.setTitle("Permission "
+					+ " à " + memberTarget.getEffectiveName() + ".");
 		}
 		embed.setDescription(newPermission.getName());
 		channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
