@@ -3,10 +3,12 @@ package fr.olympa.bot.discord.webhook;
 import java.awt.Color;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.receive.ReadonlyMessage;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbed.EmbedAuthor;
 import club.minnced.discord.webhook.send.WebhookEmbed.EmbedField;
@@ -25,9 +27,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 
 public class WebHookHandler {
-	
+
 	public static String defaultName = "OlympaBot";
-	
+
 	private static WebhookClient sendWebhook(TextChannel channel, Consumer<? super Webhook> success) {
 		channel.retrieveWebhooks().queue(wbs -> {
 			Webhook webhook = wbs.stream().filter(wb -> wb.getName().equals(defaultName)).findFirst().orElse(null);
@@ -38,7 +40,7 @@ public class WebHookHandler {
 		});
 		return null;
 	}
-	
+
 	private static WebhookClient getClient(Webhook webhook) {
 		WebhookClientBuilder clientBuilder = new WebhookClientBuilder(webhook.getUrl());
 		clientBuilder.setThreadFactory((job) -> {
@@ -83,30 +85,38 @@ public class WebHookHandler {
 			for (Field field : oldFields)
 				webhookEmbed.addField(new EmbedField(field.isInline(), field.getName(), field.getValue()));
 		return webhookEmbed.build();
-		
+
 	}
-	
+
+	public static void send(WebhookMessageBuilder messageBuilder, TextChannel channel, String name, String avatarUrl, Consumer<? super ReadonlyMessage> success) {
+		Consumer<? super Webhook> s = webhook -> {
+			WebhookClient client = getClient(webhook);
+			messageBuilder.setUsername(name);
+			messageBuilder.setAvatarUrl(avatarUrl);
+			CompletableFuture<ReadonlyMessage> future = client.send(messageBuilder.build());
+			if (success != null)
+				future.thenAccept(success);
+		};
+		sendWebhook(channel, s);
+	}
+
 	public static void send(MessageEmbed messageEmbed, TextChannel channel, Member member) {
-		Consumer<? super Webhook> success = webhook -> {
-			WebhookClient client = getClient(webhook);
-			WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
-			messageBuilder.setUsername(member.getEffectiveName());
-			messageBuilder.setAvatarUrl(member.getUser().getAvatarUrl());
-			messageBuilder.addEmbeds(convertEmbed(messageEmbed));
-			client.send(messageBuilder.build());
-		};
-		sendWebhook(channel, success);
+		send(messageEmbed, channel, member, null);
 	}
-	
+
+	public static void send(MessageEmbed messageEmbed, TextChannel channel, Member member, Consumer<? super ReadonlyMessage> success) {
+		WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
+		messageBuilder.addEmbeds(convertEmbed(messageEmbed));
+		send(messageBuilder, channel, member.getEffectiveName(), member.getUser().getAvatarUrl(), success);
+	}
+
 	public static void send(String content, TextChannel channel, Member member) {
-		Consumer<? super Webhook> success = webhook -> {
-			WebhookClient client = getClient(webhook);
-			WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
-			messageBuilder.setUsername(member.getEffectiveName());
-			messageBuilder.setAvatarUrl(member.getUser().getAvatarUrl());
-			messageBuilder.append(content);
-			client.send(messageBuilder.build());
-		};
-		sendWebhook(channel, success);
+		send(content, channel, member.getEffectiveName(), member.getUser().getAvatarUrl());
+	}
+
+	public static void send(String content, TextChannel channel, String name, String avatarUrl) {
+		WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
+		messageBuilder.setContent(content);
+		send(messageBuilder, channel, name, avatarUrl, null);
 	}
 }

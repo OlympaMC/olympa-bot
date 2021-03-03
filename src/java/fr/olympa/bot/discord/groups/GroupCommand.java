@@ -10,20 +10,18 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class GroupCommand extends DiscordCommand {
-	
+
 	public GroupCommand() {
 		super("groupe", DiscordPermission.HIGH_DEV);
+		description = "Donne des infos sur un joueur Olympa.";
 	}
-	
+
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
-		message.delete().queue(null, ErrorResponseException.ignore(ErrorResponse.UNKNOWN_MESSAGE));
-		
+
 		if (args.length < 1)
 			return;
 
@@ -33,7 +31,7 @@ public class GroupCommand extends DiscordCommand {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		if (olympaTarget == null) {
 			channel.sendMessage("Le joueur **" + args[0] + "** est introuvable.");
 			return;
