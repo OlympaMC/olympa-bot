@@ -69,7 +69,7 @@ public class CommandListener extends ListenerAdapter {
 			return;
 		DiscordPermission permision = discordCommand.permission;
 		try {
-			discordCommand.dm = CacheDiscordSQL.getDiscordMember(member.getUser());
+			discordCommand.dm = CacheDiscordSQL.getDiscordMember(user);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return;
@@ -82,7 +82,7 @@ public class CommandListener extends ListenerAdapter {
 			guild = member.getGuild();
 		else
 			guild = null;
-		if (permision != null && (discordCommand.dm == null || !discordCommand.dm.hasPermission(permision, guild))) {
+		if (permision != null && (discordCommand.dm == null || !permision.hasPermission(discordCommand.member) && !discordCommand.dm.hasPermission(permision, guild))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
 			if (!message.isFromGuild())
 				out.queue();
