@@ -20,10 +20,10 @@ public class GroupHandler {
 		Guild guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
 		TextChannel channel = guild.getTextChannelById(558148740628611092L);
 		channel.retrieveMessageById(697756335235792907L).queue(msg -> {
-			EmbedBuilder mb = new EmbedBuilder().setTitle("Membres du Staff");
+			EmbedBuilder embed = new EmbedBuilder().setTitle("Membres du Staff");
 			Set<Member> staff = new HashSet<>();
-			mb.setColor(OlympaBots.getInstance().getDiscord().getColor());
-			mb.setTimestamp(OffsetDateTime.now());
+			embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
+			embed.setTimestamp(OffsetDateTime.now());
 			for (DiscordGroup discordGroup : DiscordGroup.values()) {
 				if (!discordGroup.isStaff())
 					continue;
@@ -33,13 +33,13 @@ public class GroupHandler {
 					String membersRoleS = membersRole.stream().map(Member::getAsMention).collect(Collectors.joining(", "));
 					if (!membersRoleS.isEmpty()) {
 						staff.addAll(membersRole);
-						mb.addField(role.getName() + " (" + membersRole.size() + ")", membersRoleS, true);
+						embed.addField(role.getName() + " (" + membersRole.size() + ")", membersRoleS, true);
 					}
 				}
 			}
 
-			mb.setDescription("Le staff est composé de " + staff.size() + " membres.");
-			msg.editMessage(mb.build()).queue();
+			embed.setDescription("Le staff est composé de " + staff.size() + " membres.");
+			msg.editMessage(embed.build()).queue();
 		});
 
 		return;

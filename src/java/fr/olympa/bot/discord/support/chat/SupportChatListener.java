@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class SupportChatListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Message message = event.getMessage();
@@ -26,7 +26,7 @@ public class SupportChatListener extends ListenerAdapter {
 			return;
 		sendMessage(message);
 	}
-	
+
 	@Override
 	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
 		User member = event.getAuthor();
@@ -53,31 +53,31 @@ public class SupportChatListener extends ListenerAdapter {
 						}, msgFinal.length() * 100, TimeUnit.MILLISECONDS);
 					});
 					channel.sendMessage("Message envoyé à " + user.getAsMention()).queue();
-					
+
 				} else if (id.startsWith("#")) {
 					TextChannel txtCh = event.getJDA().getTextChannelById(id.substring(1));
 					String msgFinal = msg.substring(id.length() + 1);
 					txtCh.sendTyping().queue();
 					Executors.newSingleThreadScheduledExecutor().schedule(() -> {
 						txtCh.sendMessage(msgFinal).queue();
-					}, msgFinal.length() * 200, TimeUnit.MILLISECONDS);
+					}, msgFinal.length() * 20, TimeUnit.MILLISECONDS);
 					channel.sendMessage("Message envoyé dans " + txtCh.getAsMention() + " sur " + txtCh.getGuild().getName()).queue();
-					
+
 				} else if (id.startsWith("!")) {
-					
+
 				}
 			} catch (Exception e) {
 				channel.sendMessage("Mauvais format " + e.getMessage()).queue();
 			}
 		}
 	}
-	
+
 	public void sendMessage(Message message) {
 		User author = message.getJDA().getUserById(450125243592343563L);
 		List<Attachment> attachments = message.getAttachments();
 		String msg = message.getContentRaw();
 		EmbedBuilder eb = new EmbedBuilder();
-		
+
 		User user = message.getAuthor();
 		eb.setDescription(user.getAsMention() + "(" + user.getIdLong() + ")" + " > " + msg);
 		for (Attachment att : attachments)

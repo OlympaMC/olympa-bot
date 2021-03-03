@@ -8,19 +8,49 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
-import fr.olympa.bot.discord.textmessage.DiscordMessage;
+import fr.olympa.bot.discord.message.DiscordMessage;
+import fr.olympa.bot.discord.message.SQLMessage;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 public class CacheDiscordSQL {
-	
+
+	public static void debug() {
+		LinkSpigotBungee link = LinkSpigotBungee.Provider.link;
+		link.getTask().scheduleSyncRepeatingTask(() -> link.sendMessage("§dNombre de DiscordMember en cache §5" + cacheMembers.size()), 29, 60, TimeUnit.MINUTES);
+	}
+
 	// <discordId, DiscordMember>
-	private static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
+	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).maximumSize(500).removalListener(notification -> {
+		try {
+			DiscordSQL.updateMember((DiscordMember) notification.getValue());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}).build();
 
 	public static DiscordMember getDiscordMember(User user) throws SQLException {
 		return getDiscordMember(user.getIdLong());
+	}
+
+	public static DiscordMember getDiscordMemberAndCreateIfNotExist(User user) throws SQLException {
+		DiscordMember discordMember = getDiscordMember(user.getIdLong());
+		if (discordMember == null) {
+			discordMember = new DiscordMember(user);
+			DiscordSQL.addMember(discordMember);
+			setDiscordMember(user.getIdLong(), discordMember);
+		}
+		return discordMember;
+	}
+
+	public static DiscordMember getDiscordMemberWithoutCaching(long userDiscordId) throws SQLException {
+		DiscordMember discordMember = cacheMembers.asMap().get(userDiscordId);
+		if (discordMember == null)
+			discordMember = DiscordSQL.selectMemberByDiscordId(userDiscordId);
+		return discordMember;
 	}
 
 	public static DiscordMember getDiscordMember(long userDiscordId) throws SQLException {
@@ -32,7 +62,17 @@ public class CacheDiscordSQL {
 		}
 		return discordMember;
 	}
-	
+
+	public static DiscordMember getDiscordMemberByDiscordOlympaId(long discordOlympaId) throws SQLException {
+		DiscordMember discordMember = cacheMembers.asMap().values().stream().filter(dm -> dm.getId() == discordOlympaId).findFirst().orElse(null);
+		if (discordMember == null) {
+			discordMember = DiscordSQL.selectMemberByDiscordOlympaId(discordOlympaId);
+			if (discordMember != null)
+				setDiscordMember(discordMember.getDiscordId(), discordMember);
+		}
+		return discordMember;
+	}
+
 	public static DiscordMember getDiscordMemberByOlympaId(long olympaId) throws SQLException {
 		DiscordMember discordMember = cacheMembers.asMap().values().stream().filter(dm -> dm.getOlympaId() == olympaId).findFirst().orElse(null);
 		if (discordMember == null) {
@@ -48,18 +88,18 @@ public class CacheDiscordSQL {
 	}
 
 	// <discordId, DiscordMember>
-	public static Cache<Long, DiscordMessage> cacheMessage = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
+	private static Cache<Long, DiscordMessage> cacheMessage = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
 
 	public static Entry<Long, DiscordMessage> getDiscordMessage(OlympaGuild olympaGuild, Message message) throws SQLException {
 		return getDiscordMessage(olympaGuild.getId(), message.getTextChannel().getIdLong(), message.getIdLong());
 	}
-	
+
 	public static Entry<Long, DiscordMessage> getDiscordMessage(long olympaGuildId, long channelDiscordId, long messageDiscordId) throws SQLException {
 		Entry<Long, DiscordMessage> entry = cacheMessage.asMap().entrySet().stream().filter(e -> e.getValue().getMessageId() == messageDiscordId).findFirst().orElse(null);
 		if (entry == null) {
-			DiscordMessage discordMessage = DiscordSQL.selectMessage(olympaGuildId, channelDiscordId, messageDiscordId);
+			DiscordMessage discordMessage = SQLMessage.selectMessage(olympaGuildId, channelDiscordId, messageDiscordId);
 			if (discordMessage != null) {
-				DiscordMember discordMember = getDiscordMember(discordMessage.getOlympaDiscordAuthorId());
+				DiscordMember discordMember = getDiscordMemberByDiscordOlympaId(discordMessage.getOlympaDiscordAuthorId());
 				entry = new AbstractMap.SimpleEntry<>(discordMember.getDiscordId(), discordMessage);
 				if (entry != null)
 					cacheMessage.put(entry.getKey(), entry.getValue());

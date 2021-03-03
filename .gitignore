@@ -3,4 +3,4 @@ bin
 target
 .project
 .classpath
-deploy.sh
+dependency-reduced-pom.xml

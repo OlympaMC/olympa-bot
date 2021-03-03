@@ -1,19 +1,17 @@
 package fr.olympa.bot.discord.sanctions;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
-import fr.olympa.api.utils.Matcher;
-import fr.olympa.api.utils.UtilsCore;
+import org.apache.commons.collections4.map.LinkedMap;
+
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.NumberEmoji;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
-import fr.olympa.bot.discord.reaction.AwaitReaction;
+import fr.olympa.bot.discord.member.DiscordMember;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,31 +23,21 @@ public class MuteCommand extends DiscordCommand {
 	public MuteCommand() {
 		super("mute", DiscordPermission.ASSISTANT);
 		minArg = 1;
-		usage = "<nom|surnom|tag|id>";
+		usage = "<nom|surnom|tag|id|mention> [temps] <raison>";
+		description = "Permet de mute un membre.";
 	}
 
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		if (args.length == 0)
 			return;
 
 		Member member = message.getMember();
 		MessageChannel channel = message.getChannel();
 		Guild guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
-		List<Member> targets;
 		String name = args[0];
+		List<Member> targets = DiscordMember.get(guild, name, message.getMentionedMembers());
 		targets = guild.getMembersByEffectiveName(name, true);
-		if (targets.isEmpty())
-			targets = guild.getMembersByName(name, true);
-		if (targets.isEmpty() && Matcher.isDisocrdTag(name))
-			targets = Arrays.asList(guild.getMemberByTag(name));
-		if (targets.isEmpty() && Matcher.isInt(name))
-			targets = Arrays.asList(guild.getMemberById(name));
-		if (targets.isEmpty())
-			targets = UtilsCore.similarWords(name, guild.getMembers().stream().map(Member::getEffectiveName)
-					.collect(Collectors.toSet())).stream()
-					.map(n -> guild.getMembersByEffectiveName(n, false)).filter(m -> !m.isEmpty()).map(m -> m.get(0))
-					.collect(Collectors.toList());
 		if (targets.isEmpty()) {
 			channel.sendMessage("Aucun joueur trouvé avec `" + name + "`.").queue();
 			return;
@@ -57,7 +45,7 @@ public class MuteCommand extends DiscordCommand {
 			EmbedBuilder em = new EmbedBuilder();
 			em.setTitle("Plusieurs membres trouvés:");
 			StringJoiner sj = new StringJoiner("\n");
-			HashMap<String, String> data = new HashMap<>();
+			LinkedMap<String, String> data = new LinkedMap<>();
 			NumberEmoji numberEmoji = NumberEmoji.ONE;
 			for (Member t : targets) {
 				if (numberEmoji != null) {
@@ -68,12 +56,19 @@ public class MuteCommand extends DiscordCommand {
 				numberEmoji = numberEmoji.getNext();
 			}
 			em.setDescription(sj.toString());
-			channel.sendMessage(em.build()).queue(m -> AwaitReaction.addReaction(m, new MuteChooseCommand(m, data, member.getIdLong())));
+			channel.sendMessage(em.build()).queue(m -> {
+				MuteChooseReaction reaction = new MuteChooseReaction(m, data, member);
+				reaction.addToMessage(m);
+			});
 
 			return;
 		} else {
 			Member target = targets.get(0);
-			SanctionHandler.mute(target, member.getUser(), channel);
+			try {
+				SanctionHandler.addSanctionFromMsg(target, message, DiscordSanctionType.MUTE);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

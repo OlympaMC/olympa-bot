@@ -32,6 +32,16 @@
 							</includes>
 						</filter>
 					</filters>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>META-INF/*.SF</exclude>
+								<exclude>META-INF/*.DSA</exclude>
+								<exclude>META-INF/*.RSA</exclude>
+							</excludes>
+						</filter>
+					</filters>
 				</configuration>
 				<executions>
 					<execution>
@@ -46,6 +56,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
 				<configuration>
 					<finalName>OlympaBot</finalName>
 					<archive>
@@ -74,13 +85,13 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>LATEST</version>
+			<version>4.2.0_175</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>club.minnced</groupId>
 			<artifactId>discord-webhooks</artifactId>
-			<version>LATEST</version>
+			<version>0.3.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -92,21 +103,21 @@
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.15-SNAPSHOT</version>
+			<version>1.16-R0.4-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-api</artifactId>
-			<version>1.15-SNAPSHOT</version>
+			<version>1.16-R0.4-SNAPSHOT</version>
 			<type>javadoc</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.olympa</groupId>
 			<artifactId>olympa-core</artifactId>
-			<version>[0.0.1-SNAPSHOT,)</version>
+			<version>0.0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -116,8 +127,11 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!--Teamspeak API <dependency> <groupId>com.github.theholywaffle</groupId> 
-			<artifactId>teamspeak3-api</artifactId> <version>[1.2,)</version> </dependency> -->
+		<dependency>
+			<groupId>com.github.theholywaffle</groupId>
+			<artifactId>teamspeak3-api</artifactId>
+			<version>[1.2,)</version>
+		</dependency>
 
 	</dependencies>
 	<properties>

@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class LinkListener extends ListenerAdapter {
-	
+
 	@Override
 	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
 		User user = event.getAuthor();
@@ -29,42 +29,41 @@ public class LinkListener extends ListenerAdapter {
 		MessageChannel channel = message.getChannel();
 		String msg = message.getContentRaw();
 		String code = msg.split(" ")[0];
-		
-		ProxiedPlayer player = LinkHandler.getPlayer(code);
-		if ((player == null || !player.isConnected()) && !channel.hasLatestMessage()) {
-			
-			EmbedBuilder embed = new EmbedBuilder();
-			embed.setTitle("Bonjour " + user.getName());
-			embed.setDescription("Pour relier ton compte Olympa et ton compte Discord, fais **/discord link** sur Minecraft et donne moi ici le code obtenu.");
-			channel.sendMessage(embed.build()).queue();
-			return;
-		}
-		
-		Member member = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMemberById(user.getIdLong());
-		
-		if (member == null) {
-			EmbedBuilder embed = new EmbedBuilder();
-			embed.setTitle("Bonjour " + user.getName());
-			embed.setDescription("Tu dois rejoindre le discord avant de pouloir lier ton compte. http:///discord.olympa.fr");
-			channel.sendMessage(embed.build()).queue();
-			return;
-		}
-
 		try {
-			OlympaPlayer olympaPlayer = new AccountProvider(player.getUniqueId()).getFromRedis();
+			ProxiedPlayer player = LinkHandler.getPlayer(code);
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
+			if (discordMember.getOlympaId() != 0)
+				return;
+			if (player == null) {
+				EmbedBuilder embed = new EmbedBuilder();
+				embed.setTitle("Bonjour " + user.getName());
+				embed.setDescription("Si tu souhaites relier ton compte Olympa et ton compte Discord, fais **/discord link** sur Minecraft et donne moi ici le code obtenu.");
+				channel.sendMessage(embed.build()).queue();
+				return;
+			}
+			Member member = GuildHandler.getMember(DiscordGuildType.PUBLIC, user);
+			if (member == null) {
+				EmbedBuilder embed = new EmbedBuilder();
+				embed.setTitle("Bonjour " + user.getName());
+				embed.setDescription("Tu dois rejoindre le discord avant de pouvoir lier ton compte. http://discord.olympa.fr/");
+				channel.sendMessage(embed.build()).queue();
+				return;
+			}
+			OlympaPlayer olympaPlayer = new AccountProvider(player.getUniqueId()).getFromRedis();
 			discordMember.setOlympaId(olympaPlayer.getId());
 			DiscordSQL.updateMember(discordMember);
-			member.modifyNickname(olympaPlayer.getName()).queue();
 			LinkHandler.updateGroups(member, olympaPlayer);
+			Member memberStaff = GuildHandler.getMember(DiscordGuildType.STAFF, user);
+			if (memberStaff != null)
+				LinkHandler.updateGroups(memberStaff, olympaPlayer);
 			EmbedBuilder embed = new EmbedBuilder();
-			embed.setTitle("Bonjour " + user.getName());
-			embed.setDescription("Tu a relié ton compte Olympa " + player.getName() + " avec ton compte discord " + user.getAsMention() + ". Tu as reçu les bons rôle sur discord.");
+			embed.setDescription("Tu as relié ton compte Olympa " + player.getName() + " avec ton compte discord " + user.getAsMention() + ". Tu as reçu les bons rôles sur discord.");
 			channel.sendMessage(embed.build()).queue();
 		} catch (SQLException e) {
+			channel.sendMessage("⚠  Une erreur est survenue.").queue();
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 }

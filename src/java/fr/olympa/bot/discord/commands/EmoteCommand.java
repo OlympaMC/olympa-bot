@@ -3,7 +3,7 @@ package fr.olympa.bot.discord.commands;
 import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 
-import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
@@ -17,10 +17,11 @@ public class EmoteCommand extends DiscordCommand {
 	public EmoteCommand() {
 		super("emote", DiscordPermission.HIGH_DEV);
 		minArg = 1;
+		description = "Permet de tester un emote.";
 	}
 
 	@Override
-	public void onCommandSend(DiscordCommand command, String[] args, Message message) {
+	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
 		deleteMessage(message);
 
@@ -32,7 +33,7 @@ public class EmoteCommand extends DiscordCommand {
 		}
 		EmbedBuilder embed = new EmbedBuilder().setDescription("Id: " + emote.getId() + " Name: " + emote.getName()).setTitle("Emote");
 		embed.setColor(Color.YELLOW);
-		channel.sendMessage(embed.build()).queue(m -> m.addReaction(emote).queue(m2 -> m.delete().queueAfter(OlympaBots.getInstance().getDiscord().timeToDelete, TimeUnit.SECONDS)));
+		channel.sendMessage(embed.build()).queue(m -> m.addReaction(emote).queue(m2 -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS)));
 	}
 
 }

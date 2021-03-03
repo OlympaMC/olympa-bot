@@ -8,7 +8,7 @@ import com.vdurmont.emoji.EmojiParser;
 public enum AutoResponse {
 
 	FORUM("Forum", "📚", "Tu dois utiliser le forum pour ce genre de demande."),
-	NOTENOUGH("Pas assez de détails", "🤷", "Merci de fournir plus de détails, tu dois nous donner le maximum d'information (pseudo Minecraft et/ou capture d'écran ...)"),
+	NOTENOUGH("Pas assez de détails", "🤷", "Merci de fournir plus de détails, tu dois nous donner le maximum d'information (pseudo Minecraft et/ou capture d'écran ...)."),
 	CLOSE("Fermer la demande", "🚪", "La demande est terminé.");
 
 	public static AutoResponse get(String emoji) {

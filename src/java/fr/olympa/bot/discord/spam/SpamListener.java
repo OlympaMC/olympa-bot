@@ -28,7 +28,8 @@ public class SpamListener extends ListenerAdapter {
 			return;
 		SpamHandler.removeAllTagMember(member);
 		TextChannel channel = message.getTextChannel();
-		List<Member> mentionedMembers = message.getMentionedMembers().stream().filter(m -> !m.getUser().isBot() && !m.getUser().isFake() && m.getPermissions(channel).contains(Permission.MESSAGE_READ)).collect(Collectors.toList());
+		List<Member> mentionedMembers = message.getMentionedMembers().stream().filter(m -> !m.getUser().isBot() && !m.getUser().isFake() && m.getPermissions(channel).contains(Permission.MESSAGE_READ)).distinct()
+				.collect(Collectors.toList());
 		if (mentionedMembers.isEmpty())
 			return;
 		List<Member> out = SpamHandler.addData(member, mentionedMembers);
@@ -41,6 +42,6 @@ public class SpamListener extends ListenerAdapter {
 		else
 			em.setDescription("Attends que " + out.stream().map(Member::getAsMention).collect(Collectors.joining(", ")) + " répondent à ta précédente mention avant de les re-mentionner.");
 		em.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		channel.sendMessage(member.getAsMention()).queue(m -> channel.sendMessage(em.build()).queue());
+		channel.sendMessage(em.build()).append(member.getAsMention()).queue();
 	}
 }
