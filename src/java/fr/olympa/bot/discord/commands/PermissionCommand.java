@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class PermissionCommand extends DiscordCommand {
 
 	public PermissionCommand() {
-		super("permission", DiscordPermission.ADMIN, "p", "removepermission", "addpermission");
+		super("permission", DiscordPermission.ADMIN, "removepermission", "addpermission", "p", "padd", "premove");
 		description = "Donne des permissions pour les commandes du bots.";
 		usage = "<pseudo|idDiscord|tag> [permission]";
 		minArg = 1;
@@ -70,15 +70,14 @@ public class PermissionCommand extends DiscordCommand {
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
-		if (label.equalsIgnoreCase("removepermission")) {
+		if (label.equalsIgnoreCase("removepermission") || label.equalsIgnoreCase("premove")) {
 			discordMember.removePermission(newPermission);
 			embed.setTitle("Permission retirée à " + memberTarget.getEffectiveName() + ".");
-		} else {
+		} else if (label.equalsIgnoreCase("addpermission") || label.equalsIgnoreCase("padd")) {
 			discordMember.addPermission(newPermission, (OlympaGuild) null);
-			embed.setTitle("Permission "
-					+ " à " + memberTarget.getEffectiveName() + ".");
+			embed.setTitle("Permission ajouté à " + memberTarget.getEffectiveName() + ".");
 		}
-		embed.setDescription(newPermission.getName());
+		embed.setDescription(newPermission.getName() + " (" + newPermission.getAllow().stream().map(dg -> dg.getOlympaGroup().getName()).collect(Collectors.joining(", ")) + ")");
 		channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
 	}
 

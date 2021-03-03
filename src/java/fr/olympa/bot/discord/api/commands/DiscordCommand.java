@@ -24,6 +24,10 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public abstract class DiscordCommand implements CommandEvent {
 
+	public class DiscordCommandContext {
+
+	}
+
 	protected static String prefix = ".";
 	private static Map<String, DiscordCommand> commands = new HashMap<>();
 
@@ -48,6 +52,31 @@ public abstract class DiscordCommand implements CommandEvent {
 	protected Integer minArg;
 	protected String description;
 	protected String usage;
+
+	protected User user;
+	protected Member member;
+	protected boolean isFromGuild;
+	protected DiscordMember dm;
+
+	public User getUser() {
+		return user;
+	}
+
+	public Member getMember() {
+		return member;
+	}
+
+	public boolean isFromGuild() {
+		return isFromGuild;
+	}
+
+	public DiscordMember getDm() {
+		return dm;
+	}
+
+	public void setDm(DiscordMember dm) {
+		this.dm = dm;
+	}
 
 	public DiscordCommand(String name) {
 		this.name = name;

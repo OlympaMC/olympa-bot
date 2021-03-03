@@ -33,7 +33,7 @@ public class InviteCommand extends DiscordCommand {
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
-		Member member = message.getMember();
+		Member member = this.member;
 		Guild guild = message.getGuild();
 		OlympaGuild opGuild = GuildHandler.getOlympaGuild(guild);
 		EmbedBuilder em = new EmbedBuilder();

@@ -1,5 +1,6 @@
 package fr.olympa.bot.discord.api.commands;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -9,7 +10,9 @@ import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -65,7 +68,21 @@ public class CommandListener extends ListenerAdapter {
 		if (!discordCommand.checkEditedMsg && event instanceof MessageUpdateEvent || !discordCommand.checkPrivateChannel(message, user))
 			return;
 		DiscordPermission permision = discordCommand.permission;
-		if (permision != null && (member == null || !permision.hasPermission(member))) {
+		try {
+			discordCommand.dm = CacheDiscordSQL.getDiscordMember(member.getUser());
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+		discordCommand.user = message.getAuthor();
+		discordCommand.member = message.getMember();
+		discordCommand.isFromGuild = message.isFromGuild();
+		Guild guild;
+		if (message.isFromGuild())
+			guild = member.getGuild();
+		else
+			guild = null;
+		if (permision != null && (discordCommand.dm == null || !discordCommand.dm.hasPermission(permision, guild))) {
 			MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
 			if (!message.isFromGuild())
 				out.queue();

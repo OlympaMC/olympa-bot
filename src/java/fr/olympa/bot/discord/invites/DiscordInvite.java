@@ -79,10 +79,14 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public static Set<DiscordSmallInvite> getAllSmalls(OlympaGuild opGuild) throws SQLException {
-		if (opGuild.isCacheComplete())
-			return InvitesHandler.cache.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).collect(Collectors.toSet());
+		Set<DiscordSmallInvite> invites;
+		if (opGuild.isCacheComplete()) {
+			invites = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).collect(Collectors.toSet());
+			if (!invites.isEmpty())
+				return invites;
+		}
 		ResultSet result = DiscordInvite.COLUMN_OLYMPA_GUILD_ID.selectBasic(opGuild.getId(), DiscordInvite.COLUMN_USES.getCleanName(), DiscordInvite.COLUMN_CODE.getCleanName());
-		Set<DiscordSmallInvite> invites = new HashSet<>();
+		invites = new HashSet<>();
 		while (result.next())
 			invites.add(new DiscordSmallInvite(opGuild, result));
 		result.close();
@@ -91,9 +95,13 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public static List<DiscordInvite> getAll(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
-		if (opGuild.isCacheComplete())
-			return InvitesHandler.cache.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).collect(Collectors.toList());
-		List<DiscordInvite> list = COLUMN_OLYMPA_GUILD_ID.select(opGuild.getId());
+		List<DiscordInvite> list;
+		if (opGuild.isCacheComplete()) {
+			list = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).collect(Collectors.toList());
+			if (!list.isEmpty())
+				return list;
+		}
+		list = COLUMN_OLYMPA_GUILD_ID.select(opGuild.getId());
 		list.forEach(l -> InvitesHandler.addInvite(l));
 		opGuild.cacheComplete();
 		return list;

@@ -54,7 +54,7 @@ public class DiscordSmallInvite {
 	}
 
 	public DiscordInvite expand() {
-		DiscordSmallInvite discordInvite2 = InvitesHandler.cache.getIfPresent(code);
+		DiscordSmallInvite discordInvite2 = InvitesHandler.CACHE.getIfPresent(code);
 		if (discordInvite2 instanceof DiscordInvite)
 			return (DiscordInvite) discordInvite2;
 		else
