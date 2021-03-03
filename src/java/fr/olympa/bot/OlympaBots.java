@@ -18,7 +18,6 @@ import fr.olympa.bot.bungee.TeamspeakCommand;
 import fr.olympa.bot.bungee.TeamspeakListener;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.reaction.AwaitReaction;
-import fr.olympa.bot.discord.invites.InvitesHandler;
 import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.teamspeak.OlympaTeamspeak;
@@ -82,10 +81,9 @@ public class OlympaBots extends Plugin {
 
 		//new TwitterAPI(this).connect();
 		OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), new SpigotReceiveError(), RedisChannel.SPIGOT_RECEIVE_ERROR.name());
-		CacheDiscordSQL.debug();
+		//		CacheDiscordSQL.debug();
 		CacheStats.addCache("DISCORD_ERROR_SEND", StaffListenerBungee.cache);
 		CacheStats.addCache("DISCORD_AWAIT_REACTIONS", AwaitReaction.reactions);
-		CacheStats.addCache("DISCORD_INVITES", InvitesHandler.cache);
 		CacheStats.addCache("DISCORD_LINK_CODE", LinkHandler.waiting);
 		CacheStats.addCache("DISCORD_MEMBERS", CacheDiscordSQL.cacheMembers);
 		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
