@@ -43,15 +43,15 @@ public class ErrorReaction extends ReactionDiscord {
 	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
 		switch (data) {
 		case "forMe":
-			break;
+			return true;
 		case "fix":
-			break;
+			return true;
 		case "delete":
 			message.delete().queue();
 			break;
 		case "pin":
 			message.pin().queue();
-			break;
+			return true;
 		}
 		return false;
 	}
