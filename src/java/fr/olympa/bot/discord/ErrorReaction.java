@@ -1,7 +1,6 @@
 package fr.olympa.bot.discord;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Map;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
@@ -18,8 +17,17 @@ public class ErrorReaction extends ReactionDiscord {
 	String stackTrace;
 
 	public ErrorReaction(SimpleEntry<String, String> entry, Message msg) {
-		super((LinkedMap<String, String>) Map.of("☝️", "forMe", "📌", "pin", "👍", "fix", "❌", "delete"), msg.getIdLong(),
+		super(new LinkedMap<String, String>() {
+			private static final long serialVersionUID = -3385687263702744975L;
+			{
+				put("☝️", "forMe");
+				put("📌", "pin");
+				put("👍", "fix");
+				put("❌", "delete");
+			}
+		}, msg.getIdLong(),
 				GuildHandler.getOlympaGuildByDiscordId(msg.getGuild().getIdLong()).getId());
+
 		serverName = entry.getKey();
 		stackTrace = entry.getValue();
 	}
