@@ -32,6 +32,11 @@ public class CacheDiscordSQL {
 		}
 	}).build();
 
+	public static void update(DiscordMember discordMember) {
+		cacheMembers.put(discordMember.getDiscordId(), discordMember);
+
+	}
+
 	public static DiscordMember getDiscordMember(User user) throws SQLException {
 		return getDiscordMember(user.getIdLong());
 	}
@@ -111,4 +116,5 @@ public class CacheDiscordSQL {
 	public static void setDiscordMessage(long userDiscordId, DiscordMessage discordMessage) {
 		cacheMessage.put(userDiscordId, discordMessage);
 	}
+
 }

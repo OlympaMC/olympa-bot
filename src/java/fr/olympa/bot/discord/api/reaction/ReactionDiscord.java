@@ -35,8 +35,7 @@ public abstract class ReactionDiscord {
 	private boolean removeWhenModClearAll = true;
 	private long messageId, olympaGuildId;
 
-	public ReactionDiscord() {
-	}
+	public ReactionDiscord() {}
 
 	public ReactionDiscord(LinkedMap<String, String> reactionsEmojis, long messageId, long olympaGuildId, IMentionable... canReactUsers) {
 		this.reactionsEmojis = reactionsEmojis;
@@ -103,7 +102,7 @@ public abstract class ReactionDiscord {
 
 	public abstract void onReactModDeleteOne(long messageId, MessageChannel messageChannel);
 
-	public abstract void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionsEmojis);
+	public abstract void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String data);
 
 	public void setMessageId(long messageId) {
 		this.messageId = messageId;
@@ -114,12 +113,10 @@ public abstract class ReactionDiscord {
 	}
 
 	public void createObject(ResultSet resultSet) throws JsonSyntaxException, SQLException {
-		reactionsEmojis = new Gson().fromJson(resultSet.getString("data"), new TypeToken<LinkedMap<String, String>>() {
-		}.getType());
+		reactionsEmojis = new Gson().fromJson(resultSet.getString("data"), new TypeToken<LinkedMap<String, String>>() {}.getType());
 		String allowed = resultSet.getString("allowed_users_ids");
 		if (allowed != null && !allowed.isEmpty())
-			canReactUserIds = new Gson().fromJson(resultSet.getString("allowed_users_ids"), new TypeToken<List<Long>>() {
-			}.getType());
+			canReactUserIds = new Gson().fromJson(resultSet.getString("allowed_users_ids"), new TypeToken<List<Long>>() {}.getType());
 		else
 			canReactUserIds = new ArrayList<>();
 		canMultiple = resultSet.getInt("can_multiple") == 1;
@@ -153,8 +150,12 @@ public abstract class ReactionDiscord {
 		return null;
 	}
 
-	public Boolean remove(MessageChannel messageChannel) {
+	public void removeFromCache() {
 		AwaitReaction.reactions.invalidate(messageId);
+	}
+
+	public Boolean remove(MessageChannel messageChannel) {
+		removeFromCache();
 		messageChannel.retrieveMessageById(messageId).queue(message -> message.clearReactions().queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS)));
 		return removeFromDB();
 	}

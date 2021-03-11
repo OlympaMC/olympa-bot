@@ -2,7 +2,6 @@ package fr.olympa.bot.discord;
 
 import java.awt.Color;
 import java.sql.SQLException;
-import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.login.LoginException;
 
@@ -106,7 +105,7 @@ public class OlympaDiscord {
 			try {
 				GuildHandler.guilds = GuildSQL.selectGuilds();
 				jda = builder.build();
-				plugin.getProxy().getScheduler().schedule(plugin, OlympaBots.getInstance().bungeeListener::sendErrorFlushInfo, 2, TimeUnit.SECONDS);
+				//				plugin.getProxy().getScheduler().schedule(plugin, OlympaBots.getInstance().bungeeListener::sendErrorFlushInfo, 2, TimeUnit.SECONDS);
 			} catch (LoginException | SQLException e) {
 				e.printStackTrace();
 				return;

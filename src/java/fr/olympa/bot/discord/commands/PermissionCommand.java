@@ -12,6 +12,7 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
+import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -46,11 +47,7 @@ public class PermissionCommand extends DiscordCommand {
 			channel.sendMessage(embed.build()).queue();
 			return;
 		}
-		try {
-			discordMember = CacheDiscordSQL.getDiscordMember(memberTarget.getIdLong());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		discordMember = command.getDm();
 		if (discordMember == null) {
 			embed.setTitle("Erreur");
 			embed.setDescription("Données de " + memberTarget.getAsMention() + " introuvables.");
@@ -76,6 +73,12 @@ public class PermissionCommand extends DiscordCommand {
 		} else if (label.equalsIgnoreCase("addpermission") || label.equalsIgnoreCase("padd")) {
 			discordMember.addPermission(newPermission, (OlympaGuild) null);
 			embed.setTitle("Permission ajouté à " + memberTarget.getEffectiveName() + ".");
+		}
+		CacheDiscordSQL.update(discordMember);
+		try {
+			DiscordSQL.updateMember(discordMember);
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		embed.setDescription(newPermission.getName() + " (" + newPermission.getAllow().stream().map(dg -> dg.getOlympaGroup().getName()).collect(Collectors.joining(", ")) + ")");
 		channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));

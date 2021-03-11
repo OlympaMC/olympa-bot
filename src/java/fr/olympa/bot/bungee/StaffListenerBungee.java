@@ -17,6 +17,7 @@ import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.player.OlympaPlayer;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.ErrorReaction;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -188,16 +189,21 @@ public class StaffListenerBungee implements Listener {
 				lineLen += word.length();
 			}
 			strings.add(output.toString());
-			channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```\nx1").queue(msg -> cache.put(entry, msg));
+			channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```\nx1").queue(msg -> {
+				cache.put(entry, msg);
+				ErrorReaction reaction = new ErrorReaction(entry, msg);
+				reaction.addToMessage(msg);
+				reaction.saveToDB();
+			});
 			for (int i = 1; i < strings.size(); i++)
 				channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
 
 		}
 	}
 
-	public void sendErrorFlushInfo() {
-		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
-		if (channelStaffDiscord != null)
-			channelStaffDiscord.sendMessage("__Le bot a redémarré ~ vidage du cache__").queue();
-	}
+	//	public void sendErrorFlushInfo() {
+	//		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
+	//		if (channelStaffDiscord != null)
+	//			channelStaffDiscord.sendMessage("__Le bot a redémarré ~ vidage du cache__").queue();
+	//	}
 }

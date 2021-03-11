@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveAllEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEmoteEvent;
@@ -66,6 +67,16 @@ public class ReactionListener extends ListenerAdapter {
 			}
 		});
 
+	}
+
+	@Override
+	public void onMessageDelete(MessageDeleteEvent event) {
+		long messageId = event.getMessageIdLong();
+		ReactionDiscord reaction = AwaitReaction.get(messageId);
+		if (reaction == null)
+			return;
+		reaction.removeFromCache();
+		reaction.removeFromDB();
 	}
 
 	@Override

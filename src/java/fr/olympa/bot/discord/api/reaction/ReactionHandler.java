@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import fr.olympa.bot.discord.ErrorReaction;
 import fr.olympa.bot.discord.sanctions.MuteChooseReaction;
 import fr.olympa.bot.discord.servers.RefreshServersReaction;
 import fr.olympa.bot.discord.suvey.SurveyReaction;
@@ -14,6 +15,7 @@ public class ReactionHandler {
 	public static MuteChooseReaction MUTE_CHOOSE = new MuteChooseReaction();
 	public static RefreshServersReaction REFRESH_SERVER = new RefreshServersReaction();
 	public static SurveyReaction SURVEY = new SurveyReaction();
+	public static ErrorReaction ERROR = new ErrorReaction();
 
 	public static void initReactions() {
 		try {
@@ -28,6 +30,7 @@ public class ReactionHandler {
 		Field field = ReactionHandler.class.getField(name);
 		if (field != null) {
 			Class<?> fieldType = field.getType();
+			//			new CreateInstance<ReactionDiscord>().of(fieldType);
 			return (ReactionDiscord) fieldType.newInstance();
 		}
 		return null;

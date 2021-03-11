@@ -175,7 +175,8 @@ public class DiscordSQL {
 		try (PreparedStatement statement = selectDiscordMembersIdsStatement.createStatement()) {
 			Set<Long> membersIds = new HashSet<>();
 			ResultSet resultSet = selectDiscordMembersIdsStatement.executeQuery(statement);
-			while (resultSet.next()) membersIds.add(resultSet.getLong(1));
+			while (resultSet.next())
+				membersIds.add(resultSet.getLong(1));
 			resultSet.close();
 			return membersIds;
 		}

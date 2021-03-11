@@ -15,9 +15,7 @@ public class SurveyReaction extends ReactionDiscord {
 		super(map, msg.getIdLong(), guild.getId());
 	}
 
-	public SurveyReaction() {
-		super();
-	}
+	public SurveyReaction() {}
 
 	@Override
 	public void onBotStop(long messageId) {
@@ -31,12 +29,10 @@ public class SurveyReaction extends ReactionDiscord {
 	}
 
 	@Override
-	public void onReactModClearAll(long messageId, MessageChannel messageChannel) {
-	}
+	public void onReactModClearAll(long messageId, MessageChannel messageChannel) {}
 
 	@Override
-	public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
-	}
+	public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {}
 
 	@Override
 	public void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionEmoji) {

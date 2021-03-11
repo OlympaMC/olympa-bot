@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class DeployCommand extends DiscordCommand {
 
 	private static int taskId = -1;
-	private final Map<MessageChannel, StringJoiner> OUT = new HashMap<>();
+	private final static Map<MessageChannel, StringJoiner> OUT = new HashMap<>();
 
 	public DeployCommand() {
 		super("deploy", DiscordPermission.DEV, "autodeploy", "deployto");
@@ -63,7 +63,7 @@ public class DeployCommand extends DiscordCommand {
 			for (Entry<MessageChannel, StringJoiner> e : OUT.entrySet())
 				sendMsg(e.getKey(), e.getValue());
 			OUT.clear();
-		}, 30, 10, TimeUnit.SECONDS);
+		}, 5, 5, TimeUnit.SECONDS);
 	}
 
 	@Override
