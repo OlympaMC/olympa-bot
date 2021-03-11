@@ -54,7 +54,7 @@ public class FileHandler {
 			if (i == 1)
 				sb.append(" (" + i + ")");
 			else if (i > 1)
-				if (new MatcherPattern<String>("\\(\\d\\)$").contains(sb.toString()))
+				if (MatcherPattern.of("\\(\\d\\)$").contains(sb.toString()))
 					sb = new StringBuilder(sb.toString().replace("\\(\\d\\)$", "(" + i + ")"));
 				else
 					sb.append(" (" + i + ")");
