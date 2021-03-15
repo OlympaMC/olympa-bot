@@ -84,11 +84,16 @@ public class DiscordInvite extends DiscordSmallInvite {
 			invites = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).collect(Collectors.toSet());
 			if (!invites.isEmpty())
 				return invites;
+			else
+				opGuild.cacheIncomplete();
 		}
 		ResultSet result = DiscordInvite.COLUMN_OLYMPA_GUILD_ID.selectBasic(opGuild.getId(), DiscordInvite.COLUMN_USES.getCleanName(), DiscordInvite.COLUMN_CODE.getCleanName());
 		invites = new HashSet<>();
-		while (result.next())
-			invites.add(new DiscordSmallInvite(opGuild, result));
+		while (result.next()) {
+			DiscordSmallInvite dsm = new DiscordSmallInvite(opGuild, result);
+			invites.add(dsm);
+			InvitesHandler.addInvite(null);
+		}
 		result.close();
 		opGuild.cacheComplete();
 		return invites;
@@ -100,6 +105,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 			list = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).collect(Collectors.toList());
 			if (!list.isEmpty())
 				return list;
+			else
+				opGuild.cacheIncomplete();
 		}
 		list = COLUMN_OLYMPA_GUILD_ID.select(opGuild.getId());
 		list.forEach(l -> InvitesHandler.addInvite(l));

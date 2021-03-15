@@ -40,15 +40,25 @@ public class InviteCommand extends DiscordCommand {
 		em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		try {
 			if (label.equalsIgnoreCase("invite")) {
-				DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(message.getAuthor());
-				MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, discordMember));
+				List<Member> members = message.getMentionedMembers();
+				Member memberTarget = null;
+				if (args.length != 0) {
+					if (!members.isEmpty())
+						memberTarget = members.get(0);
+					else
+						memberTarget = getMember(message.getGuild(), args[0]);
+				} else
+					memberTarget = member;
+				DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
+				MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, dmTarget));
 				em.setTitle("💌 Invitations de " + member.getEffectiveName());
-				em.addField("Utilisation", String.valueOf(mInv.getRealUses()), true);
+				em.addField("Classement du serveur", "n°" + DiscordInvite.getPosOfAuthor(opGuild, dmTarget), true);
+				em.addField("Utilisations Uniques", String.valueOf(mInv.getRealUses()), true);
 				em.addField("Nombre de leave", String.valueOf(mInv.getRealLeaves()), true);
 				em.addField("Dont réinvité", String.valueOf(mInv.getReinvited()), true);
 				em.addField("Utilisations Totales", String.valueOf(mInv.getTotalUses()), true);
 				em.addField("Joueurs parrainés", mInv.getUsers().stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", ")), true);
-				em.addField("Classement du serveur", "n°" + DiscordInvite.getPosOfAuthor(opGuild, discordMember), true);
+				em.addField("Liens", mInv.getInvites().stream().map(di -> di.getUrl()).collect(Collectors.joining(", ")), false);
 				channel.sendMessage(em.build()).queue();
 			} else if (label.equalsIgnoreCase("invitetop")) {
 				Map<Long, Integer> stats = DiscordInvite.getStats(opGuild);

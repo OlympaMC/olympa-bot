@@ -136,7 +136,7 @@ public class StaffListenerBungee implements Listener {
 		queue.clear();
 	}
 
-	public static Cache<Entry<String, String>, Message> cache = CacheBuilder.newBuilder().maximumSize(50).build();
+	public static Cache<Entry<String, String>, List<Message>> cache = CacheBuilder.newBuilder().maximumSize(50).build();
 
 	public void sendBungeeError(String stackTrace) {
 		sendError("bungee", stackTrace);
@@ -150,8 +150,9 @@ public class StaffListenerBungee implements Listener {
 			return;
 		}
 		SimpleEntry<String, String> entry = new AbstractMap.SimpleEntry<>(serverName, stackTrace);
-		Message message = cache.getIfPresent(entry);
-		if (message != null) {
+		List<Message> messages = cache.getIfPresent(entry);
+		if (messages != null) {
+			Message message = messages.get(0);
 			String content = message.getContentRaw();
 			int xIndex = content.lastIndexOf('x');
 			int times = Integer.parseInt(content.substring(xIndex + 1));
@@ -160,8 +161,6 @@ public class StaffListenerBungee implements Listener {
 				cache.invalidate(entry);
 				sendError(serverName, stackTrace);
 			});
-			/*Collection<Emoji> emojis = EmojiManager.getAll();
-			message.addReaction(emojis.stream().skip(new Random().nextInt(emojis.size())).findFirst().orElse(null).getUnicode()).queue(null, ErrorResponseException.ignore(ErrorResponse.TOO_MANY_REACTIONS, ErrorResponse.REACTION_BLOCKED));*/
 			return;
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
@@ -179,7 +178,6 @@ public class StaffListenerBungee implements Listener {
 			int lineLen = 0;
 			while (tok.hasMoreTokens()) {
 				String word = tok.nextToken() + "\n";
-
 				if (lineLen + word.length() > maxSize) {
 					strings.add(output.toString());
 					output = new StringBuilder(stackTrace.length());
@@ -189,14 +187,16 @@ public class StaffListenerBungee implements Listener {
 				lineLen += word.length();
 			}
 			strings.add(output.toString());
-			channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```Java\n" + strings.get(0) + "```\nx1").queue(msg -> {
-				cache.put(entry, msg);
+			List<Message> msgs = new ArrayList<>();
+			cache.put(entry, msgs);
+			channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```css\n" + strings.get(0) + "```\nx1").queue(msg -> {
+				msgs.add(msg);
 				ErrorReaction reaction = new ErrorReaction(entry, msg);
 				reaction.addToMessage(msg);
 				reaction.saveToDB();
 			});
 			for (int i = 1; i < strings.size(); i++)
-				channelStaffDiscord.sendMessage("```Java\n" + strings.get(i) + "```").queue();
+				channelStaffDiscord.sendMessage("```css\n" + strings.get(i) + "```").queue(msg -> msgs.add(msg));
 
 		}
 	}

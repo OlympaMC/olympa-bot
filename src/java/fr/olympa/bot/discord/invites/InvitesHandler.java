@@ -102,6 +102,8 @@ public class InvitesHandler {
 					.collect(Collectors.toList());
 			if (!list.isEmpty())
 				return list;
+			else
+				opGuild.cacheIncomplete();
 		}
 		try {
 			list = DiscordInvite.table.select(Map.of(DiscordInvite.COLUMN_OLYMPA_GUILD_ID, opGuild.getId(), DiscordInvite.COLUMN_OLYMPA_DISCORD_ID, discordMember.getId()));
