@@ -45,13 +45,18 @@ public class InviteCommand extends DiscordCommand {
 				if (args.length != 0) {
 					if (!members.isEmpty())
 						memberTarget = members.get(0);
-					else
+					else {
 						memberTarget = getMember(message.getGuild(), args[0]);
+						if (memberTarget == null) {
+							channel.sendMessage(String.format("%s, %s est inconnu.", member.getAsMention(), args[0])).queue();
+							return;
+						}
+					}
 				} else
 					memberTarget = member;
 				DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
 				MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, dmTarget));
-				em.setTitle("💌 Invitations de " + member.getEffectiveName());
+				em.setTitle("💌 Invitations de " + memberTarget.getEffectiveName());
 				em.addField("Classement du serveur", "n°" + DiscordInvite.getPosOfAuthor(opGuild, dmTarget), true);
 				em.addField("Utilisations Uniques", String.valueOf(mInv.getRealUses()), true);
 				em.addField("Nombre de leave", String.valueOf(mInv.getRealLeaves()), true);

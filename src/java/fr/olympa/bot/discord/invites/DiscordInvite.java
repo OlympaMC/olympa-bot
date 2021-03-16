@@ -91,8 +91,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 		invites = new HashSet<>();
 		while (result.next()) {
 			DiscordSmallInvite dsm = new DiscordSmallInvite(opGuild, result);
+			InvitesHandler.addInvite(dsm);
 			invites.add(dsm);
-			InvitesHandler.addInvite(null);
 		}
 		result.close();
 		opGuild.cacheComplete();
