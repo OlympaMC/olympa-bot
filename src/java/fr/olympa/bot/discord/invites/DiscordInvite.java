@@ -220,8 +220,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public void update() throws SQLException {
-		if (isUpWithDb)
-			return;
+		//		if (isUpWithDb)
+		//			return;
 		table.updateAsync(this, Map.of(COLUMN_USES, getUses(), COLUMN_USERS_OLYMPA_DISCORD_ID, getUsersToDB(), COLUMN_USERS_PAST_OLYMPA_DISCORD_ID, getPastUsersToDB(), COLUMN_USES_LEAVER, getUsesLeaver(), COLUMN_DELETED, deleted,
 				COLUMN_USES_UNIQUE, usesUnique), null, null);
 		isUpWithDb = true;

@@ -61,6 +61,7 @@ public class InvitesHandler {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			addInvite(discordInvite);
 		});
 	}
 
@@ -139,9 +140,9 @@ public class InvitesHandler {
 		return get(code) != null;
 	}
 
-	//	public static void addInvite(DiscordSmallInvite discordInvite) {
-	//		CACHE.put(discordInvite.getCode(), discordInvite);
-	//	}
+	public static void addInvite(DiscordSmallInvite discordInvite) {
+		//		CACHE.put(discordInvite.getCode(), discordInvite);
+	}
 
 	//	public static void init() {
 	//		for (OlympaGuild opGuild : GuildHandler.guilds)
