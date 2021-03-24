@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceSelfDeafenEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceSelfMuteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateActivityOrderEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
@@ -198,6 +199,17 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
 		User user = event.getEntity().getUser();
+		try {
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
+			discordMember.updateLastSeen();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onMessageReactionAdd(MessageReactionAddEvent event) {
+		User user = event.getMember().getUser();
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();

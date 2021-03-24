@@ -36,7 +36,7 @@ public class InfoCommand extends DiscordCommand {
 	public InfoCommand() {
 		super("info", DiscordPermission.STAFF, "credit");
 		description = "Donne diverses informations ";
-		usage = "[ancien|boost|nonsigne|signe|absent|bot|role]";
+		usage = "[membre|ancien|boost|nonsigne|signe|absent|bot|role]";
 		privateChannel = true;
 	}
 
@@ -179,14 +179,14 @@ public class InfoCommand extends DiscordCommand {
 				if (discordMember.getLeaveTime() != 0) {
 					t = Utils.timestampToDuration(discordMember.getLeaveTime());
 					date = Utils.timestampToDate(discordMember.getLeaveTime());
-					embed.addField("Nous a quitté le ", date + " (" + t + ")", true);
+					embed.addField("Nous a quitté pour la dernière fois le ", date + " (" + t + ")", true);
 				}
-				if (discordMember.getPermissions() != null && discordMember.getPermissions().isEmpty())
+				if (discordMember.getPermissions() != null && !discordMember.getPermissions().isEmpty())
 					embed.addField("Permissions extra " + discordMember.getPermissions().size(), discordMember.getPermissions().keySet().stream().map(dp -> dp.getName()).collect(Collectors.joining(", ")), true);
-				embed.addField("Membre depuis", date + " (" + t + ")", true);
 				if (!discordMember.getOldNames().isEmpty())
 					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
-				embed.addField("XP", new DecimalFormat("0.#").format(discordMember.getXp()), true);
+				if (discordMember.getXp() != 0)
+					embed.addField("XP", new DecimalFormat("0.#").format(discordMember.getXp()), true);
 				if (discordMember.getLastSeenTime() != 0)
 					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
 			} catch (SQLException e) {
