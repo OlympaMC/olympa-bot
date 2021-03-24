@@ -2,6 +2,8 @@ package fr.olympa.bot.discord;
 
 import java.awt.Color;
 import java.sql.SQLException;
+import java.util.Map.Entry;
+import java.util.StringJoiner;
 
 import javax.security.auth.login.LoginException;
 
@@ -45,6 +47,7 @@ import fr.olympa.bot.discord.suvey.SurveyCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class OlympaDiscord {
 
@@ -111,10 +114,13 @@ public class OlympaDiscord {
 				return;
 			}
 		});
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> disconnect()));
 
 	}
 
 	public void disconnect() {
+		for (Entry<MessageChannel, StringJoiner> e : DeployCommand.OUT.entrySet())
+			e.getKey().sendMessage(e.getValue().toString()).queue();
 		if (jda != null) {
 			jda.shutdown();
 			jda = null;

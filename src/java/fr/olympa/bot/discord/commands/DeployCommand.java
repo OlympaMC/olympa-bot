@@ -17,13 +17,17 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class DeployCommand extends DiscordCommand {
 
 	private static int taskId = -1;
-	private final static Map<MessageChannel, StringJoiner> OUT = new HashMap<>();
+	public final static Map<MessageChannel, StringJoiner> OUT = new HashMap<>();
 
 	public DeployCommand() {
 		super("deploy", DiscordPermission.DEV, "autodeploy", "deployto");
 		description = "<plugin> [serveurs]";
 		minArg = 1;
 		description = "Deploie un plugin (sans le prefix Olympa) sur un serveur.";
+	}
+
+	private static StringJoiner getSJ() {
+		return new StringJoiner("\n", "```\n", "```");
 	}
 
 	private void sendMsg(MessageChannel channel, StringJoiner out) {
@@ -33,21 +37,24 @@ public class DeployCommand extends DiscordCommand {
 	private void addOut(MessageChannel channel, String s) {
 		StringJoiner sj = OUT.get(channel);
 		if (sj == null) {
-			sj = new StringJoiner("\n", "```\n", "```");
+			sj = getSJ();
 			OUT.put(channel, sj);
 		}
-		StringJoiner sj2 = sj;
+		StringJoiner sj2 = getSJ().merge(sj);
 		sj2.add(s);
 		if (sj2.toString().length() > Message.MAX_CONTENT_LENGTH) {
 			sendMsg(channel, sj);
-			sj = new StringJoiner("\n", "```\n", "```");
+			sj = getSJ();
+			OUT.replace(channel, sj);
 			sj.add(s);
 		} else
-			sj = sj2;
+			OUT.replace(channel, sj2);
 		enableTask();
 	}
 
 	private void disableTask() {
+		if (taskId == -1)
+			return;
 		LinkSpigotBungee.Provider.link.getTask().removeTaskById(taskId);
 		taskId = -1;
 	}
