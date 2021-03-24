@@ -80,18 +80,18 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	public static Set<DiscordSmallInvite> getAllSmalls(OlympaGuild opGuild) throws SQLException {
 		Set<DiscordSmallInvite> invites;
-		if (opGuild.isCacheComplete()) {
-			invites = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).collect(Collectors.toSet());
-			if (!invites.isEmpty())
-				return invites;
-			else
-				opGuild.cacheIncomplete();
-		}
+		//		if (opGuild.isCacheComplete()) {
+		//			invites = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).collect(Collectors.toSet());
+		//			if (!invites.isEmpty())
+		//				return invites;
+		//			else
+		//				opGuild.cacheIncomplete();
+		//		}
 		ResultSet result = DiscordInvite.COLUMN_OLYMPA_GUILD_ID.selectBasic(opGuild.getId(), DiscordInvite.COLUMN_USES.getCleanName(), DiscordInvite.COLUMN_CODE.getCleanName());
 		invites = new HashSet<>();
 		while (result.next()) {
 			DiscordSmallInvite dsm = new DiscordSmallInvite(opGuild, result);
-			InvitesHandler.addInvite(dsm);
+			//			InvitesHandler.addInvite(dsm);
 			invites.add(dsm);
 		}
 		result.close();
@@ -101,15 +101,15 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	public static List<DiscordInvite> getAll(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
 		List<DiscordInvite> list;
-		if (opGuild.isCacheComplete()) {
-			list = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).collect(Collectors.toList());
-			if (!list.isEmpty())
-				return list;
-			else
-				opGuild.cacheIncomplete();
-		}
+		//		if (opGuild.isCacheComplete()) {
+		//			list = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).collect(Collectors.toList());
+		//			if (!list.isEmpty())
+		//				return list;
+		//			else
+		//				opGuild.cacheIncomplete();
+		//		}
 		list = COLUMN_OLYMPA_GUILD_ID.select(opGuild.getId());
-		list.forEach(l -> InvitesHandler.addInvite(l));
+		//		list.forEach(l -> InvitesHandler.addInvite(l));
 		opGuild.cacheComplete();
 		return list;
 	}

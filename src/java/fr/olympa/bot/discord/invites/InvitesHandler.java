@@ -5,16 +5,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
-
 import fr.olympa.api.LinkSpigotBungee;
-import fr.olympa.api.utils.CacheStats;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import net.dv8tion.jda.api.entities.Invite;
@@ -22,19 +16,19 @@ import net.dv8tion.jda.api.entities.User;
 
 public class InvitesHandler {
 
-	protected static final Cache<String, DiscordSmallInvite> CACHE = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).removalListener(notification -> {
-		DiscordInvite value = (DiscordInvite) notification.getValue();
-		if (!notification.getCause().equals(RemovalCause.REPLACED))
-			value.getDiscordGuild().cacheIncomplete();
-		try {
-			value.update();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}).build();
+	//	protected static final Cache<String, DiscordSmallInvite> CACHE = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).removalListener(notification -> {
+	//		DiscordInvite value = (DiscordInvite) notification.getValue();
+	//		if (!notification.getCause().equals(RemovalCause.REPLACED))
+	//			value.getDiscordGuild().cacheIncomplete();
+	//		try {
+	//			value.update();
+	//		} catch (SQLException e) {
+	//			e.printStackTrace();
+	//		}
+	//	}).build();
 
 	static {
-		CacheStats.addCache("DISCORD_INVITES", CACHE);
+		//		CacheStats.addCache("DISCORD_INVITES", CACHE);
 	}
 
 	public static Comparator<DiscordInvite> getComparator() {
@@ -97,17 +91,17 @@ public class InvitesHandler {
 
 	public static List<DiscordInvite> getByAuthor(OlympaGuild opGuild, DiscordMember discordMember) {
 		List<DiscordInvite> list;
-		if (opGuild.isCacheComplete()) {
-			list = CACHE.asMap().values().stream().filter(iv -> iv.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).filter(iv -> iv.getAuthorId() == discordMember.getId())
-					.collect(Collectors.toList());
-			if (!list.isEmpty())
-				return list;
-			else
-				opGuild.cacheIncomplete();
-		}
+		//		if (opGuild.isCacheComplete()) {
+		//			list = CACHE.asMap().values().stream().filter(iv -> iv.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).filter(iv -> iv.getAuthorId() == discordMember.getId())
+		//					.collect(Collectors.toList());
+		//			if (!list.isEmpty())
+		//				return list;
+		//			else
+		//				opGuild.cacheIncomplete();
+		//		}
 		try {
 			list = DiscordInvite.table.select(Map.of(DiscordInvite.COLUMN_OLYMPA_GUILD_ID, opGuild.getId(), DiscordInvite.COLUMN_OLYMPA_DISCORD_ID, discordMember.getId()));
-			list.forEach(l -> addInvite(l));
+			//			list.forEach(l -> addInvite(l));
 			return list;
 		} catch (IllegalAccessException | SQLException e) {
 			e.printStackTrace();
@@ -116,12 +110,13 @@ public class InvitesHandler {
 	}
 
 	public static DiscordSmallInvite get(String code) {
-		DiscordSmallInvite discordInvite = CACHE.getIfPresent(code);
+		//		DiscordSmallInvite discordInvite = CACHE.getIfPresent(code);
+		DiscordSmallInvite discordInvite = null;
 		if (discordInvite == null)
 			try {
 				discordInvite = DiscordInvite.getByCode(code);
-				if (discordInvite != null)
-					addInvite(discordInvite);
+				//				if (discordInvite != null)
+				//					addInvite(discordInvite);
 			} catch (IllegalAccessException | SQLException e) {
 				e.printStackTrace();
 			}
@@ -129,7 +124,8 @@ public class InvitesHandler {
 	}
 
 	public static DiscordSmallInvite getWithoutCaching(String code) {
-		DiscordSmallInvite discordInvite = CACHE.getIfPresent(code);
+		//		DiscordSmallInvite discordInvite = CACHE.getIfPresent(code);
+		DiscordSmallInvite discordInvite = null;
 		if (discordInvite == null)
 			try {
 				discordInvite = DiscordInvite.getByCode(code);
@@ -143,9 +139,9 @@ public class InvitesHandler {
 		return get(code) != null;
 	}
 
-	public static void addInvite(DiscordSmallInvite discordInvite) {
-		CACHE.put(discordInvite.getCode(), discordInvite);
-	}
+	//	public static void addInvite(DiscordSmallInvite discordInvite) {
+	//		CACHE.put(discordInvite.getCode(), discordInvite);
+	//	}
 
 	//	public static void init() {
 	//		for (OlympaGuild opGuild : GuildHandler.guilds)
@@ -157,11 +153,10 @@ public class InvitesHandler {
 			try {
 				for (Invite iv : ivs) {
 					DiscordInvite discordInvite = get(iv.getCode()).expand();
-					if (discordInvite == null) {
+					if (discordInvite == null)
 						discordInvite = new DiscordInvite(iv).createNew();
-						InvitesHandler.addInvite(discordInvite);
-						addInvite(discordInvite);
-					} else
+					//						addInvite(discordInvite);
+					else
 						discordInvite.update(iv);
 				}
 				opGuild.cacheComplete();

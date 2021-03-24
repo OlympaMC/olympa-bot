@@ -30,7 +30,7 @@ public class InvitesListener extends ListenerAdapter {
 	public void onGuildInviteCreate(GuildInviteCreateEvent event) {
 		Invite invite = event.getInvite();
 		DiscordInvite discordInvite = new DiscordInvite(invite);
-		InvitesHandler.addInvite(discordInvite);
+		//		InvitesHandler.addInvite(discordInvite);
 		try {
 			discordInvite.createNew();
 		} catch (SQLException e) {

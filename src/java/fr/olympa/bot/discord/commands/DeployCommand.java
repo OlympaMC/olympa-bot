@@ -70,7 +70,7 @@ public class DeployCommand extends DiscordCommand {
 			for (Entry<MessageChannel, StringJoiner> e : OUT.entrySet())
 				sendMsg(e.getKey(), e.getValue());
 			OUT.clear();
-		}, 5, 5, TimeUnit.SECONDS);
+		}, 3, 3, TimeUnit.SECONDS);
 	}
 
 	@Override
