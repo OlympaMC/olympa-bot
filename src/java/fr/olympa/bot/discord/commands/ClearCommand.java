@@ -8,6 +8,7 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class ClearCommand extends DiscordCommand {
 
@@ -30,7 +31,7 @@ public class ClearCommand extends DiscordCommand {
 			Integer i = nb.parse(args[0]);
 			deleteMessage(message);
 
-			new Thread(() -> clearMessage(member, message, i)).run();
+			new Thread(() -> clearMessage(member, message, i)).start();
 		} else if (!args[0].equals("ALL"))
 			message.getChannel().sendMessage(member.getAsMention() + "➤ " + args[0] + " doit être un nombre valide.").queue();
 		else {
@@ -47,11 +48,10 @@ public class ClearCommand extends DiscordCommand {
 
 	public void clearAllMessage(Member member, Message message) {
 		new Thread(() -> {
+			TextChannel channel = (TextChannel) message.getChannel();
+			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Suppression de tous les messages du channel " + channel.getAsMention() + " en cours...");
 			while (message.getChannel().getHistory().size() <= 100) {
-				MessageChannel channel = message.getChannel();
-				channel.getHistoryBefore(message.getIdLong(), 100).queue(hists -> {
-					channel.purgeMessages(hists.getRetrievedHistory());
-				});
+				channel.getHistoryBefore(message.getIdLong(), 100).queue(hists -> channel.purgeMessages(hists.getRetrievedHistory()));
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e) {
@@ -62,7 +62,7 @@ public class ClearCommand extends DiscordCommand {
 				}
 			}
 			DiscordUtils.sendTempMessage(message.getChannel(), member.getAsMention() + " ➤ La majorité des messages ont été supprimés.");
-		}).run();
+		}).start();
 	}
 
 	public void clearMessage(Member member, Message message, int i) {
