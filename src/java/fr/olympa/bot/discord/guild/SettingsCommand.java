@@ -60,7 +60,7 @@ public class SettingsCommand extends DiscordCommand {
 			}
 		channel.sendMessage(embed.build()).queue(msg -> {
 			for (String unicode : new String[] { "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣" })
-				msg.addReaction(unicode);
+				msg.addReaction(unicode).queue();
 
 		});
 	}

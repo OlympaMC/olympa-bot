@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -22,6 +23,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class InviteCommand extends DiscordCommand {
 
@@ -57,13 +59,14 @@ public class InviteCommand extends DiscordCommand {
 				DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
 				MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, dmTarget));
 				em.setTitle("💌 Invitations de " + memberTarget.getEffectiveName());
-				em.addField("Classement du serveur", "n°" + DiscordInvite.getPosOfAuthor(opGuild, dmTarget), true);
 				em.addField("Utilisations Uniques", String.valueOf(mInv.getRealUses()), true);
 				em.addField("Nombre de leave", String.valueOf(mInv.getRealLeaves()), true);
 				em.addField("Dont réinvité", String.valueOf(mInv.getReinvited()), true);
+				em.addField("Classement du serveur", "n°" + DiscordInvite.getPosOfAuthor(opGuild, dmTarget), true);
 				em.addField("Utilisations Totales", String.valueOf(mInv.getTotalUses()), true);
-				em.addField("Joueurs parrainés", mInv.getUsers().stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", ")), true);
+				em.addField("Membres parrainés", mInv.getUsers().stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", ")), false);
 				em.addField("Liens", mInv.getInvites().stream().map(di -> di.getUrl()).collect(Collectors.joining(", ")), false);
+				em.setFooter("`" + DiscordCommand.prefix + "invitetop` pour voir le classement");
 				channel.sendMessage(em.build()).queue();
 			} else if (label.equalsIgnoreCase("invitetop")) {
 				Map<Long, Integer> stats = DiscordInvite.getStats(opGuild);
@@ -76,18 +79,29 @@ public class InviteCommand extends DiscordCommand {
 					DiscordMember author = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 					User user = author.getUser();
 					String inviterName = author.getAsMention() + "(`" + author.getAsTag() + "`)";
-					if (user != null && !guild.isMember(user) && author.getLeaveTime() != 0)
+					if (user == null || !guild.isMember(user))
 						inviterName += " (🚪 " + Utils.tsToShortDur(author.getLeaveTime()) + ")";
-					String out = nb++ + " | `" + uses + " joueur" + Utils.withOrWithoutS(uses) + "` " + inviterName + ".\n";
+					String out = nb++ + " | `" + uses + " membre" + Utils.withOrWithoutS(uses) + "` " + inviterName + ".\n";
 					if (em.getDescriptionBuilder().length() + out.length() >= MessageEmbed.TEXT_MAX_LENGTH) {
 						channel.sendMessage(em.build()).queue();
-						em = new EmbedBuilder();
-						em.setColor(OlympaBots.getInstance().getDiscord().getColor());
+						break;
+						//em = new EmbedBuilder();
+						//em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 					}
 					em.appendDescription(out);
 				}
+				em.setFooter("`" + DiscordCommand.prefix + "invite [nom|mention]` pour voir les stats d'un membre");
 				channel.sendMessage(em.build()).queue();
-			} else if (label.equalsIgnoreCase("inviteall") && DiscordPermission.STAFF.hasPermission(member)) {
+			} else if (label.equalsIgnoreCase("inviteall")) {
+				if (!DiscordPermission.STAFF.hasPermission(member)) {
+					MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
+					if (!message.isFromGuild())
+						out.queue();
+					else {
+						DiscordUtils.deleteTempMessage(message);
+						DiscordUtils.sendTempMessage(out);
+					}
+				}
 				List<DiscordInvite> invites = DiscordInvite.getAll(opGuild);
 				long invitesPerUser = invites.stream().map(invite -> invite.getAuthorId()).distinct().count();
 				em.setTitle("💌 Invitations");
@@ -105,13 +119,13 @@ public class InviteCommand extends DiscordCommand {
 						smallSb.append(" *" + invite.getRealUsesLeaver() + " ont quitté" + Utils.withOrWithoutS(invite.getUsesLeaver()) + "*");
 					String out = inviterName + ": " + smallSb.toString() + "\n";
 					if (em.getDescriptionBuilder().length() + out.length() >= MessageEmbed.TEXT_MAX_LENGTH) {
-						channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.HOURS));
+						channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
 						em = new EmbedBuilder();
 						em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 					}
 					em.appendDescription(out);
 				}
-				channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.HOURS));
+				channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
 			}
 		} catch (SQLException | IllegalAccessException e) {
 			e.printStackTrace();

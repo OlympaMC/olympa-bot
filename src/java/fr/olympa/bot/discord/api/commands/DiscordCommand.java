@@ -28,7 +28,7 @@ public abstract class DiscordCommand implements CommandEvent {
 
 	}
 
-	protected static String prefix = ".";
+	public static String prefix = ".";
 	private static Map<String, DiscordCommand> commands = new HashMap<>();
 
 	public static DiscordCommand getCommand(String nameOrAliase) {

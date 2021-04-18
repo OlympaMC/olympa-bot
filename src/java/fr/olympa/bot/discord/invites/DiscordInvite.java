@@ -30,6 +30,7 @@ import fr.olympa.api.sql.statement.OlympaStatement;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.member.MemberSettings;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -267,6 +268,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			usesUnique++;
 			pastUsersIds.add(member.getId());
 		}
+		sendNewJoinToAuthor(member);
 		isUpWithDb = false;
 	}
 
@@ -367,36 +369,6 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return getAuthor().getUser();
 	}
 
-	public void sendNewJoinToAuthor(Member member) {
-		try {
-			DiscordMember dm = getAuthor();
-			User user = dm.getUser();
-			EmbedBuilder em = new EmbedBuilder();
-			em.setColor(Color.GREEN);
-			em.setTitle(member.getEffectiveName() + " est arrivé sur **" + discordGuild.getName() + "** grâce à toi !");
-			List<DiscordInvite> invites = InvitesHandler.getByAuthor(discordGuild, dm);
-			if (invites.size() > 1) {
-				int nbJoueurs = invites.stream().mapToInt(DiscordInvite::getRealUse).sum();
-				int nbJoueursLeave = invites.stream().mapToInt(DiscordInvite::getUsesLeaver).sum();
-				em.setDescription("Tu as déjà invité `" + nbJoueurs + " joueurs`");
-				if (nbJoueursLeave != 0)
-					em.appendDescription(" Et malheureusement, " + nbJoueursLeave + " joueurs sont partis...");
-				if (nbJoueurs > 3) {
-					int i = getPosOfAuthor(getDiscordGuild(), dm);
-					if (i != -1)
-						em.appendDescription("\nTop " + i + " sur " + discordGuild.getName() + ".");
-				}
-				List<String> msg = Arrays.asList("Merci à toi !", "Tu es sur la bonne voie !", "Encore encore", "Tu peux mieux faire", "Plus, plus, toujours plus",
-						"On aime voir ça !", "T'es le boss !", "Stonks", "Badass quoi");
-				em.appendDescription("\n" + msg.get(new Random().nextInt(msg.size())));
-			} else
-				em.setDescription("\n" + "Plus tu invites de joueurs, plus tu seras récompensé....");
-			user.openPrivateChannel().queue(pv -> pv.sendMessage(em.build()).queue());
-		} catch (SQLException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public int getUsesLeaver() {
 		return usesLeaver;
 	}
@@ -476,7 +448,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 	private List<Long> stringToListUsersIds(String s, List<Long> list) {
 		if (s != null && !s.isEmpty())
 			for (String idOlympaDiscord : s.split(";"))
-				list.add((long) RegexMatcher.LONG.parse(idOlympaDiscord));
+				list.add(RegexMatcher.LONG.parse(idOlympaDiscord));
 		return list;
 	}
 
@@ -490,4 +462,39 @@ public class DiscordInvite extends DiscordSmallInvite {
 			}
 		}).filter(dm -> dm != null).collect(Collectors.toList());
 	}
+
+	private void sendNewJoinToAuthor(DiscordMember target) {
+		try {
+			if (!target.hasSetting(MemberSettings.ALLOW_NOTIF_INVITE_USED))
+				return;
+			DiscordMember dm = getAuthor();
+			User user = dm.getUser();
+			Member targetMember = target.getMember(discordGuild.getGuild());
+			EmbedBuilder em = new EmbedBuilder();
+			em.setColor(Color.decode("#36393F"));
+			em.setTitle(targetMember.getEffectiveName() + " est arrivé sur **" + discordGuild.getName() + "** grâce à toi !");
+			List<DiscordInvite> invites = InvitesHandler.getByAuthor(discordGuild, dm);
+			if (invites.size() > 1) {
+				int nbJoueurs = invites.stream().mapToInt(DiscordInvite::getRealUse).sum();
+				int nbJoueursLeave = invites.stream().mapToInt(DiscordInvite::getUsesLeaver).sum();
+				em.setDescription("Tu as déjà invité `" + nbJoueurs + " joueurs`");
+				if (nbJoueursLeave != 0)
+					em.appendDescription(" Et malheureusement, " + nbJoueursLeave + " joueurs sont partis...");
+				if (nbJoueurs > 3) {
+					int i = getPosOfAuthor(getDiscordGuild(), dm);
+					if (i != -1)
+						em.appendDescription("\nTop " + i + " sur " + discordGuild.getName() + ".");
+				}
+				List<String> msg = Arrays.asList("Merci à toi !", "Tu es sur la bonne voie !", "Encore encore", "Tu peux mieux faire", "Plus, plus, toujours plus",
+						"On aime voir ça !", "T'es le boss !", "Stonks", "Badass quoi");
+				em.appendDescription("\n" + msg.get(new Random().nextInt(msg.size())));
+			} else
+				em.setDescription("\n" + "Plus tu invites de joueurs, plus tu seras récompensé....");
+			em.setFooter(MemberSettings.ALLOW_NOTIF_INVITE_USED.getCmd() + " pour désactiver cette notification.");
+			user.openPrivateChannel().queue(pv -> pv.sendMessage(em.build()).queue());
+		} catch (SQLException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

@@ -97,4 +97,18 @@ public class DiscordUtils {
 	public static void sendTempMessage(MessageChannel channel, String msg) {
 		sendTempMessage(channel.sendMessage(msg));
 	}
+
+	public static String getMemberFullNames(Member member) {
+		User user = member.getUser();
+		if (member.getNickname() != null)
+			return user.getAsTag();
+		else
+			return member.getNickname() + "(`" + user.getAsTag() + "`)";
+
+	}
+
+	public static String getMemberMentionNameFull(Member member) {
+		User user = member.getUser();
+		return member.getAsMention() + "(`" + user.getAsTag() + "`)";
+	}
 }

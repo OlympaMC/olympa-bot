@@ -21,6 +21,7 @@ import fr.olympa.bot.discord.commands.PermissionCommand;
 import fr.olympa.bot.discord.commands.PlayersCommand;
 import fr.olympa.bot.discord.commands.PurgeCommand;
 import fr.olympa.bot.discord.commands.StartStopCommand;
+import fr.olympa.bot.discord.commands.ToggleCommand;
 import fr.olympa.bot.discord.commands.UsurpCommand;
 import fr.olympa.bot.discord.groups.GroupCommand;
 import fr.olympa.bot.discord.groups.GroupListener;
@@ -103,6 +104,7 @@ public class OlympaDiscord {
 		new PurgeCommand().register();
 		new PermissionCommand().register();
 		new InviteCommand().register();
+		new ToggleCommand().register();
 
 		plugin.getProxy().getScheduler().runAsync(plugin, () -> {
 			try {

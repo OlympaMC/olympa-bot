@@ -62,7 +62,7 @@ public class CommandListener extends ListenerAdapter {
 			return;
 		DiscordCommand discordCommand = DiscordCommand.getCommand(label);
 		if (discordCommand == null) {
-			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande n'existe pas. Fait .help pour voir la liste des commandes.").queue();
+			channel.sendMessage("Désolé " + user.getAsMention() + " mais cette commande n'existe pas. Fait " + DiscordCommand.prefix + "help pour voir la liste des commandes.").queue();
 			return;
 		}
 		if (!discordCommand.checkEditedMsg && event instanceof MessageUpdateEvent || !discordCommand.checkPrivateChannel(message, user))

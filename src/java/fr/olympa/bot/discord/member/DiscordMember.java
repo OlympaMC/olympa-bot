@@ -17,6 +17,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -45,6 +49,7 @@ public class DiscordMember {
 	long leaveTime;
 	SortedMap<Long, String> oldNames = new TreeMap<>(Comparator.comparing(Long::longValue).reversed());
 	Map<DiscordPermission, Long> permissionsOlympaDiscordGuildId = new HashMap<>();
+	Map<MemberSettings, Boolean> settings = new HashMap<>();
 
 	public long getJoinTime() {
 		return joinTime;
@@ -87,13 +92,13 @@ public class DiscordMember {
 				resultSet.getDate("join_date"),
 				resultSet.getDate("leave_date"),
 				resultSet.getString("old_names"),
-				resultSet.getString("permissions"));
+				resultSet.getString("permissions"), resultSet.getString("settings"));
 		//		if (dm.getTag() == null)
 		//			OlympaBots.getInstance().getDiscord().getJda().retrieveUserById(dm.getDiscordId()).queue(u -> dm.updateName(u));
 		//		return dm;
 	}
 
-	private DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames, String permissions) {
+	private DiscordMember(long id, long discordId, long olympaId, String name, String tag, double xp, Timestamp lastSeen, Date joinDate, Date leaveDate, String oldNames, String permissions, String settings) {
 		this.id = id;
 		this.discordId = discordId;
 		this.olympaId = olympaId;
@@ -107,11 +112,11 @@ public class DiscordMember {
 		if (leaveDate != null)
 			leaveTime = leaveDate.getTime() / 1000L;
 		if (oldNames != null)
-			this.oldNames.putAll(new Gson().fromJson(oldNames, new TypeToken<Map<Long, String>>() {
-			}.getType()));
+			this.oldNames.putAll(new Gson().fromJson(oldNames, new TypeToken<Map<Long, String>>() {}.getType()));
 		if (permissions != null)
-			permissionsOlympaDiscordGuildId.putAll(new Gson().fromJson(permissions, new TypeToken<Map<DiscordPermission, Long>>() {
-			}.getType()));
+			permissionsOlympaDiscordGuildId.putAll(new Gson().fromJson(permissions, new TypeToken<Map<DiscordPermission, Long>>() {}.getType()));
+		if (settings != null)
+			this.settings.putAll(new Gson().fromJson(settings, new TypeToken<Map<MemberSettings, Boolean>>() {}.getType()));
 	}
 
 	public DiscordMember(Member member) {
@@ -133,6 +138,7 @@ public class DiscordMember {
 		return getJDA().getUserById(discordId);
 	}
 
+	@Nullable
 	public Member getMember(Guild guild) {
 		return guild.getMemberById(discordId);
 	}
@@ -274,5 +280,29 @@ public class DiscordMember {
 
 	public String getAsTag() {
 		return name + "#" + tag;
+	}
+
+	@NotNull
+	public Map<MemberSettings, Boolean> getSetting() {
+		return settings;
+	}
+
+	public boolean hasSetting(MemberSettings setting) {
+		if (settings.containsKey(setting))
+			return settings.get(setting) == setting.getDefault();
+		else
+			return setting.getDefault();
+	}
+
+	public boolean toggleSetting(MemberSettings setting) {
+		Boolean state = settings.get(setting);
+		if (state == null) {
+			state = setting.getDefault();
+			settings.put(setting, !state);
+		} else if (state == setting.getDefault())
+			settings.replace(setting, !state);
+		else
+			settings.remove(setting);
+		return !state;
 	}
 }

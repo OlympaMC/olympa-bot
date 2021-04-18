@@ -8,6 +8,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.api.match.MatcherPattern;
 import fr.olympa.api.utils.machine.OlympaRuntime;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
@@ -75,11 +76,11 @@ public class DeployCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
-		if (Arrays.stream(args).anyMatch(s -> s.contains("&&") || s.contains(";") || s.contains("|")) || args.length > 5) {
+		String argument = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
+		if (MatcherPattern.of("[^\\w àáâãäåçèéêëìíîïðòóôõöùúûüýÿÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÐÒÓÔÕÖÙÚÛÜÝŸ]").contains(argument) || args.length > 5) {
 			message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Sécuriter > commande trop complexe, impossible de l'exécuter.").queue();
 			return;
 		}
-		String argument = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
 		OlympaRuntime.action(label, argument, out -> addOut(message.getChannel(), out.replaceAll("§.", ""))).start();
 	}
 }
