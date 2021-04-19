@@ -27,7 +27,7 @@ public class MemberInvites {
 		this.invites = invites;
 		invites.forEach(di -> {
 			totalUses += di.getUses();
-			realUses += di.getRealUse();
+			realUses += di.getUsesUnique();
 			leaves += di.getUsesLeaver();
 			users.addAll(di.getUsers());
 			leavers.addAll(di.getLeaveUsers());

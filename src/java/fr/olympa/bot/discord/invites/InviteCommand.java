@@ -114,7 +114,7 @@ public class InviteCommand extends DiscordCommand {
 					if (user != null && !guild.isMember(user) && author.getLeaveTime() != 0)
 						inviterName += " (🚪 " + Utils.tsToShortDur(author.getLeaveTime()) + ")";
 					StringBuilder smallSb = new StringBuilder();
-					smallSb.append("Utilisé ~~" + invite.getUses() + "~~ `" + invite.getRealUse() + " fois`");
+					smallSb.append("Utilisé ~~" + invite.getUses() + "~~ `" + invite.getUsesUnique() + " fois`");
 					if (invite.getUsesLeaver() != 0)
 						smallSb.append(" *" + invite.getRealUsesLeaver() + " ont quitté" + Utils.withOrWithoutS(invite.getUsesLeaver()) + "*");
 					String out = inviterName + ": " + smallSb.toString() + "\n";

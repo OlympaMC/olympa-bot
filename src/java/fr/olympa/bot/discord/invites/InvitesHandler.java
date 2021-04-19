@@ -33,7 +33,7 @@ public class InvitesHandler {
 
 	public static Comparator<DiscordInvite> getComparator() {
 		return (o1, o2) -> {
-			int i = o2.getRealUse() - o1.getRealUse();
+			int i = o2.getUsesUnique() - o1.getUsesUnique();
 			if (i == 0)
 				i = o2.getUses() - o1.getUses();
 			if (i == 0)

@@ -60,8 +60,6 @@ public class InvitesListener extends ListenerAdapter {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member.getIdLong());
 			User user = member.getUser();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-			if (!olympaGuild.isLogEntries())
-				return;
 			EmbedBuilder embed = LogsHandler.get("✅ Un nouveau joueur est arrivé !", null, member.getAsMention() + " est le **" + DiscordUtils.getMembersSize(guild) + "ème** a rejoindre le discord.", member);
 			embed.setColor(Color.GREEN);
 			long time = user.getTimeCreated().toEpochSecond();
@@ -73,13 +71,14 @@ public class InvitesListener extends ListenerAdapter {
 				String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
 				embed.addField("Création du compte", "Créé le " + date + " (" + t + ")", true);
 			}
-
 			InvitesHandler.detectNewInvite(opGuild, inviters -> {
-				if (!inviters.isEmpty())
-					embed.addField("Invité par ", ColorUtils.join(inviters.stream().map(inviter -> {
-						return inviter.getAsMention() + " (" + inviter.getAsTag() + ")";
-					}).collect(Collectors.toList()).iterator(), "ou"), true);
-				olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+				if (olympaGuild.isLogEntries()) {
+					if (!inviters.isEmpty())
+						embed.addField("Invité par ", ColorUtils.join(inviters.stream().map(inviter -> {
+							return inviter.getAsMention() + " (" + inviter.getAsTag() + ")";
+						}).collect(Collectors.toList()).iterator(), "ou"), true);
+					olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+				}
 			}, discordMember);
 			InvitesHandler.removeLeaverUser(discordMember, opGuild);
 		} catch (SQLException e) {
@@ -97,8 +96,6 @@ public class InvitesListener extends ListenerAdapter {
 		try {
 			dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-			if (!olympaGuild.isLogEntries())
-				return;
 			String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
 			String name;
 			if (member.getEffectiveName().equals(user.getName()))
@@ -109,18 +106,19 @@ public class InvitesListener extends ListenerAdapter {
 			EmbedBuilder embed = LogsHandler.get("❌ Un joueur a quitté", null, desc, member);
 			embed.setColor(Color.RED);
 			InvitesHandler.addUsesLeaver(dm, opGuild, invites -> {
-				if (!invites.isEmpty())
-					embed.addField("Invité par ", ColorUtils.join(invites.stream().map(di -> {
-						try {
-							return di.getAuthor().getAsTag();
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-						return "null";
-					}).collect(Collectors.toList()).iterator(), "ou"), true);
-				olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+				if (olympaGuild.isLogEntries()) {
+					if (!invites.isEmpty())
+						embed.addField("Invité par ", ColorUtils.join(invites.stream().map(di -> {
+							try {
+								return di.getAuthor().getAsTag();
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
+							return "null";
+						}).collect(Collectors.toList()).iterator(), "ou"), true);
+					olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+				}
 			});
-
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
