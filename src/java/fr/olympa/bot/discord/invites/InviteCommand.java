@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 public class InviteCommand extends DiscordCommand {
 
 	public InviteCommand() {
-		super("invite", "invitetop", "inviteall");
+		super("invite", "invitetop", "inviteall", "invitefix");
 		description = "Donnes des stats concernant les invitations.";
 	}
 
