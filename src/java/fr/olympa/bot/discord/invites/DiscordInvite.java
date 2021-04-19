@@ -271,11 +271,12 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public void removeUser(DiscordMember member) {
-		usesLeaver++;
 		usesUnique--;
 		usersIds.remove(member.getId());
-		if (!listIdsContainsUser(leaveUsersIds, member))
+		if (!listIdsContainsUser(leaveUsersIds, member)) {
+			usesLeaver++;
 			leaveUsersIds.add(member.getId());
+		}
 		isUpWithDb = false;
 	}
 
@@ -305,22 +306,23 @@ public class DiscordInvite extends DiscordSmallInvite {
 		boolean fixed = false;
 		Set<DiscordMember> toBeRemoved = new HashSet<>();
 		Guild guild = getDiscordGuild().getGuild();
-		//		guild = guild.getGuild();
 		for (Long userId : usersIds) {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 			if (discordMember == null)
 				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
 			User user = discordMember.getUser();
 			if (user == null || !guild.isMember(user)) {
+				// Check if user in on guild
 				toBeRemoved.add(discordMember);
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c removeUser");
 				fixed = true;
 			} else
+				// Check if user is set as leaver on other invite
 				DiscordInvite.getByUser(DiscordInvite.COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, discordMember, getDiscordGuild()).forEach(di -> {
+					LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite");
 					di.removeLeaver(discordMember);
 					try {
 						di.update();
-						LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite");
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -328,45 +330,48 @@ public class DiscordInvite extends DiscordSmallInvite {
 		}
 		toBeRemoved.forEach(dm -> removeUser(dm));
 		toBeRemoved.clear();
+		// Check if user is set as user on other invite
 		for (Long userId : usersIds) {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 			List<DiscordInvite> list = DiscordInvite.getByUser(DiscordInvite.COLUMN_USERS_OLYMPA_DISCORD_ID, discordMember, getDiscordGuild());
 			if (list.size() > 1)
 				list.forEach(di -> {
 					if (!di.getCode().equals(code)) {
+						LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c remove cause it is on other invite");
 						di.removeUser(discordMember);
 						try {
 							di.update();
-							LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c remove cause it is on other invite");
 						} catch (SQLException e) {
 							e.printStackTrace();
 						}
 					}
 				});
 		}
+		// Check if leaver is set as user on other invite
 		for (Long userId : leaveUsersIds) {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 			if (discordMember == null)
 				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
 			User user = discordMember.getUser();
 			if (user != null && guild.isMember(user)) {
-				toBeRemoved.add(discordMember);
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c removeUserLeaver");
+				toBeRemoved.add(discordMember);
 				fixed = true;
 			}
 		}
 		toBeRemoved.forEach(dm -> removeLeaver(dm));
 		toBeRemoved.clear();
+		// Check if leaver is set as leaver on other invite
 		for (Long userId : leaveUsersIds) {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 			List<DiscordInvite> list = DiscordInvite.getByUser(DiscordInvite.COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, discordMember, getDiscordGuild());
 			if (list.size() > 1)
 				list.forEach(di -> {
 					if (!di.getCode().equals(code)) {
+						LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite as leaver");
 						di.removeLeaver(discordMember);
 						try {
 							di.update();
-							LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite as leaver");
 						} catch (SQLException e) {
 							e.printStackTrace();
 						}
@@ -387,13 +392,13 @@ public class DiscordInvite extends DiscordSmallInvite {
 		//		toBeRemoved.forEach(dm -> removeLeaver(dm));
 		//		toBeRemoved.clear();
 		if (leaveUsersIds.size() != usesLeaver) {
-			usesLeaver = leaveUsersIds.size();
 			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver");
+			usesLeaver = leaveUsersIds.size();
 			fixed = true;
 		}
 		if (usersIds.size() != usesUnique) {
-			usesUnique = usersIds.size();
 			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique (was " + usesUnique + ").");
+			usesUnique = usersIds.size();
 			fixed = true;
 		}
 		return fixed;
