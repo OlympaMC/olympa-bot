@@ -401,17 +401,17 @@ public class DiscordInvite extends DiscordSmallInvite {
 				});
 		}
 		// Check if user can pretent to be leaver
-		for (Long userId : pastUsersIds) {
-			if (usersIds.contains(userId) || leaveUsersIds.contains(userId))
-				continue;
-			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
-			List<DiscordInvite> list = DiscordInvite.getLastAssociedInvites(discordMember, getDiscordGuild());
-			if (list.isEmpty()) {
-				fixed = true;
-				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
-				removeUser(discordMember);
-			}
-		}
+		//		for (Long userId : pastUsersIds) {
+		//			if (usersIds.contains(userId) || leaveUsersIds.contains(userId))
+		//				continue;
+		//			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
+		//			List<DiscordInvite> list = DiscordInvite.getLastAssociedInvites(discordMember, getDiscordGuild());
+		//			if (list.isEmpty()) {
+		//				fixed = true;
+		//				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
+		//				removeUser(discordMember);
+		//			}
+		//		}
 		//		for (Long userId : leaveUsersIds) {
 		//			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 		//			if (discordMember == null)
