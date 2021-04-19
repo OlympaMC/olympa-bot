@@ -27,7 +27,6 @@ import fr.olympa.api.sql.SQLColumn;
 import fr.olympa.api.sql.SQLNullObject;
 import fr.olympa.api.sql.SQLTable;
 import fr.olympa.api.sql.statement.OlympaStatement;
-import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.member.MemberSettings;
@@ -304,6 +303,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	public boolean fixInvite() throws SQLException {
 		boolean fixed = false;
+		Set<DiscordMember> toBeRemoved = new HashSet<>();
 		Guild guild = getDiscordGuild().getGuild();
 		//		guild = guild.getGuild();
 		for (Long userId : usersIds) {
@@ -312,23 +312,26 @@ public class DiscordInvite extends DiscordSmallInvite {
 				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
 			User user = discordMember.getUser();
 			if (user != null && !guild.isMember(user)) {
-				removeUser(discordMember);
-				discordMember.updateLeaveTime(Utils.getCurrentTimeInSeconds());
+				toBeRemoved.add(discordMember);
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c removeUser");
 				fixed = true;
 			}
 		}
+		toBeRemoved.forEach(dm -> removeUser(dm));
+		toBeRemoved.clear();
 		for (Long userId : leaveUsersIds) {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 			if (discordMember == null)
 				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
 			User user = discordMember.getUser();
-			if (user != null && guild.isMember(user)) {
-				removeLeaver(discordMember);
+			if (user == null || !guild.isMember(user)) {
+				toBeRemoved.add(discordMember);
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c user removeLeaver");
 				fixed = true;
 			}
 		}
+		toBeRemoved.forEach(dm -> removeLeaver(dm));
+		toBeRemoved.clear();
 		if (leaveUsersIds.size() != usesLeaver)
 			if (leaveUsersIds.size() > usesLeaver) {
 				usesLeaver = leaveUsersIds.size();
