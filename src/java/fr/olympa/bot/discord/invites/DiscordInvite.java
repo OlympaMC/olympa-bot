@@ -161,7 +161,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 	protected static List<DiscordInvite> getLastAssociedInvites(DiscordMember dm, OlympaGuild opGuild) {
 		List<DiscordInvite> dis = new ArrayList<>();
 		OlympaStatement getUsers = new OlympaStatement(
-				"SELECT * FROM " + table.getName() + " WHERE (" + COLUMN_OLYMPA_GUILD_ID + " REGEXP ? OR " + COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID + " REGEXP ?) AND " + COLUMN_OLYMPA_GUILD_ID.getName() + " = ?");
+				"SELECT * FROM " + table.getName() + " WHERE (" + COLUMN_OLYMPA_GUILD_ID.getCleanName() + " REGEXP ? OR " + COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID.getCleanName() + " REGEXP ?) AND " + COLUMN_OLYMPA_GUILD_ID.getName()
+						+ " = ?");
 		try (PreparedStatement statement = getUsers.createStatement()) {
 			int i = 1;
 			String format = String.format("\\b(%d)\\b", dm.getId());
@@ -406,6 +407,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 			List<DiscordInvite> list = DiscordInvite.getLastAssociedInvites(discordMember, getDiscordGuild());
 			if (list.isEmpty()) {
+				fixed = true;
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
 				removeUser(discordMember);
 			}
@@ -423,9 +425,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 		//		}
 		//		toBeRemoved.forEach(dm -> removeLeaver(dm));
 		//		toBeRemoved.clear();
-		if (leaveUsersIds.size() != usesLeaver)
-
-		{
+		if (leaveUsersIds.size() != usesLeaver) {
 			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver");
 			usesLeaver = leaveUsersIds.size();
 			fixed = true;
