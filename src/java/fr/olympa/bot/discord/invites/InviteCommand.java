@@ -66,7 +66,7 @@ public class InviteCommand extends DiscordCommand {
 				em.addField("Utilisations Totales", String.valueOf(mInv.getTotalUses()), true);
 				em.addField("Membres parrainés", mInv.getUsers().stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", ")), false);
 				em.addField("Liens", mInv.getInvites().stream().map(di -> di.getUrl()).collect(Collectors.joining(", ")), false);
-				em.setFooter("`" + DiscordCommand.prefix + "invitetop` pour voir le classement");
+				em.setFooter(DiscordCommand.prefix + "invitetop pour voir le classement");
 				channel.sendMessage(em.build()).queue();
 			} else if (label.equalsIgnoreCase("invitetop")) {
 				Map<Long, Integer> stats = DiscordInvite.getStats(opGuild);
@@ -90,7 +90,7 @@ public class InviteCommand extends DiscordCommand {
 					}
 					em.appendDescription(out);
 				}
-				em.setFooter("`" + DiscordCommand.prefix + "invite [nom|mention]` pour voir les stats d'un membre");
+				em.setFooter(DiscordCommand.prefix + "invite [nom|mention] pour voir les stats d'un membre");
 				channel.sendMessage(em.build()).queue();
 			} else if (label.equalsIgnoreCase("inviteall")) {
 				if (!DiscordPermission.STAFF.hasPermission(member)) {

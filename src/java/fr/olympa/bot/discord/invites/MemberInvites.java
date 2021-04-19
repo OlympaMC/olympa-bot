@@ -1,7 +1,8 @@
 package fr.olympa.bot.discord.invites;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -11,7 +12,7 @@ public class MemberInvites {
 
 	OlympaGuild guild;
 	List<DiscordInvite> invites;
-	List<DiscordMember> users, usersPast, leavers;
+	Set<DiscordMember> users, usersPast, leavers;
 	int realUses, totalUses, leaves, realLeaves, reinvited = 0;
 
 	/**
@@ -19,9 +20,9 @@ public class MemberInvites {
 	 * @param invites
 	 */
 	public MemberInvites(OlympaGuild guild, List<DiscordInvite> invites) {
-		users = new ArrayList<>();
-		usersPast = new ArrayList<>();
-		leavers = new ArrayList<>();
+		users = new HashSet<>();
+		usersPast = new HashSet<>();
+		leavers = new HashSet<>();
 		this.guild = guild;
 		this.invites = invites;
 		invites.forEach(di -> {
@@ -44,15 +45,15 @@ public class MemberInvites {
 		return invites;
 	}
 
-	public List<DiscordMember> getUsers() {
+	public Set<DiscordMember> getUsers() {
 		return users;
 	}
 
-	public List<DiscordMember> getUsersPast() {
+	public Set<DiscordMember> getUsersPast() {
 		return usersPast;
 	}
 
-	public List<DiscordMember> getLeavers() {
+	public Set<DiscordMember> getLeavers() {
 		return leavers;
 	}
 

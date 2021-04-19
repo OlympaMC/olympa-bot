@@ -479,7 +479,10 @@ public class DiscordInvite extends DiscordSmallInvite {
 				int nbJoueursLeave = invites.stream().mapToInt(DiscordInvite::getUsesLeaver).sum();
 				em.setDescription("Tu as déjà invité `" + nbJoueurs + " joueurs`");
 				if (nbJoueursLeave != 0)
-					em.appendDescription(" Et malheureusement, " + nbJoueursLeave + " joueurs sont partis...");
+					em.appendDescription(" mais malheureusement, " + nbJoueursLeave + " joueurs sont partis...");
+				else
+					em.appendDescription(".");
+				em.appendDescription("\n");
 				if (nbJoueurs > 3) {
 					int i = getPosOfAuthor(getDiscordGuild(), dm);
 					if (i != -1)
