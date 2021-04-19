@@ -303,6 +303,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public boolean fixInvite() throws SQLException {
+		boolean fixed = false;
 		Guild guild = getDiscordGuild().getGuild();
 		//		guild = guild.getGuild();
 		for (Long userId : usersIds) {
@@ -314,6 +315,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 				removeUser(discordMember);
 				discordMember.updateLeaveTime(Utils.getCurrentTimeInSeconds());
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c removeUser");
+				fixed = true;
 			}
 		}
 		for (Long userId : leaveUsersIds) {
@@ -324,12 +326,14 @@ public class DiscordInvite extends DiscordSmallInvite {
 			if (user != null && guild.isMember(user)) {
 				removeLeaver(discordMember);
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c user removeLeaver");
+				fixed = true;
 			}
 		}
 		if (leaveUsersIds.size() != usesLeaver)
 			if (leaveUsersIds.size() > usesLeaver) {
 				usesLeaver = leaveUsersIds.size();
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() > usesLeaver");
+				fixed = true;
 			} else {
 				int iLeavers = 0;
 				for (Long userId : pastUsersIds) {
@@ -342,9 +346,9 @@ public class DiscordInvite extends DiscordSmallInvite {
 				}
 				usesLeaver = iLeavers;
 				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() < usesLeaver");
+				fixed = true;
 			}
 		if (pastUsersIds.size() != usesUnique) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique (was " + usesUnique + ").");
 			if (pastUsersIds.size() < usesUnique) {
 				List<Long> userToAdd = usersIds.stream().filter(u -> pastUsersIds.contains(u)).collect(Collectors.toList());
 				userToAdd.addAll(leaveUsersIds.stream().filter(u -> pastUsersIds.contains(u)).collect(Collectors.toList()));
@@ -355,8 +359,10 @@ public class DiscordInvite extends DiscordSmallInvite {
 				}
 			}
 			usesUnique = pastUsersIds.size();
+			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique (was " + usesUnique + ").");
+			fixed = true;
 		}
-		return isUpWithDb;
+		return fixed;
 	}
 
 	public DiscordMember getAuthor() throws SQLException {

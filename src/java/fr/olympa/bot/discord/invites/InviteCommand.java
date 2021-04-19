@@ -126,10 +126,37 @@ public class InviteCommand extends DiscordCommand {
 					em.appendDescription(out);
 				}
 				channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
+			} else if (label.equalsIgnoreCase("invitefix")) {
+				List<Member> members = message.getMentionedMembers();
+				Member memberTarget = null;
+				if (args.length != 0) {
+					if (!members.isEmpty())
+						memberTarget = members.get(0);
+					else {
+						memberTarget = getMember(message.getGuild(), args[0]);
+						if (memberTarget == null) {
+							channel.sendMessage(String.format("%s, %s est inconnu.", member.getAsMention(), args[0])).queue();
+							return;
+						}
+					}
+				} else
+					memberTarget = member;
+				DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
+				List<DiscordInvite> targetInvites = InvitesHandler.getByAuthor(opGuild, dmTarget);
+				em.setDescription("Les invitation qui ont eu besoin d'être fixé et qui ont été fixé :");
+				for (DiscordInvite di : targetInvites)
+					try {
+						di.fixInvite();
+						em.addField(di.getCode(), di.fixInvite() ? "✅" : "❌", true);
+					} catch (SQLException e) {
+						e.printStackTrace();
+						em.addField(di.getCode(), "Erreur > `" + e.getMessage() + "`", true);
+					}
+				channel.sendMessage(em.build()).queue();
 			}
 		} catch (SQLException | IllegalAccessException e) {
 			e.printStackTrace();
-			channel.sendMessage("Error > " + e.getMessage()).queue();
+			channel.sendMessage("Erreur > `" + e.getMessage() + "`").queue();
 		}
 	}
 }
