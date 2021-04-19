@@ -158,6 +158,27 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return dis;
 	}
 
+	protected static List<DiscordInvite> getLastAssociedInvites(DiscordMember dm, OlympaGuild opGuild) {
+		List<DiscordInvite> dis = new ArrayList<>();
+		OlympaStatement getUsers = new OlympaStatement(
+				"SELECT * FROM " + table.getName() + " WHERE (" + COLUMN_OLYMPA_GUILD_ID + " REGEXP ? OR " + COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID + " REGEXP ?) AND " + COLUMN_OLYMPA_GUILD_ID.getName() + " = ?");
+		try (PreparedStatement statement = getUsers.createStatement()) {
+			int i = 1;
+			String format = String.format("\\b(%d)\\b", dm.getId());
+			statement.setString(i++, format);
+			statement.setString(i++, format);
+			statement.setString(i++, format);
+			statement.setLong(i, opGuild.getId());
+			ResultSet resultSet = getUsers.executeQuery(statement);
+			while (resultSet.next())
+				dis.add(table.initializeFromRow.initialize(resultSet));
+			resultSet.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dis;
+	}
+
 	static List<DiscordInvite> getByOlympaDiscordId(DiscordMember discordMember) throws SQLException, IllegalAccessException {
 		return COLUMN_OLYMPA_DISCORD_ID.select(discordMember.getId());
 	}
@@ -258,9 +279,10 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public void addUser(DiscordMember member) {
-		uses++;
-		if (!usersIds.contains(member.getId()))
+		if (!usersIds.contains(member.getId())) {
 			usersIds.add(member.getId());
+			uses++;
+		}
 		removeLeaver(member);
 		if (!listIdsContainsUser(pastUsersIds, member)) {
 			usesUnique++;
@@ -271,8 +293,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public void removeUser(DiscordMember member) {
-		usesUnique--;
-		usersIds.remove(member.getId());
+		if (usersIds.remove(member.getId()))
+			usesUnique--;
 		if (!listIdsContainsUser(leaveUsersIds, member)) {
 			usesLeaver++;
 			leaveUsersIds.add(member.getId());
@@ -378,6 +400,17 @@ public class DiscordInvite extends DiscordSmallInvite {
 					}
 				});
 		}
+		// Check if user can pretent to be leaver
+		for (Long userId : pastUsersIds) {
+			if (usersIds.contains(userId) || leaveUsersIds.contains(userId))
+				continue;
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
+			List<DiscordInvite> list = DiscordInvite.getLastAssociedInvites(discordMember, getDiscordGuild());
+			if (list.isEmpty()) {
+				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
+				removeUser(discordMember);
+			}
+		}
 		//		for (Long userId : leaveUsersIds) {
 		//			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
 		//			if (discordMember == null)
@@ -391,7 +424,9 @@ public class DiscordInvite extends DiscordSmallInvite {
 		//		}
 		//		toBeRemoved.forEach(dm -> removeLeaver(dm));
 		//		toBeRemoved.clear();
-		if (leaveUsersIds.size() != usesLeaver) {
+		if (leaveUsersIds.size() != usesLeaver)
+
+		{
 			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver");
 			usesLeaver = leaveUsersIds.size();
 			fixed = true;
