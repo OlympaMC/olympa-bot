@@ -426,12 +426,12 @@ public class DiscordInvite extends DiscordSmallInvite {
 		//		toBeRemoved.forEach(dm -> removeLeaver(dm));
 		//		toBeRemoved.clear();
 		if (leaveUsersIds.size() != usesLeaver) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver (%d != %d)", leaveUsersIds, usesLeaver);
+			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver (%d != %d)", leaveUsersIds.size(), usesLeaver);
 			usesLeaver = leaveUsersIds.size();
 			fixed = true;
 		}
 		if (usersIds.size() != usesUnique) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique usersIds.size() != usesUnique (%d != %d).", usersIds, usesUnique);
+			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique usersIds.size() != usesUnique (%d != %d).", usersIds.size(), usesUnique);
 			usesUnique = usersIds.size();
 			fixed = true;
 		}
