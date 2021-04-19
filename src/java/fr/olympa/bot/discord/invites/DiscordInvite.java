@@ -167,7 +167,6 @@ public class DiscordInvite extends DiscordSmallInvite {
 			String format = String.format("\\b(%d)\\b", dm.getId());
 			statement.setString(i++, format);
 			statement.setString(i++, format);
-			statement.setString(i++, format);
 			statement.setLong(i, opGuild.getId());
 			ResultSet resultSet = getUsers.executeQuery(statement);
 			while (resultSet.next())
