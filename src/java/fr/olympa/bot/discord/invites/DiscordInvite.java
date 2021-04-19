@@ -296,8 +296,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 		if (usersIds.remove(member.getId()))
 			usesUnique--;
 		if (!listIdsContainsUser(leaveUsersIds, member)) {
-			usesLeaver++;
 			leaveUsersIds.add(member.getId());
+			usesLeaver++;
 		}
 		isUpWithDb = false;
 	}
@@ -426,12 +426,12 @@ public class DiscordInvite extends DiscordSmallInvite {
 		//		toBeRemoved.forEach(dm -> removeLeaver(dm));
 		//		toBeRemoved.clear();
 		if (leaveUsersIds.size() != usesLeaver) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver");
+			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver (%d != %d)", leaveUsersIds, usesLeaver);
 			usesLeaver = leaveUsersIds.size();
 			fixed = true;
 		}
 		if (usersIds.size() != usesUnique) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique (was " + usesUnique + ").");
+			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique usersIds.size() != usesUnique (%d != %d).", usersIds, usesUnique);
 			usesUnique = usersIds.size();
 			fixed = true;
 		}
