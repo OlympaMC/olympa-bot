@@ -146,9 +146,11 @@ public class InviteCommand extends DiscordCommand {
 				em.setDescription("Les invitation qui ont eu besoin d'être fixé et qui ont été fixé :");
 				for (DiscordInvite di : targetInvites)
 					try {
-						di.fixInvite();
-						em.addField(di.getCode(), di.fixInvite() ? "✅" : "❌", true);
-					} catch (SQLException e) {
+						boolean b = di.fixInvite();
+						em.addField(di.getCode(), b ? "✅" : "❌", true);
+						if (b)
+							di.update();
+					} catch (Exception e) {
 						e.printStackTrace();
 						em.addField(di.getCode(), "Erreur > `" + e.getMessage() + "`", true);
 					}
