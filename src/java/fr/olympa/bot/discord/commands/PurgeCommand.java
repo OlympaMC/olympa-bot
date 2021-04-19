@@ -27,7 +27,7 @@ public class PurgeCommand extends DiscordCommand {
 				int rows = SQLMessage.purge();
 				channel.sendMessage(member.getAsMention() + "➤ " + rows + " données ont été supprimés.").queue();
 			} catch (SQLException e) {
-				channel.sendMessage(member.getAsMention() + "➤  Une erreur est survenue `" + e.getMessage() + "`").queue();
+				channel.sendMessage(member.getAsMention() + "➤ Une erreur est survenue `" + e.getMessage() + "`").queue();
 				e.printStackTrace();
 			}
 		else if (args[0].equalsIgnoreCase("reaction") || args[0].equalsIgnoreCase("reactions"))
@@ -35,7 +35,7 @@ public class PurgeCommand extends DiscordCommand {
 				int rows = ReactionSQL.purge();
 				channel.sendMessage(member.getAsMention() + "➤ " + rows + " données de l'API réaction ont été supprimés.").queue();
 			} catch (SQLException e) {
-				channel.sendMessage(member.getAsMention() + "➤  Une erreur est survenue `" + e.getMessage() + "`").queue();
+				channel.sendMessage(member.getAsMention() + "➤ Une erreur est survenue `" + e.getMessage() + "`").queue();
 				e.printStackTrace();
 			}
 	}

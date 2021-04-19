@@ -31,8 +31,10 @@ public class MemberInvites {
 			leaves += di.getUsesLeaver();
 			users.addAll(di.getUsers());
 			leavers.addAll(di.getLeaveUsers());
-			usersPast.addAll(di.getPastUsers().stream().filter(dm -> !usersPast.contains(dm) && !di.getUsers().contains(dm) && !di.getLeaveUsers().contains(dm)).collect(Collectors.toList()));
+			usersPast.addAll(di.getPastUsers().stream().filter(dm -> !di.getUsers().contains(dm) && !di.getLeaveUsers().contains(dm)).collect(Collectors.toSet()));
 		});
+		usersPast.removeIf(dm -> users.contains(dm) || leavers.contains(dm));
+		leavers.removeIf(dm -> users.contains(dm));
 		realLeaves = usersPast.size() + leavers.size();
 		reinvited = usersPast.size();
 	}

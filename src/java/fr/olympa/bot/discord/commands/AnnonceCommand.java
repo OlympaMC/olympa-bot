@@ -25,5 +25,4 @@ public class AnnonceCommand extends DiscordCommand {
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 		channel.sendMessage("@everyone").queue(msg -> channel.sendMessage(embed.build()).queue(m -> m.addReaction("☑️").queue()));
 	}
-
 }

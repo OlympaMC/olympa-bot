@@ -31,7 +31,7 @@ public class SQLMessage extends SQLClass {
 				//			if (contents.length() > getMaxSizeContents())
 				//				updateSizeContents(contents.length());
 				statement.setString(i++, contents);
-			}else
+			} else
 				statement.setObject(i++, null);
 			statement.setTimestamp(i, new Timestamp(discordMessage.getCreated() * 1000L));
 			insertMessageStatement.executeUpdate(statement);
@@ -55,27 +55,12 @@ public class SQLMessage extends SQLClass {
 		}
 	}
 
-	private static OlympaStatement selectMaxSizeContentsStatement = new OlympaStatement(StatementType.SELECT, table, null, "MAX(LENGTH(contents))");
-	private static long maxSizeContents = -1;
-
-	//	private static long getMaxSizeContents() throws SQLException {
-	//		if (maxSizeContents == -1) {
-	//			ResultSet resultSet = selectMaxSizeContentsStatement.executeQuery();
-	//			if (resultSet.next())
-	//				maxSizeContents = resultSet.getLong(1);
-	//			resultSet.close();
-	//		}
-	//		return maxSizeContents;
-	//	}
-
 	private static OlympaStatement updateMessageStatement = new OlympaStatement(StatementType.UPDATE, table, new String[] { "guild_discord_id", "channel_discord_id", "message_discord_id" }, "contents");
 
 	public static void updateMessageContent(DiscordMessage discordMessage) throws SQLException {
 		String contents;
 		if (!discordMessage.isEmpty())
 			contents = new Gson().toJson(discordMessage.getContents());
-		//			if (contents.length() > getMaxSizeContents())
-		//				updateSizeContents(contents.length());
 		else
 			contents = null;
 		try (PreparedStatement statement = updateMessageStatement.createStatement()) {
@@ -101,23 +86,11 @@ public class SQLMessage extends SQLClass {
 		}
 	}
 
-	private static OlympaStatement updateSizeContentsStatement = new OlympaStatement("ALTER TABLE " + table + " CHANGE COLUMN `contents` `contents` VARCHAR(?);");
-
-	private static void updateSizeContents(long size) throws SQLException {
-		try (PreparedStatement statement = updateSizeContentsStatement.createStatement()) {
-			int i = 1;
-			statement.setLong(i, size);
-			updateSizeContentsStatement.executeUpdate(statement);
-		}
-	}
-
 	private static OlympaStatement purgeStatement = new OlympaStatement("DELETE FROM " + table + " WHERE created < now() - INTERVAL 62 DAY;");
 
 	public static int purge() throws SQLException {
 		try (PreparedStatement statement = purgeStatement.createStatement()) {
 			int rows = purgeStatement.executeUpdate(statement);
-			maxSizeContents = -1;
-			//		updateSizeContents(getMaxSizeContents());
 			return rows;
 		}
 	}
