@@ -98,7 +98,7 @@ public class ReactionSQL {
 		}
 	}
 
-	private static OlympaStatement removeReactionStatement = new OlympaStatement(StatementType.DELETE, tableReaction, "message_id");
+	private static OlympaStatement removeReactionStatement = new OlympaStatement(StatementType.DELETE, tableReaction, "message_id").returnGeneratedKeys();
 
 	public static boolean removeReaction(ReactionDiscord reaction) throws SQLException {
 		try (PreparedStatement statement = removeReactionStatement.createStatement()) {
