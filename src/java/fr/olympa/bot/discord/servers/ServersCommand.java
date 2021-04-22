@@ -11,7 +11,7 @@ import org.apache.commons.collections4.map.LinkedMap;
 import fr.olympa.api.server.ServerStatus;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.GuildHandler;
-import fr.olympa.core.bungee.servers.MonitorInfo;
+import fr.olympa.core.bungee.servers.MonitorInfoBungee;
 import fr.olympa.core.bungee.servers.MonitorServers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -41,7 +41,7 @@ public class ServersCommand extends DiscordCommand {
 	public static MessageEmbed getEmbed() {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
-		Map<ServerInfo, MonitorInfo> infos = MonitorServers.getServersMap();
+		Map<ServerInfo, MonitorInfoBungee> infos = MonitorServers.getServersMap();
 		MonitorServers.getServersSorted().forEach(info -> {
 			if (!info.getName().contains("bungee")) {
 				ServerStatus status = info.getStatus();

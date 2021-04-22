@@ -134,6 +134,7 @@ public class DiscordMember {
 		return OlympaBots.getInstance().getDiscord().getJda();
 	}
 
+	@Nullable
 	public User getUser() {
 		return getJDA().getUserById(discordId);
 	}

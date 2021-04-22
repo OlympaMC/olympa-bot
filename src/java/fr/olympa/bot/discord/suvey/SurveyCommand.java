@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +36,18 @@ public class SurveyCommand extends DiscordCommand {
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] baseArgs, Message message, String label) {
+		TextChannel channel = message.getTextChannel();
+		if (baseArgs.length == 0 || baseArgs[0].equalsIgnoreCase("help") || baseArgs.length < 3) {
+			EmbedBuilder embed = new EmbedBuilder();
+			embed.setTitle("Aide ❓ Sondage");
+			embed.setDescription("Voici les exemples de l'utilisation du `." + command.getName() + "`. Vous pouvez terminer un sondage avec un clique droit sur le message puis `Supprimer toutes les réactions`.");
+			embed.addField("Sondage Oui ou Non", "`." + command.getName() + "\"Votre question ici\" \"Oui\" \"Non\"`", false);
+			embed.addField("Sondage plusieures réponses", "`." + command.getName() + "\"Qui est le plus fort en pvp ?\" \"Bullobily\" \"SkyAsult\" \"Gareth\"` \"Tristiisch\"`", false);
+			embed.addField("Sondage plusieures réponses avec Emoji", "`." + command.getName() + "\"Votre humour actuellement ?\" \"🤣 Heureux\" \"🥰 Amoureux\" \"😵Stressé\"` \"😤Impatient\"`", false);
+			channel.sendMessage(embed.build()).mention(message.getAuthor()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+			return;
+		}
+
 		List<String> args = new ArrayList<>();
 		LinkedMap<String, String> reactionEmojis = new LinkedMap<>();
 		String allArguments = String.join(" ", baseArgs);
@@ -42,12 +55,9 @@ public class SurveyCommand extends DiscordCommand {
 		Matcher m = p.matcher(allArguments);
 		while (m.find())
 			args.add(m.group(1));
-		reactionEmojis.put("question", args.get(0));
-		args.remove(0);
-		TextChannel channel = message.getTextChannel();
 
 		List<String> defaultEmojis = Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟");
-		for (int i = 0; args.size() > i; i++) {
+		for (int i = 1; args.size() >= i; i++) {
 			String emoji = defaultEmojis.get(i);
 			String awnser = args.get(i);
 			List<String> emojis = EmojiParser.extractEmojis(awnser);
@@ -57,14 +67,15 @@ public class SurveyCommand extends DiscordCommand {
 			}
 			reactionEmojis.put(emoji, awnser);
 		}
-		channel.sendMessage(getEmbed(reactionEmojis)).queue(msg -> {
+		channel.sendMessage(getEmbed(args.get(0), reactionEmojis)).queue(msg -> {
 			SurveyReaction reaction = new SurveyReaction(reactionEmojis, msg, GuildHandler.getOlympaGuild(message.getGuild()));
+			reaction.getData().put("question", args.get(0));
 			reaction.addToMessage(msg);
 			reaction.saveToDB();
 		});
 	}
 
-	public static MessageEmbed getEmbed(LinkedMap<String, String> reactionEmojis) {
+	public static MessageEmbed getEmbed(String question, LinkedMap<String, String> reactionEmojis) {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("📝 Sondage:");
 		int i = 0;
@@ -78,7 +89,7 @@ public class SurveyCommand extends DiscordCommand {
 		return embedBuilder.build();
 	}
 
-	public static MessageEmbed getEmbed(Message message, LinkedMap<String, String> reactionEmojis, boolean isUnique) {
+	public static MessageEmbed getEmbed(String question, Message message, LinkedMap<String, String> reactionEmojis, boolean isUnique) {
 		List<MessageReaction> reactions = message.getReactions();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("📝 Sondage:");

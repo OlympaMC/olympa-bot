@@ -15,7 +15,7 @@ public class ReactionSQL {
 	static String tableReaction = "discord.reactions";
 
 	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction,
-			new String[] { "name", "message_id", "allowed_users_ids", "data", "can_multiple", "remove_when_modclearall", "guild_id" });
+			new String[] { "name", "message_id", "allowed_users_ids", "emojis", "data", "can_multiple", "remove_when_modclearall", "guild_id" });
 
 	public static void addReaction(ReactionDiscord reaction) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		String name = ReactionHandler.toString(reaction);
@@ -31,11 +31,36 @@ public class ReactionSQL {
 				statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
 			else
 				statement.setString(i++, null);
-			statement.setString(i++, new Gson().toJson(reaction.getDatas()));
+			statement.setString(i++, new Gson().toJson(reaction.getEmojisData()));
+			statement.setString(i++, new Gson().toJson(reaction.getData()));
 			statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
 			statement.setInt(i++, reaction.isRemoveWhenModClearAll() ? 1 : 0);
 			statement.setLong(i, reaction.getOlympaGuildId());
 			insertReactionStatement.executeUpdate(statement);
+		}
+	}
+
+	private static OlympaStatement updateReactionStatement = new OlympaStatement(StatementType.UPDATE, tableReaction,
+			new String[] { "allowed_users_ids", "emojis", "data", "can_multiple", "remove_when_modclearall" }, "message_id");
+
+	public static void updateReaction(ReactionDiscord reaction) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		String name = ReactionHandler.toString(reaction);
+		if (name == null) {
+			System.out.println("Impossible de update dans la BDD la réaction " + reaction.getClass().getName() + " : " + "elle n'est pas dans " + ReactionHandler.class.getName() + ".");
+			return;
+		}
+		try (PreparedStatement statement = updateReactionStatement.createStatement()) {
+			int i = 1;
+			statement.setLong(i++, reaction.getMessageId());
+			if (reaction.getCanReactUserIds() != null && !reaction.getCanReactUserIds().isEmpty())
+				statement.setString(i++, new Gson().toJson(reaction.getCanReactUserIds()));
+			else
+				statement.setString(i++, null);
+			statement.setString(i++, new Gson().toJson(reaction.getEmojisData()));
+			statement.setString(i++, new Gson().toJson(reaction.getData()));
+			statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
+			statement.setInt(i++, reaction.isRemoveWhenModClearAll() ? 1 : 0);
+			updateReactionStatement.executeUpdate(statement);
 		}
 	}
 

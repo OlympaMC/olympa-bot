@@ -60,7 +60,8 @@ public class StaffListenerBungee implements Listener {
 			}
 		if (discordMember != null) {
 			User user = discordMember.getUser();
-			playerName = user.getAsMention();
+			if (user != null)
+				playerName = user.getAsMention();
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getMinecraftChannel();
 		EmbedBuilder eb = new EmbedBuilder();

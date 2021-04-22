@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,7 +14,6 @@ import org.apache.commons.collections4.map.LinkedMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.vdurmont.emoji.EmojiManager;
 
 import fr.olympa.bot.discord.guild.GuildHandler;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public abstract class ReactionDiscord {
 
+	public Map<Object, Object> data;
 	public LinkedMap<String, String> reactionsEmojis;
 
 	private List<Long> canReactUserIds;
@@ -42,12 +43,14 @@ public abstract class ReactionDiscord {
 		this.messageId = messageId;
 		this.olympaGuildId = olympaGuildId;
 		canReactUserIds = Arrays.stream(canReactUsers).mapToLong(IMentionable::getIdLong).boxed().collect(Collectors.toList());
+		data = new HashMap<>();
 	}
 
 	public ReactionDiscord(LinkedMap<String, String> reactionsEmojis, long messageId, long olympaGuildId) {
 		this.reactionsEmojis = reactionsEmojis;
 		this.messageId = messageId;
 		this.olympaGuildId = olympaGuildId;
+		data = new HashMap<>();
 	}
 
 	public boolean canInteract(User user) {
@@ -69,16 +72,18 @@ public abstract class ReactionDiscord {
 		if (emote.isEmote())
 			return null;
 		String emoji = messageReaction.getReactionEmote().getEmoji();
-		if (emoji != null)
-			return reactionsEmojis.get(emoji);
-		return null;
+		return reactionsEmojis.get(emoji);
 	}
 
 	public boolean hasReactionEmoji(String reactionsEmojisKey) {
 		return reactionsEmojis.keySet().contains(reactionsEmojisKey);
 	}
 
-	public Map<String, String> getDatas() {
+	public Map<Object, Object> getData() {
+		return data;
+	}
+
+	public Map<String, String> getEmojisData() {
 		return reactionsEmojis;
 	}
 
@@ -113,7 +118,7 @@ public abstract class ReactionDiscord {
 	}
 
 	public void createObject(ResultSet resultSet) throws JsonSyntaxException, SQLException {
-		reactionsEmojis = new Gson().fromJson(resultSet.getString("data"), new TypeToken<LinkedMap<String, String>>() {}.getType());
+		reactionsEmojis = new Gson().fromJson(resultSet.getString("emojis"), new TypeToken<LinkedMap<String, String>>() {}.getType());
 		String allowed = resultSet.getString("allowed_users_ids");
 		if (allowed != null && !allowed.isEmpty())
 			canReactUserIds = new Gson().fromJson(resultSet.getString("allowed_users_ids"), new TypeToken<List<Long>>() {}.getType());
@@ -123,6 +128,8 @@ public abstract class ReactionDiscord {
 		removeWhenModClearAll = resultSet.getInt("remove_when_modclearall") == 1;
 		messageId = resultSet.getLong("message_id");
 		olympaGuildId = resultSet.getLong("guild_id");
+		if (resultSet.getString("data") != null)
+			data = new Gson().fromJson(resultSet.getString("data"), new TypeToken<Map<Object, Object>>() {}.getType());
 	}
 
 	public boolean isRemoveWhenModClearAll() {
@@ -138,7 +145,7 @@ public abstract class ReactionDiscord {
 	}
 
 	private void addReaction(Message message, List<String> emojis) {
-		emojis.stream().filter(e -> EmojiManager.isEmoji(e)).forEach(emoji -> message.addReaction(emoji).queue());
+		emojis.stream().forEach(emoji -> message.addReaction(emoji).queue());
 	}
 
 	public Boolean removeFromDB() {

@@ -24,7 +24,7 @@ public class SurveyReaction extends ReactionDiscord {
 
 	@Override
 	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String reactionEmoji) {
-		message.editMessage(SurveyCommand.getEmbed(message, reactionsEmojis, !canMultiple())).queue();
+		message.editMessage(SurveyCommand.getEmbed(data.get("question").toString(), message, reactionsEmojis, !canMultiple())).queue();
 		return true;
 	}
 
@@ -36,7 +36,7 @@ public class SurveyReaction extends ReactionDiscord {
 
 	@Override
 	public void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionEmoji) {
-		message.editMessage(SurveyCommand.getEmbed(message, reactionsEmojis, !canMultiple())).queue();
+		message.editMessage(SurveyCommand.getEmbed(data.get("question").toString(), message, reactionsEmojis, !canMultiple())).queue();
 	}
 
 }
