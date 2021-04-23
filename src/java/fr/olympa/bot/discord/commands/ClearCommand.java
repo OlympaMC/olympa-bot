@@ -8,11 +8,13 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 public class ClearCommand extends DiscordCommand {
 
-	private boolean taskAll = false;
+	private static boolean taskAll = false;
 
 	public ClearCommand() {
 		// TODO Change to ASSISTANT & + and DEV
@@ -25,7 +27,6 @@ public class ClearCommand extends DiscordCommand {
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		Member member = message.getMember();
-
 		MatcherPattern<Integer> nb = RegexMatcher.NUMBER;
 		if (nb.is(args[0])) {
 			Integer i = nb.parse(args[0]);
@@ -36,33 +37,34 @@ public class ClearCommand extends DiscordCommand {
 			message.getChannel().sendMessage(member.getAsMention() + "➤ " + args[0] + " doit être un nombre valide.").queue();
 		else {
 			deleteMessage(message);
-			if (taskAll) {
+			if (!clearAllMessage(member.getUser(), message))
 				message.getChannel().sendMessage(member.getAsMention() + "➤ Je suis déjà en train de supprimer tous les messages d'un channel.").queue();
-				return;
-			}
-			taskAll = true;
-			clearAllMessage(member, message);
-			taskAll = false;
 		}
 	}
 
-	public void clearAllMessage(Member member, Message message) {
+	public static boolean clearAllMessage(User user, Message message) {
+		if (taskAll)
+			return false;
+		taskAll = true;
 		new Thread(() -> {
+			MessageHistory hists;
 			TextChannel channel = (TextChannel) message.getChannel();
-			DiscordUtils.sendTempMessage(channel, member.getAsMention() + " ➤ Suppression de tous les messages du channel " + channel.getAsMention() + " en cours...");
-			while (message.getChannel().getHistory().size() <= 100) {
-				channel.getHistoryBefore(message.getIdLong(), 100).queue(hists -> channel.purgeMessages(hists.getRetrievedHistory()));
+			DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Suppression de tous les messages du channel " + channel.getAsMention() + " en cours...");
+			while (channel.getHistory().size() <= 100) {
+				hists = channel.getHistoryBefore(message.getIdLong(), 100).complete();
+				channel.purgeMessages(hists.getRetrievedHistory());
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e) {
 					taskAll = false;
-					//					clearAllMessage(member, message);
-					DiscordUtils.sendTempMessage(message.getChannel(), member.getAsMention() + " ➤ Une erreur est survenue. Réésaye. " + e.getMessage());
+					DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Une erreur est survenue. Réésaye. " + e.getMessage());
 					return;
 				}
 			}
-			DiscordUtils.sendTempMessage(message.getChannel(), member.getAsMention() + " ➤ La majorité des messages ont été supprimés.");
+			taskAll = false;
+			DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ La majorité des messages ont été supprimés.");
 		}).start();
+		return true;
 	}
 
 	public void clearMessage(Member member, Message message, int i) {

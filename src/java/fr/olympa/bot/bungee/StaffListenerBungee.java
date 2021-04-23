@@ -195,9 +195,12 @@ public class StaffListenerBungee implements Listener {
 				ErrorReaction reaction = new ErrorReaction(entry, msg);
 				reaction.addToMessage(msg);
 				reaction.saveToDB();
+				for (int i = 1; i < strings.size(); i++)
+					channelStaffDiscord.sendMessage("```css\n" + strings.get(i) + "```").queue(m -> {
+						msgs.add(m);
+						reaction.addMessage(m);
+					});
 			});
-			for (int i = 1; i < strings.size(); i++)
-				channelStaffDiscord.sendMessage("```css\n" + strings.get(i) + "```").queue(msg -> msgs.add(msg));
 
 		}
 	}

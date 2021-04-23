@@ -21,18 +21,30 @@ import net.md_5.bungee.api.config.ServerInfo;
 
 public class ServersCommand extends DiscordCommand {
 
+	LinkedMap<String, String> base = new LinkedMap<>();
+	LinkedMap<String, String> numbers = new LinkedMap<>();
+
 	public ServersCommand() {
 		super("server", "servers");
 		description = "Affiche la liste des serveurs et leur état.";
+		base.put("🔄", "refresh");
+		numbers.put("1️⃣", "1");
+		numbers.put("2️⃣", "2");
+		numbers.put("3️⃣", "3");
+		numbers.put("4️⃣", "4");
+		numbers.put("5️⃣", "5");
+		numbers.put("6️⃣", "6");
+		numbers.put("7️⃣", "7");
+		numbers.put("8️⃣", "8");
+		numbers.put("9️⃣", "9");
+		numbers.put("🔟", "10");
 	}
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		TextChannel channel = message.getTextChannel();
-		LinkedMap<String, String> map = new LinkedMap<>();
-		map.put("🔄", "refresh");
 		channel.sendMessage(getEmbed()).queue(msg -> {
-			RefreshServersReaction reaction = new RefreshServersReaction(map, msg, GuildHandler.getOlympaGuild(message.getGuild()), message.getAuthor());
+			RefreshServersReaction reaction = new RefreshServersReaction(base, msg, GuildHandler.getOlympaGuild(message.getGuild()), message.getAuthor());
 			reaction.addToMessage(msg);
 			reaction.saveToDB();
 		});
@@ -42,7 +54,7 @@ public class ServersCommand extends DiscordCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
 		Map<ServerInfo, MonitorInfoBungee> infos = MonitorServers.getServersMap();
-		MonitorServers.getServersSorted().forEach(info -> {
+		for (MonitorInfoBungee info : MonitorServers.getServersSorted().collect(Collectors.toList()))
 			if (!info.getName().contains("bungee")) {
 				ServerStatus status = info.getStatus();
 				StringJoiner sb = new StringJoiner("\n");
@@ -63,7 +75,6 @@ public class ServersCommand extends DiscordCommand {
 					sb.add("Dernière MAJ Core : `" + info.getLastModifiedCore() + "`");
 				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
 			}
-		});
 		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).collect(Collectors.toList());
 		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
 			embedBuilder.setColor(Color.GREEN);

@@ -1,10 +1,13 @@
 package fr.olympa.bot.discord;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
+import fr.olympa.bot.discord.commands.ClearCommand;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -15,8 +18,10 @@ public class ErrorReaction extends ReactionDiscord {
 
 	String serverName;
 	String stackTrace;
+	Message message;
+	List<Message> allMessages = new ArrayList<>();
 
-	public ErrorReaction(SimpleEntry<String, String> entry, Message msg) {
+	public ErrorReaction(SimpleEntry<String, String> entry, Message message) {
 		super(new LinkedMap<String, String>() {
 			private static final long serialVersionUID = -3385687263702744975L;
 			{
@@ -24,19 +29,23 @@ public class ErrorReaction extends ReactionDiscord {
 				put("📌", "pin");
 				put("👍", "fix");
 				put("❌", "delete");
+				put("🗑️", "clear_channel");
 			}
-		}, msg.getIdLong(),
-				GuildHandler.getOlympaGuildByDiscordId(msg.getGuild().getIdLong()).getId());
-
+		}, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId());
+		this.message = message;
 		serverName = entry.getKey();
 		stackTrace = entry.getValue();
+		allMessages.add(message);
 	}
 
 	public ErrorReaction() {}
 
-	@Override
-	public void onBotStop(long messageId) {
+	public void addMessage(Message message) {
+		allMessages.add(message);
+	}
 
+	public void removeMessages() {
+		message.getTextChannel().deleteMessages(allMessages);
 	}
 
 	@Override
@@ -47,13 +56,35 @@ public class ErrorReaction extends ReactionDiscord {
 		case "fix":
 			return true;
 		case "delete":
-			message.delete().queue();
+			removeMessages();
 			break;
+		case "clear_channel":
+			return !ClearCommand.clearAllMessage(user, message);
 		case "pin":
 			message.pin().queue();
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionsEmojis) {
+		switch (reactionsEmojis) {
+		case "forMe":
+			break;
+		case "fix":
+			break;
+		case "clear_channel":
+			ClearCommand.clearAllMessage(user, message);
+		case "pin":
+			message.unpin().queue();
+			break;
+		}
+	}
+
+	@Override
+	public void onBotStop(long messageId) {
+
 	}
 
 	@Override
@@ -65,19 +96,4 @@ public class ErrorReaction extends ReactionDiscord {
 	public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
 
 	}
-
-	@Override
-	public void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionsEmojis) {
-		switch (reactionsEmojis) {
-		case "forMe":
-			break;
-		case "fix":
-			break;
-		case "pin":
-			message.unpin().queue();
-			break;
-		}
-
-	}
-
 }
