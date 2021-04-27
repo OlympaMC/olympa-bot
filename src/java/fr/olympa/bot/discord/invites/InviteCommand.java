@@ -127,11 +127,24 @@ public class InviteCommand extends DiscordCommand {
 				}
 				channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
 			} else if (label.equalsIgnoreCase("invitefix")) {
+				List<DiscordInvite> targetInvites = null;
+
+				if (!DiscordPermission.STAFF.hasPermission(member)) {
+					MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
+					if (!message.isFromGuild())
+						out.queue();
+					else {
+						DiscordUtils.deleteTempMessage(message);
+						DiscordUtils.sendTempMessage(out);
+					}
+				}
 				List<Member> members = message.getMentionedMembers();
 				Member memberTarget = null;
 				if (args.length != 0) {
 					if (!members.isEmpty())
 						memberTarget = members.get(0);
+					else if (args[0].equals("ALL"))
+						targetInvites = DiscordInvite.getAll(opGuild);
 					else {
 						memberTarget = getMember(message.getGuild(), args[0]);
 						if (memberTarget == null) {
@@ -141,9 +154,11 @@ public class InviteCommand extends DiscordCommand {
 					}
 				} else
 					memberTarget = member;
-				DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
-				List<DiscordInvite> targetInvites = InvitesHandler.getByAuthor(opGuild, dmTarget);
-				em.setDescription("Les invitation qui ont eu besoin d'être fixé et qui ont été fixé :");
+				if (memberTarget != null) {
+					DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
+					targetInvites = InvitesHandler.getByAuthor(opGuild, dmTarget);
+				}
+				em.setDescription("Les invitation qui ont été fixés (" + targetInvites.size() + (memberTarget != null ? " " + member.getAsMention() : "") + ") :");
 				for (DiscordInvite di : targetInvites)
 					try {
 						boolean b = di.fixInvite();

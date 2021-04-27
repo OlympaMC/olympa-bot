@@ -279,10 +279,9 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public void addUser(DiscordMember member) {
-		if (!usersIds.contains(member.getId())) {
+		uses++;
+		if (!usersIds.contains(member.getId()))
 			usersIds.add(member.getId());
-			uses++;
-		}
 		removeLeaver(member);
 		if (!listIdsContainsUser(pastUsersIds, member)) {
 			usesUnique++;

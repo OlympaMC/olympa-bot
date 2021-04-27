@@ -23,7 +23,7 @@ public class OlympaGuild {
 
 		String name;
 
-		private DiscordGuildType(String name) {
+		DiscordGuildType(String name) {
 			this.name = name;
 		}
 
@@ -49,8 +49,7 @@ public class OlympaGuild {
 		String excludeChIds = resultSet.getString("exclude_channels_ids");
 		List<Long> listExcludeChIds = new ArrayList<>();
 		if (excludeChIds != null && !excludeChIds.isBlank())
-			listExcludeChIds = new Gson().fromJson(excludeChIds, new TypeToken<List<Long>>() {
-			}.getType());
+			listExcludeChIds = new Gson().fromJson(excludeChIds, new TypeToken<List<Long>>() {}.getType());
 		return new OlympaGuild(
 				resultSet.getLong("id"),
 				resultSet.getLong("guild_id"),
@@ -226,9 +225,9 @@ public class OlympaGuild {
 		return minecraftChannelId;
 	}
 
-	public boolean isCacheComplete() {
-		return isCacheComplete;
-	}
+	//	public boolean isCacheComplete() {
+	//		return isCacheComplete;
+	//	}
 
 	public void cacheComplete() {
 		isCacheComplete = true;

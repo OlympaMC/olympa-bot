@@ -45,7 +45,21 @@ public class InvitesHandler {
 	public static void detectNewInvite(OlympaGuild opGuild, Consumer<List<User>> inviter, DiscordMember invited) throws SQLException {
 		Collection<DiscordSmallInvite> invites = DiscordInvite.getAllSmalls(opGuild);
 		opGuild.getGuild().retrieveInvites().queue(invs -> {
-			List<Invite> discordInvites = invites.stream().map(smi -> invs.stream().filter(iv -> smi.getUses() == iv.getUses() - 1 && smi.getCode().equals(iv.getCode())).findFirst().orElse(null)).filter(di -> di != null)
+			//			Map<Invite, DiscordInvite> discordInvitesMap = new HashMap<>();
+			//			for (DiscordSmallInvite dsi : invites) {
+			//				for (Invite iv : invs) {
+			//					if (dsi.getUses() == iv.getUses() - 1 && dsi.getCode().equals(iv.getCode())) {
+			//						discordInvitesMap.put(iv, dsi);
+			//					}
+			//				}
+			//			}
+			List<Invite> discordInvites = invites.stream()
+					.map(dsi -> {
+						return invs.stream().filter(iv -> dsi.getUses() == iv.getUses() - 1 && dsi.getCode().equals(iv.getCode()))
+								.findFirst()
+								.orElse(null);
+					})
+					.filter(di -> di != null)
 					.collect(Collectors.toList());
 			inviter.accept(discordInvites.stream().map(Invite::getInviter).collect(Collectors.toList()));
 			if (discordInvites.size() != 1) {
