@@ -124,9 +124,9 @@ public class InvitesHandler {
 		}
 	}
 
-	public static DiscordSmallInvite get(String code) {
+	public static DiscordInvite get(String code) {
 		//		DiscordSmallInvite discordInvite = CACHE.getIfPresent(code);
-		DiscordSmallInvite discordInvite = null;
+		DiscordInvite discordInvite = null;
 		if (discordInvite == null)
 			try {
 				discordInvite = DiscordInvite.getByCode(code);
@@ -167,7 +167,7 @@ public class InvitesHandler {
 		opGuild.getGuild().retrieveInvites().queue(ivs -> {
 			try {
 				for (Invite iv : ivs) {
-					DiscordInvite discordInvite = get(iv.getCode()).expand();
+					DiscordInvite discordInvite = get(iv.getCode());
 					if (discordInvite == null)
 						discordInvite = new DiscordInvite(iv).createNew();
 					//						addInvite(discordInvite);
