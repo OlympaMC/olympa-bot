@@ -69,7 +69,7 @@ public class OlympaDiscord {
 
 		JDABuilder builder = new JDABuilder(plugin.getConfig().getConfig().getString("discord.token"));
 		builder.setStatus(OnlineStatus.IDLE);
-		builder.setBulkDeleteSplittingEnabled(true);
+		builder.setBulkDeleteSplittingEnabled(false);
 
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());

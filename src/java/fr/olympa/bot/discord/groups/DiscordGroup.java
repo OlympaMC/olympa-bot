@@ -46,7 +46,6 @@ public enum DiscordGroup {
 	NITRO(682522717563518996L, 587672022382018569L, null, false),
 	OLDER(0, 684335098312917026L, null, false),
 	BETA_ACCES(0, 792136154584842311L, null, false),
-	OMEGA_ACCES(0, 772149895339573259L, null, false),
 	MUTED(0, 566627971276865576L, null, false);
 
 	static {
@@ -109,14 +108,14 @@ public enum DiscordGroup {
 	String supportDesc;
 	boolean supportCanTag;
 
-	private DiscordGroup(long idStaff, long idPublic, String supportDesc, boolean supportCanTag) {
+	DiscordGroup(long idStaff, long idPublic, String supportDesc, boolean supportCanTag) {
 		this.idStaff = idStaff;
 		this.idPublic = idPublic;
 		this.supportDesc = supportDesc;
 		this.supportCanTag = supportCanTag;
 	}
 
-	private DiscordGroup(OlympaGroup olympaGroup, long idStaff, long idPublic, String supportDesc, boolean supportCanTag) {
+	DiscordGroup(OlympaGroup olympaGroup, long idStaff, long idPublic, String supportDesc, boolean supportCanTag) {
 		this.olympaGroup = olympaGroup;
 		this.idStaff = idStaff;
 		this.idPublic = idPublic;

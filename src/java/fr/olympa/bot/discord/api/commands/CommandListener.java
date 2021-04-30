@@ -41,7 +41,7 @@ public class CommandListener extends ListenerAdapter {
 		String label = args[0];
 		List<User> mentions = message.getMentionedUsers();
 		if (!Pattern.compile("^\\" + DiscordCommand.prefix + "[a-zA-Z]+$").matcher(label).find()) {
-			if (mentions.contains(event.getJDA().getSelfUser())) {
+			if (!message.isEdited() && !user.isBot() && !user.isFake() && mentions.contains(event.getJDA().getSelfUser())) {
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
 				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " mon prefix est `" + DiscordCommand.prefix + "`" + ".");
