@@ -1,8 +1,8 @@
 package fr.olympa.bot.discord;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
@@ -19,9 +19,9 @@ public class ErrorReaction extends ReactionDiscord {
 	String serverName;
 	String stackTrace;
 	Message message;
-	List<Message> allMessages = new ArrayList<>();
+	Map<String, Integer> exceptionByServers = new HashMap<>();
 
-	public ErrorReaction(SimpleEntry<String, String> entry, Message message) {
+	public ErrorReaction(String serverName, String stackTrace, Message message) {
 		super(new LinkedMap<String, String>() {
 			private static final long serialVersionUID = -3385687263702744975L;
 			{
@@ -33,20 +33,12 @@ public class ErrorReaction extends ReactionDiscord {
 			}
 		}, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId());
 		this.message = message;
-		serverName = entry.getKey();
-		stackTrace = entry.getValue();
-		allMessages.add(message);
+		this.serverName = serverName;
+		this.stackTrace = stackTrace;
+		exceptionByServers.put(serverName, 1);
 	}
 
 	public ErrorReaction() {}
-
-	public void addMessage(Message message) {
-		allMessages.add(message);
-	}
-
-	public void removeMessages() {
-		message.getTextChannel().deleteMessages(allMessages);
-	}
 
 	@Override
 	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String data) {
@@ -56,7 +48,7 @@ public class ErrorReaction extends ReactionDiscord {
 		case "fix":
 			return true;
 		case "delete":
-			removeMessages();
+			message.delete().queue();
 			break;
 		case "clear_channel":
 			return !ClearCommand.clearAllMessage(user, message);
@@ -82,18 +74,38 @@ public class ErrorReaction extends ReactionDiscord {
 		}
 	}
 
-	@Override
-	public void onBotStop(long messageId) {
+	public void addServerError(String serverName) {
+		int i = exceptionByServers.get(serverName);
+		exceptionByServers.put(serverName, ++i);
+	}
 
+	public static String getDefaultTitle(String serverName) {
+		return "**Erreur sur " + serverName + "**";
+	}
+
+	public String getMessageTitle() {
+		return "**Erreur** " + exceptionByServers.entrySet().stream().map(entry -> "x" + entry.getValue() + " sur **" + entry.getKey() + "**").collect(Collectors.joining(", "));
+	}
+
+	public String getServerName() {
+		return serverName;
+	}
+
+	public String getStackTrace() {
+		return stackTrace;
+	}
+
+	public Message getMessage() {
+		return message;
 	}
 
 	@Override
-	public void onReactModClearAll(long messageId, MessageChannel messageChannel) {
-
-	}
+	public void onBotStop(long messageId) {}
 
 	@Override
-	public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {
+	public void onReactModClearAll(long messageId, MessageChannel messageChannel) {}
 
-	}
+	@Override
+	public void onReactModDeleteOne(long messageId, MessageChannel messageChannel) {}
+
 }

@@ -37,7 +37,7 @@ public class OlympaBots extends Plugin {
 
 	private OlympaDiscord olympaDiscord;
 	private OlympaTeamspeak olympaTeamspeak;
-	public StaffListenerBungee bungeeListener;
+	public SpigotReceiveError spigotReceiveError;
 	private BungeeCustomConfig defaultConfig;
 
 	@Override
@@ -52,9 +52,9 @@ public class OlympaBots extends Plugin {
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		bungeeListener = new StaffListenerBungee();
-		System.setErr(new PrintStream(new ErrorOutputStream(System.err, bungeeListener::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
-		ErrorLoggerHandler errorHandler = new ErrorLoggerHandler(bungeeListener::sendBungeeError);
+		spigotReceiveError = new SpigotReceiveError();
+		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
+		ErrorLoggerHandler errorHandler = new ErrorLoggerHandler(spigotReceiveError::sendBungeeError);
 		for (Plugin plugin : getProxy().getPluginManager().getPlugins()) {
 			plugin.getLogger().addHandler(errorHandler);
 			sendMessage("Hooked dans le logger de §6" + plugin.getDescription().getName());
@@ -69,7 +69,7 @@ public class OlympaBots extends Plugin {
 		PluginManager pluginManager = getProxy().getPluginManager();
 		// swearHandler = new SwearHandler(olympaBungee.getConfig().getStringList("chat.insult"));
 		pluginManager.registerListener(this, new LinkBungeeListener());
-		pluginManager.registerListener(this, bungeeListener);
+		pluginManager.registerListener(this, new StaffListenerBungee());
 		pluginManager.registerListener(this, new TeamspeakListener());
 		new DiscordCommand(this).register();
 		new TeamspeakCommand(this).register();
@@ -81,9 +81,9 @@ public class OlympaBots extends Plugin {
 		olympaTeamspeak.connect();
 
 		//new TwitterAPI(this).connect();
-		OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), new SpigotReceiveError(), RedisChannel.SPIGOT_RECEIVE_ERROR.name());
+		OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), spigotReceiveError, RedisChannel.SPIGOT_RECEIVE_ERROR.name());
 		//		CacheDiscordSQL.debug();
-		CacheStats.addCache("DISCORD_ERROR_SEND", StaffListenerBungee.cache);
+		CacheStats.addCache("DISCORD_ERROR_SEND", SpigotReceiveError.cache);
 		CacheStats.addCache("DISCORD_AWAIT_REACTIONS", AwaitReaction.reactions);
 		CacheStats.addCache("DISCORD_LINK_CODE", LinkHandler.waiting);
 		CacheStats.addCache("DISCORD_MEMBERS", CacheDiscordSQL.cacheMembers);

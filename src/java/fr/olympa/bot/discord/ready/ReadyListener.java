@@ -133,7 +133,7 @@ public class ReadyListener extends ListenerAdapter {
 		}
 		OlympaDiscord.setLastConnection(Utils.getCurrentTimeInSeconds());
 		ReactionHandler.initReactions();
-		OlympaBots.getInstance().bungeeListener.sendErrorsInQueue();
+		OlympaBots.getInstance().spigotReceiveError.sendErrorsInQueue();
 
 		// DEBUG if some DiscordMember has tag enmpty
 		//		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
