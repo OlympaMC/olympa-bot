@@ -1,13 +1,13 @@
 package fr.olympa.bot.bungee;
 
 import java.awt.Color;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.StringTokenizer;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -169,40 +169,48 @@ public class StaffListenerBungee implements Listener {
 			LinkSpigotBungee.Provider.link.sendMessage("&cImpossible de print une erreur (de &4serverName = %s&c) sur discord, le bot discord est pas connecté.", serverName);
 			return;
 		}
-		List<String> strings = new ArrayList<>(2);
-		int maxSize = 2000 - 50;
-		if (stackTrace.length() < maxSize)
-			strings.add(stackTrace);
-		else {
-			StringTokenizer tok = new StringTokenizer(stackTrace, "\n");
-			StringBuilder output = new StringBuilder(stackTrace.length());
-			int lineLen = 0;
-			while (tok.hasMoreTokens()) {
-				String word = tok.nextToken() + "\n";
-				if (lineLen + word.length() > maxSize) {
-					strings.add(output.toString());
-					output = new StringBuilder(stackTrace.length());
-					lineLen = 0;
-				}
-				output.append(word);
-				lineLen += word.length();
-			}
-			strings.add(output.toString());
-			List<Message> msgs = new ArrayList<>();
-			cache.put(entry, msgs);
-			channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```css\n" + strings.get(0) + "```\nx1").queue(msg -> {
-				msgs.add(msg);
-				ErrorReaction reaction = new ErrorReaction(entry, msg);
-				reaction.addToMessage(msg);
-				reaction.saveToDB();
-				for (int i = 1; i < strings.size(); i++)
-					channelStaffDiscord.sendMessage("```css\n" + strings.get(i) + "```").queue(m -> {
-						msgs.add(m);
-						reaction.addMessage(m);
-					});
-			});
+		byte[] byteArrray = stackTrace.getBytes(StandardCharsets.UTF_8);
+		channelStaffDiscord.sendFile(byteArrray, "error.css").queue(msg -> {
+			cache.put(entry, Arrays.asList(msg));
+			ErrorReaction reaction = new ErrorReaction(entry, msg);
+			reaction.addToMessage(msg);
+			reaction.saveToDB();
+		});
+		//		List<String> strings = new ArrayList<>(2);
+		//		int maxSize = 2000 - 50;
+		//		if (stackTrace.length() < maxSize)
+		//			strings.add(stackTrace);
+		//		else {
 
-		}
+		//			StringTokenizer tok = new StringTokenizer(stackTrace, "\n");
+		//			StringBuilder output = new StringBuilder(stackTrace.length());
+		//			int lineLen = 0;
+		//			while (tok.hasMoreTokens()) {
+		//				String word = tok.nextToken() + "\n";
+		//				if (lineLen + word.length() > maxSize) {
+		//					strings.add(output.toString());
+		//					output = new StringBuilder(stackTrace.length());
+		//					lineLen = 0;
+		//				}
+		//				output.append(word);
+		//				lineLen += word.length();
+		//			}
+		//			strings.add(output.toString());
+		//			List<Message> msgs = new ArrayList<>();
+		//			cache.put(entry, msgs);
+		//			channelStaffDiscord.sendMessage("**Erreur sur " + serverName + "**").append("```css\n" + strings.get(0) + "```\nx1").queue(msg -> {
+		//				msgs.add(msg);
+		//				ErrorReaction reaction = new ErrorReaction(entry, msg);
+		//				reaction.addToMessage(msg);
+		//				reaction.saveToDB();
+		//				for (int i = 1; i < strings.size(); i++)
+		//					channelStaffDiscord.sendMessage("```css\n" + strings.get(i) + "```").queue(m -> {
+		//						msgs.add(m);
+		//						reaction.addMessage(m);
+		//					});
+		//			});
+
+		//		}
 	}
 
 	//	public void sendErrorFlushInfo() {

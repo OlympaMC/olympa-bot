@@ -7,6 +7,7 @@ import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.chat.ColorUtils;
 import fr.olympa.api.redis.RedisAccess;
 import fr.olympa.api.redis.RedisChannel;
+import fr.olympa.api.task.NativeTask;
 import fr.olympa.api.utils.CacheStats;
 import fr.olympa.api.utils.ErrorLoggerHandler;
 import fr.olympa.api.utils.ErrorOutputStream;
@@ -52,7 +53,7 @@ public class OlympaBots extends Plugin {
 	public void onLoad() {
 		super.onLoad();
 		bungeeListener = new StaffListenerBungee();
-		System.setErr(new PrintStream(new ErrorOutputStream(System.err, bungeeListener::sendBungeeError, run -> getProxy().getScheduler().schedule(this, run, 1, TimeUnit.SECONDS))));
+		System.setErr(new PrintStream(new ErrorOutputStream(System.err, bungeeListener::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
 		ErrorLoggerHandler errorHandler = new ErrorLoggerHandler(bungeeListener::sendBungeeError);
 		for (Plugin plugin : getProxy().getPluginManager().getPlugins()) {
 			plugin.getLogger().addHandler(errorHandler);
