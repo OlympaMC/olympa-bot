@@ -40,6 +40,7 @@ public abstract class ReactionDiscord {
 	private long messageId;
 	@Nullable
 	private long olympaGuildId;
+	@Nullable
 	private Message message;
 
 	protected ReactionDiscord() {}
@@ -123,10 +124,10 @@ public abstract class ReactionDiscord {
 	public long getMessageId() {
 		return messageId;
 	}
-
-	public Message getMessage() {
-		return message;
-	}
+	//
+	//	public Message getMessage() {
+	//		return message;
+	//	}
 
 	public boolean isGuildReaction() {
 		return olympaGuildId != 0;

@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.entities.User;
 
 public class SurveyReaction extends ReactionDiscord {
 
-	private boolean action;
+	private boolean action = false;
 	private boolean needNextAction;
 	@Nullable
 	private Integer time;
@@ -45,7 +45,7 @@ public class SurveyReaction extends ReactionDiscord {
 	@Override
 	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String reactionEmoji) {
 		if (!isClosed()) {
-			editMessage();
+			editMessage(message);
 			return true;
 		}
 		return false;
@@ -60,7 +60,7 @@ public class SurveyReaction extends ReactionDiscord {
 	@Override
 	public void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionEmoji) {
 		if (!isClosed())
-			editMessage();
+			editMessage(message);
 	}
 
 	private void retriveEmojis(List<User> users, Iterator<MessageReaction> it, Consumer<List<User>> callback) {
@@ -73,12 +73,12 @@ public class SurveyReaction extends ReactionDiscord {
 			callback.accept(users);
 	}
 
-	private boolean disableAction() {
+	private boolean disableAction(Message message) {
 		boolean b = action;
 		action = false;
 		if (needNextAction) {
 			needNextAction = false;
-			editMessage();
+			editMessage(message);
 		}
 		return b != action;
 	}
@@ -89,12 +89,11 @@ public class SurveyReaction extends ReactionDiscord {
 		return b != action;
 	}
 
-	private void editMessage() {
-		if (enableAction()) {
+	private void editMessage(Message message) {
+		if (!enableAction()) {
 			needNextAction = true;
 			return;
 		}
-		Message message = getMessage();
 		List<MessageReaction> reactionsUsers = message.getReactions();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("📝 Sondage:");
@@ -108,16 +107,17 @@ public class SurveyReaction extends ReactionDiscord {
 			embedBuilder.appendDescription("\n\nVotes " + total + "\n" + "Vote unique " + (!canMultiple() ? "✅" : "❌" + "\nNombre de vote unique " + totalUnique));
 			embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
 			Integer time = getTime();
-			if (time != null)
+			if (time != null) {
+				Date date = new Date(time * 1000l);
+				embedBuilder.setTimestamp(date.toInstant());
 				if (Utils.getCurrentTimeInSeconds() > time) {
 					embedBuilder.setColor(Color.RED);
 					embedBuilder.setFooter("Le sondage est terminé, merci !");
 				} else {
-					Date date = new Date(time * 1000l);
 					SimpleDateFormat format = new SimpleDateFormat("HH:mm le dd/MM/yyyy");
 					embedBuilder.setFooter("Le sondage se termine à " + format.format(date) + " UTC Paris");
-					embedBuilder.setTimestamp(date.toInstant());
 				}
+			}
 			for (Entry<String, String> entry : getEmojisData().entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
@@ -129,7 +129,7 @@ public class SurveyReaction extends ReactionDiscord {
 				String countRound = new DecimalFormat("0.#").format(count);
 				embedBuilder.addField(value, key + " " + pourcent + "% " + (count != 0 ? countRound + " vote" + Utils.withOrWithoutS((int) Math.round(count)) : ""), false);
 			}
-			message.editMessage(embedBuilder.build()).queue(msg -> disableAction());
+			message.editMessage(embedBuilder.build()).queue(msg -> disableAction(message));
 		});
 	}
 
