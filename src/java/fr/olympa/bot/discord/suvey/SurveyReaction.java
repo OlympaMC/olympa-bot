@@ -122,6 +122,8 @@ public class SurveyReaction extends ReactionDiscord {
 				String key = entry.getKey();
 				String value = entry.getValue();
 				MessageReaction reaction = reactionsUsers.stream().filter(r -> r.getReactionEmote().getEmoji().equals(key)).findFirst().orElse(null);
+				if (reaction == null)
+					continue;
 				double count = reaction.getCount() - 1d;
 				String pourcent = new DecimalFormat("0.#").format(count / total * 100D);
 				String countRound = new DecimalFormat("0.#").format(count);

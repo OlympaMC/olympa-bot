@@ -71,7 +71,7 @@ public class SurveyCommand extends DiscordCommand {
 		String question = args.get(0);
 		reaction.putData("question", question);
 		List<String> defaultEmojis = Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟");
-		for (int i = 0; args.size() > i; i++) {
+		for (int i = 1; args.size() > i; i++) {
 			String emoji = defaultEmojis.get(i);
 			String awnser = args.get(i);
 			List<String> emojis = EmojiParser.extractEmojis(awnser);
