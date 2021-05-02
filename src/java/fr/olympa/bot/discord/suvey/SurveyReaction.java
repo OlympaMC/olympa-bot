@@ -33,8 +33,8 @@ public class SurveyReaction extends ReactionDiscord {
 	@Nullable
 	private Integer time;
 
-	public SurveyReaction(LinkedMap<String, String> map, boolean uniqueVote) {
-		super(map, !uniqueVote);
+	public SurveyReaction(LinkedMap<String, String> map, boolean multiVote) {
+		super(map, multiVote);
 	}
 
 	public SurveyReaction() {}
@@ -79,7 +79,7 @@ public class SurveyReaction extends ReactionDiscord {
 		boolean b = action;
 		action = false;
 		if (!taskEdit)
-			NativeTask.getInstance().runTaskLater("SURVEY", () -> editMessage(message, true), 3, TimeUnit.SECONDS);
+			NativeTask.getInstance().runTaskLater("SURVEY", () -> editMessage(message, true), 10, TimeUnit.SECONDS);
 		return b != action;
 	}
 
@@ -96,7 +96,7 @@ public class SurveyReaction extends ReactionDiscord {
 	private void editMessage(Message message, boolean taskEdit) {
 		if (!enableAction())
 			return;
-		NativeTask.getInstance().removeTaskByName("SURVEY");
+		NativeTask.getInstance().terminateTaskByName("SURVEY");
 		List<MessageReaction> reactionsUsers = message.getReactions();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("📝 Sondage:");
@@ -107,7 +107,7 @@ public class SurveyReaction extends ReactionDiscord {
 			users.removeIf(user -> user.getIdLong() == message.getJDA().getSelfUser().getIdLong());
 			int total = users.size();
 			int totalUnique = (int) users.stream().distinct().count();
-			embedBuilder.appendDescription("\n\nVotes " + total + "\n" + "Vote unique " + (!canMultiple() ? "✅" : "❌" + "\nNombre de vote unique " + totalUnique));
+			embedBuilder.appendDescription("\n\nVotes " + total + "\n" + (!canMultiple() ? "Les votes sont uniques" : "Vous pouvez voter plusieurs fois" + "\nNombre de vote unique " + totalUnique));
 			embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
 			Integer time = getTime();
 			if (time != null) {
