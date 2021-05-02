@@ -119,9 +119,8 @@ public class TextChannelListener extends ListenerAdapter {
 		TextChannel channel = event.getChannel();
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 		messageIds.forEach(messageId -> {
-
 			try {
-				Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(guild.getIdLong(), channel.getIdLong(), Integer.parseInt(messageId));
+				Entry<Long, DiscordMessage> entry = CacheDiscordSQL.getDiscordMessage(guild.getIdLong(), channel.getIdLong(), Long.parseLong(messageId));
 				if (entry == null)
 					return;
 				DiscordMessage discordMessage = entry.getValue();
@@ -133,7 +132,7 @@ public class TextChannelListener extends ListenerAdapter {
 				if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 					return;
 				StringJoiner sj = new StringJoiner(".\n");
-				sj.add("Un message de " + member.getAsMention() + "a été supprimé dans " + channel.getAsMention());
+				sj.add("Un message de " + member.getAsMention() + " a été supprimé en clear dans " + channel.getAsMention());
 				sj.add("S'y rendre: " + discordMessage.getJumpUrl());
 				LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
 				SQLMessage.updateMessageContent(discordMessage);
