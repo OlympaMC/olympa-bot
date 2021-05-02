@@ -54,9 +54,9 @@ public class SurveyCommand extends DiscordCommand {
 		StringJoiner sj = new StringJoiner(" ");
 		for (String s : baseArgs)
 			if (s.equalsIgnoreCase("-m") || s.equalsIgnoreCase("-multi"))
-				reaction.setMutiple(false);
-			else if (s.equalsIgnoreCase("-u") || s.equalsIgnoreCase("-unique"))
 				reaction.setMutiple(true);
+			else if (s.equalsIgnoreCase("-u") || s.equalsIgnoreCase("-unique"))
+				reaction.setMutiple(false);
 			else if (s.startsWith("-time") || s.startsWith("-t"))
 				reaction.setTime(RegexMatcher.INT.extractAndParse(s));
 			else

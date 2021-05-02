@@ -23,6 +23,7 @@ import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 
@@ -78,7 +79,7 @@ public class SurveyReaction extends ReactionDiscord {
 		boolean b = action;
 		action = false;
 		if (!taskEdit)
-			NativeTask.getInstance().runTaskLater("SURVEY", () -> editMessage(message, true), 5, TimeUnit.SECONDS);
+			NativeTask.getInstance().runTaskLater("SURVEY", () -> editMessage(message, true), 3, TimeUnit.SECONDS);
 		return b != action;
 	}
 
@@ -135,7 +136,12 @@ public class SurveyReaction extends ReactionDiscord {
 				String countRound = new DecimalFormat("0.#").format(count);
 				embedBuilder.addField(value, key + " " + pourcent + "% " + (count != 0 ? countRound + " vote" + Utils.withOrWithoutS((int) Math.round(count)) : ""), false);
 			}
-			message.editMessage(embedBuilder.build()).queue(msg -> disableAction(message, taskEdit));
+			MessageEmbed embed = embedBuilder.build();
+			List<MessageEmbed> embeds = message.getEmbeds();
+			if (embeds.isEmpty() || !embeds.get(0).equals(embed))
+				message.editMessage(embed).queue(msg -> disableAction(message, taskEdit));
+			else
+				disableAction(message, taskEdit);
 		});
 	}
 
