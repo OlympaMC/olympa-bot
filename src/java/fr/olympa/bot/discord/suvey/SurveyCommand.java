@@ -38,11 +38,12 @@ public class SurveyCommand extends DiscordCommand {
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Aide ❓ Sondage");
 			embed.setDescription("Voici les exemples de l'utilisation du `." + command.getName() + "`. Vous pouvez terminer un sondage avec un clique droit sur le message puis `Supprimer toutes les réactions`.");
-			embed.addField("Sondage Oui ou Non", "`." + command.getName() + "\"Votre question ici\" \"Oui\" \"Non\"` -unique", false);
-			embed.addField("Sondage plusieures réponses", "`." + command.getName() + "\"Qui est le plus fort en pvp ?\" \"Bullobily\" \"SkyAsult\" \"Gareth\"` \"Tristiisch\"` -unique", false);
-			embed.addField("Sondage plusieures réponses avec Emoji", "`." + command.getName() + "\"Votre humour actuellement ?\" \"🤣Heureux\" \"🥰 Amoureux\" \"😵Stressé\"` \"😤Impatient\"` -unique", false);
-			embed.addField("Sondage multi réponses avec Emoji", "`." + command.getName() + "\"Quel est le serveur le plus prometteur ?\" \"🥵Olympa\" \"😈Olympa\" \"😇Olympa\"` \"🥳Olympa\"` -multi", false);
-			embed.addField("Sondage avec fin dans 7jours (en secondes)", "`." + command.getName() + "\"Votre mode de jeux préférer ?\" \"BedWars/Rush\" \"SkyBlock\" \"Practice\"` \"Semi-RP\"` -t604800", false);
+			embed.addField("Sondage Oui ou Non", "```." + command.getName() + " \"Votre question ici\" \"Oui\" \"Non\" -unique```", false);
+			embed.addField("Sondage plusieures réponses", "```." + command.getName() + " \"Qui est le plus fort en pvp ?\" \"Bullobily\" \"SkyAsult\" \"Gareth\"` \"Tristiisch\" -unique```", false);
+			embed.addField("Sondage plusieures réponses avec Emoji", "```." + command.getName() + " \"Votre humour actuellement ?\" \"🤣Heureux\" \"🥰 Amoureux\" \"😵Stressé\" \"😤Impatient\" -unique```", false);
+			embed.addField("Sondage multi réponses avec Emoji", "```." + command.getName() + " \"Quel est le serveur le plus prometteur ?\" \"🥵Olympa\" \"😈Olympa\" \"😇Olympa\" \"🥳Olympa\" -multi```", false);
+			embed.addField("Sondage avec fin dans 7jours (en secondes)", "```." + command.getName() + " \"Votre mode de jeux préférer ?\" \"BedWars/Rush\" \"SkyBlock\" \"Practice\"` \"Semi-RP\"` -t604800```", false);
+			embed.setColor(Color.CYAN);
 			channel.sendMessage(embed.build()).mention(message.getAuthor()).queue(msg -> msg.delete().queueAfter(10, TimeUnit.MINUTES));
 			return;
 		}
@@ -70,7 +71,7 @@ public class SurveyCommand extends DiscordCommand {
 		String question = args.get(0);
 		reaction.putData("question", question);
 		List<String> defaultEmojis = Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟");
-		for (int i = 1; args.size() >= i; i++) {
+		for (int i = 0; args.size() > i; i++) {
 			String emoji = defaultEmojis.get(i);
 			String awnser = args.get(i);
 			List<String> emojis = EmojiParser.extractEmojis(awnser);
