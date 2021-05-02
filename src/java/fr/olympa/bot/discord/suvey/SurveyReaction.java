@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
@@ -15,6 +16,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.api.match.RegexMatcher;
+import fr.olympa.api.task.NativeTask;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
@@ -27,7 +29,6 @@ import net.dv8tion.jda.api.entities.User;
 public class SurveyReaction extends ReactionDiscord {
 
 	private boolean action = false;
-	private boolean needNextAction;
 	@Nullable
 	private Integer time;
 
@@ -73,13 +74,11 @@ public class SurveyReaction extends ReactionDiscord {
 			callback.accept(users);
 	}
 
-	private boolean disableAction(Message message) {
+	private boolean disableAction(Message message, boolean taskEdit) {
 		boolean b = action;
 		action = false;
-		if (needNextAction) {
-			needNextAction = false;
-			editMessage(message);
-		}
+		if (!taskEdit)
+			NativeTask.getInstance().runTaskLater("SURVEY", () -> editMessage(message, true), 5, TimeUnit.SECONDS);
 		return b != action;
 	}
 
@@ -90,16 +89,19 @@ public class SurveyReaction extends ReactionDiscord {
 	}
 
 	private void editMessage(Message message) {
-		if (!enableAction()) {
-			needNextAction = true;
+		editMessage(message, false);
+	}
+
+	private void editMessage(Message message, boolean taskEdit) {
+		if (!enableAction())
 			return;
-		}
+		NativeTask.getInstance().removeTaskByName("SURVEY");
 		List<MessageReaction> reactionsUsers = message.getReactions();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("📝 Sondage:");
 		String question = (String) getData().get("question");
 		if (question != null)
-			embedBuilder.setDescription(question);
+			embedBuilder.setDescription("**" + question + "**");
 		retriveEmojis(new ArrayList<>(), reactionsUsers.iterator(), users -> {
 			users.removeIf(user -> user.getIdLong() == message.getJDA().getSelfUser().getIdLong());
 			int total = users.size();
@@ -125,11 +127,15 @@ public class SurveyReaction extends ReactionDiscord {
 				if (reaction == null)
 					continue;
 				double count = reaction.getCount() - 1d;
-				String pourcent = new DecimalFormat("0.#").format(count / total * 100D);
+				String pourcent;
+				if (count == 0 || total == 0)
+					pourcent = "0";
+				else
+					pourcent = new DecimalFormat("0.#").format(count / total * 100D);
 				String countRound = new DecimalFormat("0.#").format(count);
 				embedBuilder.addField(value, key + " " + pourcent + "% " + (count != 0 ? countRound + " vote" + Utils.withOrWithoutS((int) Math.round(count)) : ""), false);
 			}
-			message.editMessage(embedBuilder.build()).queue(msg -> disableAction(message));
+			message.editMessage(embedBuilder.build()).queue(msg -> disableAction(message, taskEdit));
 		});
 	}
 
