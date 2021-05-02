@@ -135,7 +135,7 @@ public class SurveyReaction extends ReactionDiscord {
 
 	public boolean isClosed() {
 		Integer time = getTime();
-		if (time == null)
+		if (time == null || time == 0)
 			return false;
 		return Utils.getCurrentTimeInSeconds() > time;
 	}

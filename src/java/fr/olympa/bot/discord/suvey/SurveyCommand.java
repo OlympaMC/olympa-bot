@@ -42,7 +42,7 @@ public class SurveyCommand extends DiscordCommand {
 			embed.addField("Sondage plusieures réponses", "```." + command.getName() + " \"Qui est le plus fort en pvp ?\" \"Bullobily\" \"SkyAsult\" \"Gareth\"` \"Tristiisch\" -unique```", false);
 			embed.addField("Sondage plusieures réponses avec Emoji", "```." + command.getName() + " \"Votre humour actuellement ?\" \"🤣Heureux\" \"🥰 Amoureux\" \"😵Stressé\" \"😤Impatient\" -unique```", false);
 			embed.addField("Sondage multi réponses avec Emoji", "```." + command.getName() + " \"Quel est le serveur le plus prometteur ?\" \"🥵Olympa\" \"😈Olympa\" \"😇Olympa\" \"🥳Olympa\" -multi```", false);
-			embed.addField("Sondage avec fin dans 7jours (en secondes)", "```." + command.getName() + " \"Votre mode de jeux préférer ?\" \"BedWars/Rush\" \"SkyBlock\" \"Practice\"` \"Semi-RP\"` -t604800```", false);
+			embed.addField("Sondage avec fin dans 7jours (en secondes)", "```." + command.getName() + " \"Votre mode de jeux préférer ?\" \"BedWars/Rush\" \"SkyBlock\" \"Practice\" \"Semi-RP\" -t604800```", false);
 			embed.setColor(Color.CYAN);
 			channel.sendMessage(embed.build()).mention(message.getAuthor()).queue(msg -> msg.delete().queueAfter(10, TimeUnit.MINUTES));
 			return;
@@ -72,12 +72,12 @@ public class SurveyCommand extends DiscordCommand {
 		reaction.putData("question", question);
 		List<String> defaultEmojis = Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟");
 		for (int i = 1; args.size() > i; i++) {
-			String emoji = defaultEmojis.get(i);
+			String emoji = defaultEmojis.get(i - 1);
 			String awnser = args.get(i);
 			List<String> emojis = EmojiParser.extractEmojis(awnser);
 			if (!emojis.isEmpty()) {
 				emoji = emojis.get(0);
-				EmojiParser.removeEmojis(awnser, Arrays.asList(EmojiManager.getByUnicode(emoji)));
+				awnser = EmojiParser.removeEmojis(awnser, Arrays.asList(EmojiManager.getByUnicode(emoji)));
 			}
 			reactionEmojis.put(emoji, awnser);
 		}
