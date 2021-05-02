@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import fr.olympa.api.groups.OlympaGroup;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -23,16 +24,18 @@ public class DiscordPermission {
 	//	BUILDER(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
 	//	STAFF(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.DEV, DiscordGroup.ASSISTANT, DiscordGroup.BUILDER, DiscordGroup.GRAPHISTE),
 	//	;
-	final public static DiscordPermission ADMIN = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH);
-	final public static DiscordPermission HIGH_STAFF = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF,
-			DiscordGroup.RESP_BUILDER);
-	final public static DiscordPermission MODERATOR = new DiscordPermission(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA);
-	final public static DiscordPermission ASSISTANT = new DiscordPermission(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ASSISTANT);
-	final public static DiscordPermission HIGH_DEV = new DiscordPermission(DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA);
-	final public static DiscordPermission DEV = new DiscordPermission(DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA);
-	final public static DiscordPermission BUILDER = new DiscordPermission(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA);
-	final public static DiscordPermission STAFF = new DiscordPermission(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.DEV, DiscordGroup.ASSISTANT, DiscordGroup.BUILDER,
-			DiscordGroup.GRAPHISTE);
+	public static final DiscordPermission ADMIN = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH);
+	public static final DiscordPermission HIGH_DEV = new DiscordPermission(DiscordGroup.getAllUpper(OlympaGroup.RESP_TECH));
+	public static final DiscordPermission HIGH_STAFF = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF,
+			DiscordGroup.RESP_BUILDER, DiscordGroup.RESP);
+	public static final DiscordPermission MODERATOR = new DiscordPermission(DiscordGroup.getAllUpper(OlympaGroup.MOD));
+	public static final DiscordPermission ASSISTANT = new DiscordPermission(DiscordGroup.getAllUpper(OlympaGroup.ASSISTANT));
+	public static final DiscordPermission DEV = new DiscordPermission(DiscordGroup.DEV, DiscordGroup.DEVP, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.RESP_TECH, DiscordGroup.MODP,
+			DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF,
+			DiscordGroup.RESP_BUILDER, DiscordGroup.RESP);
+	public static final DiscordPermission BUILDER = new DiscordPermission(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA,
+			DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF, DiscordGroup.RESP);
+	public static final DiscordPermission STAFF = new DiscordPermission(DiscordGroup.getStaffs());
 
 	public static DiscordPermission getByName(String name) {
 		return Arrays.stream(DiscordPermission.class.getFields()).map(f -> {
@@ -60,6 +63,10 @@ public class DiscordPermission {
 
 	private DiscordPermission(DiscordGroup... allow) {
 		this.allow = Arrays.asList(allow);
+	}
+
+	private DiscordPermission(List<DiscordGroup> allow) {
+		this.allow = allow;
 	}
 
 	public List<DiscordGroup> getAllow() {
@@ -92,6 +99,5 @@ public class DiscordPermission {
 				return member.hasPermission(Permission.ADMINISTRATOR);
 			return false;
 		});
-
 	}
 }

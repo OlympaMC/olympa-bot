@@ -4,10 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.annotation.Nullable;
+
 import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.JDA.Status;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
@@ -31,12 +35,14 @@ public class ReactionListener extends ListenerAdapter {
 		long messageId = event.getMessageIdLong();
 		ChannelType channelType = event.getChannelType();
 		User user = event.getUser();
+		@Nullable
+		Member member = event.getMember();
 		if (user.isBot())
 			return;
 		MessageReaction react = event.getReaction();
 		ReactionEmote reactEmote = react.getReactionEmote();
 		if (reactEmote.isEmoji()) {
-			if (BANNED_EMOJI.contains(react.getReactionEmote().getEmoji())) {
+			if (channelType.isGuild() && BANNED_EMOJI.contains(react.getReactionEmote().getEmoji()) && !DiscordPermission.ADMIN.hasPermission(member)) {
 				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
 				return;
 			}
@@ -50,7 +56,6 @@ public class ReactionListener extends ListenerAdapter {
 		ReactionDiscord reaction = AwaitReaction.get(messageId);
 		if (reaction == null)
 			return;
-
 		if (!reaction.canInteract(user) || !reaction.hasReactionEmoji(react.getReactionEmote().getName())) {
 			if (channelType.isGuild())
 				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));

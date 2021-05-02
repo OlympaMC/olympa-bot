@@ -31,7 +31,6 @@ public class MuteCommand extends DiscordCommand {
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		if (args.length == 0)
 			return;
-
 		Member member = message.getMember();
 		MessageChannel channel = message.getChannel();
 		Guild guild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild();
@@ -56,8 +55,8 @@ public class MuteCommand extends DiscordCommand {
 				numberEmoji = numberEmoji.getNext();
 			}
 			em.setDescription(sj.toString());
+			MuteChooseReaction reaction = new MuteChooseReaction(data, member);
 			channel.sendMessage(em.build()).queue(m -> {
-				MuteChooseReaction reaction = new MuteChooseReaction(m, data, member);
 				reaction.addToMessage(m);
 			});
 

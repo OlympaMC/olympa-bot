@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.collections4.map.LinkedMap;
 
 import com.google.gson.Gson;
@@ -27,36 +29,51 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public abstract class ReactionDiscord {
 
-	public Map<Object, Object> data;
+	public Map<Object, Object> data = new HashMap<>();
 	public LinkedMap<String, String> reactionsEmojis;
 
 	private List<Long> canReactUserIds;
 
-	private boolean canMultiple = false;
+	private boolean canMultiple;
 	private boolean removeWhenModClearAll = true;
-	private long messageId, olympaGuildId;
+	@Nullable
+	private long messageId;
+	@Nullable
+	private long olympaGuildId;
+	private Message message;
 
-	public ReactionDiscord() {}
+	protected ReactionDiscord() {}
 
-	public ReactionDiscord(LinkedMap<String, String> reactionsEmojis, long messageId, long olympaGuildId, IMentionable... canReactUsers) {
-		this.reactionsEmojis = reactionsEmojis;
-		this.messageId = messageId;
-		this.olympaGuildId = olympaGuildId;
+	protected ReactionDiscord(LinkedMap<String, String> reactionsEmojis, boolean canMultiple, IMentionable... canReactUsers) {
+		this(reactionsEmojis, canMultiple);
 		canReactUserIds = Arrays.stream(canReactUsers).mapToLong(IMentionable::getIdLong).boxed().collect(Collectors.toList());
-		data = new HashMap<>();
 	}
 
-	public ReactionDiscord(LinkedMap<String, String> reactionsEmojis, long messageId, long olympaGuildId) {
+	protected ReactionDiscord(LinkedMap<String, String> reactionsEmojis, boolean canMultiple) {
+		this.canMultiple = canMultiple;
 		this.reactionsEmojis = reactionsEmojis;
-		this.messageId = messageId;
-		this.olympaGuildId = olympaGuildId;
-		data = new HashMap<>();
 	}
 
 	public boolean canInteract(User user) {
 		if (canReactUserIds == null || canReactUserIds.isEmpty())
 			return true;
 		return canReactUserIds.stream().anyMatch(id -> user.getIdLong() == id);
+	}
+
+	public boolean setMutiple(boolean canMultiple) {
+		return this.canMultiple = canMultiple;
+	}
+
+	public boolean enableMutiple() {
+		return canMultiple = true;
+	}
+
+	public boolean disableMutiple() {
+		return canMultiple = false;
+	}
+
+	public boolean disableWhenModClearAll() {
+		return removeWhenModClearAll = true;
 	}
 
 	public boolean canMultiple() {
@@ -83,6 +100,18 @@ public abstract class ReactionDiscord {
 		return data;
 	}
 
+	public Object putData(Object key, Object value) {
+		return data.put(key, value);
+	}
+
+	public Object removeData(Object key) {
+		return data.remove(key);
+	}
+
+	public Object getData(Object key) {
+		return data.get(key);
+	}
+
 	public Map<String, String> getEmojisData() {
 		return reactionsEmojis;
 	}
@@ -93,6 +122,14 @@ public abstract class ReactionDiscord {
 
 	public long getMessageId() {
 		return messageId;
+	}
+
+	public Message getMessage() {
+		return message;
+	}
+
+	public boolean isGuildReaction() {
+		return olympaGuildId != 0;
 	}
 
 	public long getOlympaGuildId() {
@@ -109,13 +146,13 @@ public abstract class ReactionDiscord {
 
 	public abstract void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String data);
 
-	public void setMessageId(long messageId) {
-		this.messageId = messageId;
-	}
+	//	public void setMessageId(long messageId) {
+	//		this.messageId = messageId;
+	//	}
 
-	public void setOlympaGuildId(long olympaGuildId) {
-		this.olympaGuildId = olympaGuildId;
-	}
+	//	public void setOlympaGuildId(long olympaGuildId) {
+	//		this.olympaGuildId = olympaGuildId;
+	//	}
 
 	public void createObject(ResultSet resultSet) throws JsonSyntaxException, SQLException {
 		reactionsEmojis = new Gson().fromJson(resultSet.getString("emojis"), new TypeToken<LinkedMap<String, String>>() {}.getType());
@@ -138,10 +175,11 @@ public abstract class ReactionDiscord {
 
 	public void addToMessage(Message message) {
 		AwaitReaction.reactions.put(message.getIdLong(), this);
-
 		addReaction(message, getEmojis());
-		setMessageId(message.getIdLong());
-		setOlympaGuildId(GuildHandler.getOlympaGuild(message.getGuild()).getId());
+		messageId = message.getIdLong();
+		this.message = message;
+		if (message.isFromGuild())
+			olympaGuildId = GuildHandler.getOlympaGuild(message.getGuild()).getId();
 	}
 
 	private void addReaction(Message message, List<String> emojis) {

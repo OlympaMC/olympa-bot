@@ -1,26 +1,38 @@
 package fr.olympa.bot.discord.suvey;
 
+import java.awt.Color;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
+import fr.olympa.api.match.RegexMatcher;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
-import fr.olympa.bot.discord.guild.OlympaGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 
 public class SurveyReaction extends ReactionDiscord {
 
-	public SurveyReaction(LinkedMap<String, String> map, Message msg, OlympaGuild guild) {
-		super(map, msg.getIdLong(), guild.getId());
+	private boolean action;
+	private boolean needNextAction;
+	@Nullable
+	private Integer time;
+
+	public SurveyReaction(LinkedMap<String, String> map, boolean uniqueVote) {
+		super(map, !uniqueVote);
 	}
 
 	public SurveyReaction() {}
@@ -32,8 +44,11 @@ public class SurveyReaction extends ReactionDiscord {
 
 	@Override
 	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String reactionEmoji) {
-		message.editMessage(getEmbed(data.get("question").toString(), message, reactionsEmojis, !canMultiple())).queue();
-		return true;
+		if (!isClosed()) {
+			editMessage();
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -44,36 +59,103 @@ public class SurveyReaction extends ReactionDiscord {
 
 	@Override
 	public void onReactRemove(Message message, MessageChannel channel, User user, MessageReaction reaction, String reactionEmoji) {
-		message.editMessage(getEmbed(data.get("question").toString(), message, reactionsEmojis, !canMultiple())).queue();
+		if (!isClosed())
+			editMessage();
 	}
 
-	public static MessageEmbed getEmbed(String question, Message message, LinkedMap<String, String> reactionEmojis, boolean isUnique) {
-		List<MessageReaction> reactions = message.getReactions();
+	private void retriveEmojis(List<User> users, Iterator<MessageReaction> it, Consumer<List<User>> callback) {
+		if (it.hasNext())
+			it.next().retrieveUsers().queue(us -> {
+				users.addAll(us);
+				retriveEmojis(users, it, callback);
+			});
+		else
+			callback.accept(users);
+	}
+
+	private boolean disableAction() {
+		boolean b = action;
+		action = false;
+		if (needNextAction) {
+			needNextAction = false;
+			editMessage();
+		}
+		return b != action;
+	}
+
+	private boolean enableAction() {
+		boolean b = action;
+		action = true;
+		return b != action;
+	}
+
+	private void editMessage() {
+		if (enableAction()) {
+			needNextAction = true;
+			return;
+		}
+		Message message = getMessage();
+		List<MessageReaction> reactionsUsers = message.getReactions();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("📝 Sondage:");
-		int i = 0;
-		if (reactionEmojis.firstKey().equals("question")) {
-			embedBuilder.setDescription(reactionEmojis.getValue(0));
-			i = 1;
-		}
-		List<User> users = new ArrayList<>();
-		for (MessageReaction r : reactions)
-			users.addAll(r.retrieveUsers().complete());
-		users.removeIf(user -> user.getIdLong() == message.getJDA().getSelfUser().getIdLong());
-		int total = users.size();
-		int totalUnique = (int) users.stream().distinct().count();
-		embedBuilder.appendDescription("\n\nVotes " + total + "\n" + "Vote unique " + (isUnique ? "✅" : "❌" + "\nNombre de vote unique " + totalUnique));
-		while (reactionEmojis.size() > i) {
-			String key = reactionEmojis.get(i);
-			String value = reactionEmojis.getValue(i);
-			MessageReaction reaction = reactions.stream().filter(r -> r.getReactionEmote().getEmoji().equals(key)).findFirst().orElse(null);
-			double count = reaction.getCount() - 1;
-			String pourcent = new DecimalFormat("0.#").format(count / total * 100D);
-			String countRound = new DecimalFormat("0.#").format(count);
-			embedBuilder.addField(value, key + " " + pourcent + "% " + (count != 0 ? countRound + " vote" + Utils.withOrWithoutS((int) Math.round(count)) : ""), false);
-			i++;
-		}
-		embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		return embedBuilder.build();
+		String question = (String) getData().get("question");
+		if (question != null)
+			embedBuilder.setDescription(question);
+		retriveEmojis(new ArrayList<>(), reactionsUsers.iterator(), users -> {
+			users.removeIf(user -> user.getIdLong() == message.getJDA().getSelfUser().getIdLong());
+			int total = users.size();
+			int totalUnique = (int) users.stream().distinct().count();
+			embedBuilder.appendDescription("\n\nVotes " + total + "\n" + "Vote unique " + (!canMultiple() ? "✅" : "❌" + "\nNombre de vote unique " + totalUnique));
+			embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
+			Integer time = getTime();
+			if (time != null)
+				if (Utils.getCurrentTimeInSeconds() > time) {
+					embedBuilder.setColor(Color.RED);
+					embedBuilder.setFooter("Le sondage est terminé, merci !");
+				} else {
+					Date date = new Date(time * 1000l);
+					SimpleDateFormat format = new SimpleDateFormat("HH:mm le dd/MM/yyyy");
+					embedBuilder.setFooter("Le sondage se termine à " + format.format(date) + " UTC Paris");
+					embedBuilder.setTimestamp(date.toInstant());
+				}
+			for (Entry<String, String> entry : getEmojisData().entrySet()) {
+				String key = entry.getKey();
+				String value = entry.getValue();
+				MessageReaction reaction = reactionsUsers.stream().filter(r -> r.getReactionEmote().getEmoji().equals(key)).findFirst().orElse(null);
+				double count = reaction.getCount() - 1d;
+				String pourcent = new DecimalFormat("0.#").format(count / total * 100D);
+				String countRound = new DecimalFormat("0.#").format(count);
+				embedBuilder.addField(value, key + " " + pourcent + "% " + (count != 0 ? countRound + " vote" + Utils.withOrWithoutS((int) Math.round(count)) : ""), false);
+			}
+			message.editMessage(embedBuilder.build()).queue(msg -> disableAction());
+		});
+	}
+
+	public boolean isClosed() {
+		Integer time = getTime();
+		if (time == null)
+			return false;
+		return Utils.getCurrentTimeInSeconds() > time;
+	}
+
+	public Integer getTime() {
+		if (time != null)
+			return time;
+		Object objectTime = getData("time");
+		if (objectTime == null)
+			return null;
+		if (objectTime instanceof Integer)
+			return time = (int) objectTime;
+		else if (objectTime instanceof String)
+			return time = RegexMatcher.INT.parse((String) objectTime);
+		else
+			return time = RegexMatcher.INT.parse(objectTime.toString());
+	}
+
+	public void setTime(Integer time) {
+		if (time != null)
+			putData("time", Utils.getCurrentTimeInSeconds() + time);
+		else
+			removeData("time");
 	}
 }

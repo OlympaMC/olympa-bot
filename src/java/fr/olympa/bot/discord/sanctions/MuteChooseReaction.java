@@ -16,8 +16,8 @@ import net.dv8tion.jda.api.entities.User;
 
 public class MuteChooseReaction extends ReactionDiscord {
 
-	public MuteChooseReaction(Message message, LinkedMap<String, String> data, IMentionable... canReactUserIds) {
-		super(data, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId(), canReactUserIds);
+	public MuteChooseReaction(LinkedMap<String, String> data, IMentionable... canReactUserIds) {
+		super(data, true, canReactUserIds);
 	}
 
 	public MuteChooseReaction() {

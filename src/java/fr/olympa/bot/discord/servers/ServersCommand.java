@@ -10,7 +10,6 @@ import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.api.server.ServerStatus;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
-import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.core.bungee.servers.MonitorInfoBungee;
 import fr.olympa.core.bungee.servers.MonitorServers;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,8 +42,8 @@ public class ServersCommand extends DiscordCommand {
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		TextChannel channel = message.getTextChannel();
+		RefreshServersReaction reaction = new RefreshServersReaction(base, message.getAuthor());
 		channel.sendMessage(getEmbed()).queue(msg -> {
-			RefreshServersReaction reaction = new RefreshServersReaction(base, msg, GuildHandler.getOlympaGuild(message.getGuild()), message.getAuthor());
 			reaction.addToMessage(msg);
 			reaction.saveToDB();
 		});

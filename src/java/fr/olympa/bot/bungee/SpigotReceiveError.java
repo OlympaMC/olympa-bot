@@ -35,7 +35,7 @@ public class SpigotReceiveError extends JedisPubSub {
 	}
 
 	//	public static Cache<Entry<String, String>, List<Message>> cache = CacheBuilder.newBuilder().maximumSize(50).build();
-	public static Cache<String, ErrorReaction> cache = CacheBuilder.newBuilder().maximumSize(50).build();
+	public static Cache<String, ErrorReaction> cache = CacheBuilder.newBuilder().recordStats().maximumSize(50).build();
 
 	public void sendBungeeError(String stackTrace) {
 		sendError("bungee", stackTrace);
@@ -64,8 +64,8 @@ public class SpigotReceiveError extends JedisPubSub {
 			return;
 		}
 		byte[] byteArrray = stackTrace.getBytes(StandardCharsets.UTF_8);
+		ErrorReaction reaction = new ErrorReaction(serverName, stackTrace);
 		channelStaffDiscord.sendMessage(ErrorReaction.getDefaultTitle(serverName)).addFile(byteArrray, "error.css").queue(msg -> {
-			ErrorReaction reaction = new ErrorReaction(serverName, stackTrace, msg);
 			cache.put(stackTrace, reaction);
 			reaction.addToMessage(msg);
 			reaction.saveToDB();

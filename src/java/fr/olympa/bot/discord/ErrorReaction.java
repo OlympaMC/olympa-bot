@@ -8,7 +8,6 @@ import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
 import fr.olympa.bot.discord.commands.ClearCommand;
-import fr.olympa.bot.discord.guild.GuildHandler;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -21,7 +20,7 @@ public class ErrorReaction extends ReactionDiscord {
 	Message message;
 	Map<String, Integer> exceptionByServers = new HashMap<>();
 
-	public ErrorReaction(String serverName, String stackTrace, Message message) {
+	public ErrorReaction(String serverName, String stackTrace) {
 		super(new LinkedMap<String, String>() {
 			private static final long serialVersionUID = -3385687263702744975L;
 			{
@@ -31,8 +30,7 @@ public class ErrorReaction extends ReactionDiscord {
 				put("❌", "delete");
 				put("🗑️", "clear_channel");
 			}
-		}, message.getIdLong(), GuildHandler.getOlympaGuildByDiscordId(message.getGuild().getIdLong()).getId());
-		this.message = message;
+		}, true);
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 		exceptionByServers.put(serverName, 1);

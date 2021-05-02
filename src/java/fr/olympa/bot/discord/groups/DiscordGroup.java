@@ -29,11 +29,11 @@ public enum DiscordGroup {
 	MODP(OlympaGroup.MODP, 558322952009941012L, 558179276973932546L, null, false),
 	MOD(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur liée aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum.", true),
 	ASSISTANT(OlympaGroup.ASSISTANT, 558322953314631690L, 558168138848403456L, "Question ou autre demande. Il saura t'aider pour toute autre situation.", true),
-	GAMEMASTER(OlympaGroup.GAMEMASTER, 730161035088101416L, 730164373418541057L, "Question spécifique au fonctionnement d'un de nos jeux Minecraft.", true),
 	DEVP(OlympaGroup.DEVP, 630451982775353347L, 802968569209421884L, null, false),
 	DEV(OlympaGroup.DEV, 558322951250771978L, 558441264140386304L, "Signalement de bugs, quelque soit la platforme (Minecraft, Site, Forum, Discord, Teamspeak ...).", true),
 	BUILDER(OlympaGroup.BUILDER, 558322957798080514L, 558441911271161867L, null, false),
 	ANIMATEUR(OlympaGroup.ANIMATOR, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
+	GAMEMASTER(OlympaGroup.GAMEMASTER, 730161035088101416L, 730164373418541057L, "Question spécifique au fonctionnement d'un de nos jeux Minecraft.", true),
 	GRAPHISTE(OlympaGroup.GRAPHISTE, 558322958905638944L, 558442057174089740L, null, false),
 	FRIEND(OlympaGroup.FRIEND, 603012821630058498L, 558168724708786187L, null, false),
 	YOUTUBER(OlympaGroup.YOUTUBER, 558322955386617858L, 558570424288542740L, null, false),
@@ -75,6 +75,14 @@ public enum DiscordGroup {
 
 	public static DiscordGroup get(OlympaGroup group) {
 		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.getOlympaGroup() != null && dg.getOlympaGroup().getId() == group.getId()).findFirst().orElse(null);
+	}
+
+	public static DiscordGroup[] getAllUpper(OlympaGroup group) {
+		return Arrays.copyOfRange(DiscordGroup.values(), 0, group.ordinal() + 1);
+	}
+
+	public static List<DiscordGroup> getStaffs() {
+		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.isStaff()).collect(Collectors.toList());
 	}
 
 	public static DiscordGroup get(Role role) {
