@@ -52,15 +52,17 @@ public class SpigotReceiveError extends JedisPubSub {
 		if (errorReaction != null) {
 			errorReaction.addServerError(serverName);
 			Message message = errorReaction.getMessage();
-			message.editMessage(errorReaction.getMessageTitle()).queue(null, x -> {
-				cache.invalidate(stackTrace);
-				sendError(serverName, stackTrace);
-			});
+			if (message != null) {
+				message.editMessage(errorReaction.getMessageTitle()).queue(null, x -> {
+					cache.invalidate(stackTrace);
+					sendError(serverName, stackTrace);
+				});
+			}else LinkSpigotBungee.Provider.link.sendMessage("§cImpossible de modifier une erreur (de &4serverName = %s&c) sur discord, l'instance message est null.", serverName);
 			return;
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		if (channelStaffDiscord == null) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cImpossible de print une erreur (de &4serverName = %s&c) sur discord, le bot discord est pas connecté.", serverName);
+			LinkSpigotBungee.Provider.link.sendMessage("§cImpossible de print une erreur (de &4serverName = %s&c) sur discord, le bot discord est pas connecté.", serverName);
 			return;
 		}
 		byte[] byteArrray = stackTrace.getBytes(StandardCharsets.UTF_8);

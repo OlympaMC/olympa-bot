@@ -83,6 +83,7 @@ public class ReadyListener extends ListenerAdapter {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				if (OlympaBots.getInstance().getDiscord().getJda() == null) return;
 				int usersConnected = 0;
 				int usersTotal = 0;
 				for (Member member : GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMembers())

@@ -17,7 +17,7 @@ public class ErrorReaction extends ReactionDiscord {
 
 	String serverName;
 	String stackTrace;
-	Message message;
+	//Message message;
 	Map<String, Integer> exceptionByServers = new HashMap<>();
 
 	public ErrorReaction(String serverName, String stackTrace) {

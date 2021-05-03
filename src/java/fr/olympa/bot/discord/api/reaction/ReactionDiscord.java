@@ -41,7 +41,7 @@ public abstract class ReactionDiscord {
 	@Nullable
 	private long olympaGuildId;
 	@Nullable
-	private Message message;
+	protected Message message;
 
 	protected ReactionDiscord() {}
 
