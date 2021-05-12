@@ -50,7 +50,7 @@ public class SupportChatListener extends ListenerAdapter {
 						pv.sendTyping().queue();
 						Executors.newSingleThreadScheduledExecutor().schedule(() -> {
 							pv.sendMessage(msgFinal).queue();
-						}, msgFinal.length() * 100, TimeUnit.MILLISECONDS);
+						}, msgFinal.length() * 100l, TimeUnit.MILLISECONDS);
 					});
 					channel.sendMessage("Message envoyé à " + user.getAsMention()).queue();
 
@@ -60,7 +60,7 @@ public class SupportChatListener extends ListenerAdapter {
 					txtCh.sendTyping().queue();
 					Executors.newSingleThreadScheduledExecutor().schedule(() -> {
 						txtCh.sendMessage(msgFinal).queue();
-					}, msgFinal.length() * 20, TimeUnit.MILLISECONDS);
+					}, msgFinal.length() * 20l, TimeUnit.MILLISECONDS);
 					channel.sendMessage("Message envoyé dans " + txtCh.getAsMention() + " sur " + txtCh.getGuild().getName()).queue();
 
 				} else if (id.startsWith("!")) {

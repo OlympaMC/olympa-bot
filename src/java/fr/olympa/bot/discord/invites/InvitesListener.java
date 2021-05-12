@@ -110,7 +110,7 @@ public class InvitesListener extends ListenerAdapter {
 					if (!invites.isEmpty())
 						embed.addField("Invité par ", ColorUtils.join(invites.stream().map(di -> {
 							try {
-								return di.getAuthor().getAsTag();
+								return di.getAuthor().getAsMention() + " (" + di.getAuthor().getAsTag() + ")";
 							} catch (SQLException e) {
 								e.printStackTrace();
 							}

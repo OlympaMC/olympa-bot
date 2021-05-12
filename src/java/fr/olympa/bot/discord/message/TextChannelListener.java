@@ -52,11 +52,12 @@ public class TextChannelListener extends ListenerAdapter {
 		Map<Attachment, String> map = new HashMap<>();
 		if (!user.isFake() && message.getJDA().getSelfUser().getIdLong() != message.getAuthor().getIdLong())
 			message.getAttachments().forEach(att -> {
-				try {
-					map.put(att, FileHandler.tryAddFile(att.getProxyUrl(), att.getUrl(), att.getFileName()));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				//				try {
+				//					map.put(att, FileHandler.tryAddFile(att.getProxyUrl(), att.getUrl(), att.getFileName()));
+				map.put(att, FileHandler.addFile(att));
+				//				} catch (Exception e) {
+				//					e.printStackTrace();
+				//				}
 			});
 		TextChannel channel = message.getTextChannel();
 		try {
