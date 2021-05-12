@@ -82,12 +82,11 @@ public class InviteCommand extends DiscordCommand {
 					if (user == null || !guild.isMember(user))
 						inviterName += " (🚪 " + Utils.tsToShortDur(author.getLeaveTime()) + ")";
 					String out = nb++ + " | `" + uses + " membre" + Utils.withOrWithoutS(uses) + "` " + inviterName + ".\n";
-					if (em.getDescriptionBuilder().length() + out.length() >= MessageEmbed.TEXT_MAX_LENGTH) {
-						channel.sendMessage(em.build()).queue();
+					if (em.getDescriptionBuilder().length() + out.length() >= MessageEmbed.TEXT_MAX_LENGTH)
 						break;
-						//em = new EmbedBuilder();
-						//em.setColor(OlympaBots.getInstance().getDiscord().getColor());
-					}
+					//						channel.sendMessage(em.build()).queue();
+					//em = new EmbedBuilder();
+					//					em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 					em.appendDescription(out);
 				}
 				em.setFooter(DiscordCommand.prefix + "invite [nom|mention] pour voir les stats d'un membre");

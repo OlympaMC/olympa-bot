@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.commands;
 
-import fr.olympa.api.utils.machine.OlympaRuntime;
+import fr.olympa.api.machine.OlympaRuntime;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
