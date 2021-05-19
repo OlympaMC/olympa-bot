@@ -70,6 +70,7 @@ public class FileHandler {
 		att.retrieveInputStream().whenComplete((in, err) -> {
 			try {
 				Files.copy(in, Paths.get(finalFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
+				in.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
