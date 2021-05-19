@@ -72,7 +72,7 @@ public class LogsHandler {
 			else {
 				List<MessageAttachement> attachments = mContent.getAttachments();
 				if (attachments != null && !attachments.isEmpty())
-					attachments.stream().filter(att -> !attWithData.keySet().stream().anyMatch(ma -> ma.getOriginalFileName().equals(att.getOriginalFileName()))).forEach(att -> {
+					attachments.stream().filter(att -> attWithData.keySet().stream().noneMatch(ma -> ma.getOriginalFileName().equals(att.getOriginalFileName()))).forEach(att -> {
 						if (att.getFileName() != null)
 							//							logChannel.sendFile(FileHandler.getFile(att.getFileName()))
 							//									.append(member.getEffectiveName() + " a un fichier `" + att.getOriginalFileName() + "` dans son message \nLien Original : `" + att.getUrl() + "`").queue();

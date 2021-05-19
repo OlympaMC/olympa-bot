@@ -25,7 +25,6 @@ public class FileHandler {
 			folder.mkdirs();
 	}
 
-	@Deprecated
 	public static File getFile(String fileName) {
 		return new File(getFolder(), fileName);
 	}
