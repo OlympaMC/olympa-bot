@@ -1,7 +1,9 @@
 package fr.olympa.bot;
 
 import java.io.PrintStream;
+import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.LogManager;
 
 import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.chat.ColorUtils;
@@ -55,10 +57,15 @@ public class OlympaBots extends Plugin {
 		spigotReceiveError = new SpigotReceiveError();
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
 		ErrorLoggerHandler errorHandler = new ErrorLoggerHandler(spigotReceiveError::sendBungeeError);
-		for (Plugin plugin : getProxy().getPluginManager().getPlugins()) {
-			plugin.getLogger().addHandler(errorHandler);
-			sendMessage("Hooked dans le logger de §6" + plugin.getDescription().getName());
+		LogManager manager = LogManager.getLogManager();
+		Enumeration<String> names = manager.getLoggerNames();
+		int i = 1;
+		while (names.hasMoreElements()) {
+			String name = names.nextElement();
+			manager.getLogger(name).addHandler(errorHandler);
+			i++;
 		}
+		sendMessage(String.format("Hooked error stream handler into §6%s§e loggers!", i));
 	}
 
 	@Override
