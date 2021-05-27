@@ -33,8 +33,7 @@ public class DiscordPermission {
 	public static final DiscordPermission DEV = new DiscordPermission(DiscordGroup.DEV, DiscordGroup.DEVP, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.RESP_TECH, DiscordGroup.MODP,
 			DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF,
 			DiscordGroup.RESP_BUILDER, DiscordGroup.RESP);
-	public static final DiscordPermission BUILDER = new DiscordPermission(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA,
-			DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF, DiscordGroup.RESP);
+	public static final DiscordPermission BUILDER = new DiscordPermission(DiscordGroup.getAllUpper(OlympaGroup.BUILDER));
 	public static final DiscordPermission STAFF = new DiscordPermission(DiscordGroup.getStaffs());
 
 	public static DiscordPermission getByName(String name) {

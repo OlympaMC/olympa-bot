@@ -31,11 +31,12 @@ public class ToggleCommand extends DiscordCommand {
 			message.getChannel().sendMessage(embed.build()).queue();
 		} else if (args.length > 0 && RegexMatcher.INT.is(args[0])) {
 			MemberSettings[] values = MemberSettings.values();
-			int i = RegexMatcher.INT.parse(args[0]) + 1;
+			int i = RegexMatcher.INT.parse(args[0]) - 1;
 			if (i >= 0 && i < values.length) {
 				boolean newValue = discordMember.toggleSetting(values[i]);
 				message.getChannel().sendMessage("Le paramètre `" + values[i].getName() + "` est désormais " + (newValue ? "✅" : "❌") + ".").queue();
 			}
-		}
+		} else
+			message.getChannel().sendMessage("Le n° de paramètre `" + args[0] + "` est inconnu.").queue();
 	}
 }

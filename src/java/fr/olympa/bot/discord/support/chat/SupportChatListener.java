@@ -79,17 +79,15 @@ public class SupportChatListener extends ListenerAdapter {
 		EmbedBuilder eb = new EmbedBuilder();
 
 		User user = message.getAuthor();
-		eb.setDescription(user.getAsMention() + "(" + user.getIdLong() + ")" + " > " + msg);
+		eb.setDescription(user.getAsMention() + "(" + user.getIdLong() + ")" + " > " + msg + "[jump](" + message.getJumpUrl() + "]");
 		for (Attachment att : attachments)
 			eb.addField(att.getFileName(), att.getProxyUrl(), true);
 		if (message.isFromGuild()) {
 			TextChannel gc = (TextChannel) message.getChannel();
-			eb.addField("Jump To ", gc.getAsMention() + "\n" + message.getJumpUrl(), true);
-			eb.setTitle("Mentionner dans un channel");
-		} else {
-			eb.addField("Jump To ", message.getAuthor().getAsMention() + "\n" + message.getJumpUrl(), true);
-			eb.setTitle("Message reçu");
-		}
+			eb.setTitle("Mentionner dans le channel " + gc.getName());
+			eb.addField("Dans ", gc.getAsMention(), true);
+		} else
+			eb.setTitle("Message privé reçu" + author.getName());
 		author.openPrivateChannel().queue(ch -> ch.sendMessage(eb.build()).queue());
 	}
 }

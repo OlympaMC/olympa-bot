@@ -28,6 +28,6 @@ public enum MemberSettings {
 	}
 
 	public String getCmd() {
-		return DiscordCommand.prefix + "toggle" + (ordinal() + 1);
+		return DiscordCommand.prefix + "toggle " + (ordinal() + 1);
 	}
 }

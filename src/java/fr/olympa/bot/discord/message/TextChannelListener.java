@@ -104,10 +104,8 @@ public class TextChannelListener extends ListenerAdapter {
 			SwearDiscord.check(member, channel, message, olympaGuild);
 			if (!olympaGuild.isLogMsg())
 				return;
-			StringJoiner sj = new StringJoiner(".\n");
-			sj.add(member.getAsMention() + " a modifié un message dans " + channel.getAsMention());
-			sj.add("S'y rendre: " + message.getJumpUrl());
-			LogsHandler.sendMessage(discordMessage, "✍️ Message modifié", message.getJumpUrl(), sj.toString(), member);
+			String msg = String.format("%s a modifié un message dans %s %s", member.getAsMention(), channel.getAsMention(), discordMessage.getJumpUrl());
+			LogsHandler.sendMessage(discordMessage, "✍️ Message modifié", discordMessage.getJumpUrlBrut(), msg, member);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -132,10 +130,8 @@ public class TextChannelListener extends ListenerAdapter {
 				CacheDiscordSQL.setDiscordMessage(member.getIdLong(), discordMessage);
 				if (member.getUser().isBot() || member.isFake() || !olympaGuild.isLogMsg() || olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 					return;
-				StringJoiner sj = new StringJoiner(".\n");
-				sj.add("Un message de " + member.getAsMention() + " a été supprimé en clear dans " + channel.getAsMention());
-				sj.add("S'y rendre: " + discordMessage.getJumpUrl());
-				LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+				String msg = String.format("Un message de %s a été supprimé en clear dans %s %s", member.getAsMention(), channel.getAsMention(), discordMessage.getJumpUrl());
+				LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrlBrut(), msg, member);
 				SQLMessage.updateMessageContent(discordMessage);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -184,8 +180,8 @@ public class TextChannelListener extends ListenerAdapter {
 					messageBuilder.addEmbeds(WebHookHandler.convertEmbed(embed.build()));
 					messageBuilder.append(member.getAsMention());
 					WebHookHandler.send(embed.build(), channel, mentionneds.get(0), t1 -> {
-						sj.add("S'y rendre: https://discord.com/channels/" + channel.getGuild().getId() + "/" + channel.getId() + "/" + t1.getId() + ".");
-						LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+						sj.add(discordMessage.getJumpUrl());
+						LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrlBrut(), sj.toString(), member);
 					});
 					return;
 				}

@@ -65,8 +65,7 @@ public class DiscordMessage {
 		this.messageId = messageId;
 		this.olympaDiscordAuthorId = olympaDiscordAuthorId;
 		if (contents != null && !contents.isBlank())
-			this.contents = new Gson().fromJson(contents, new TypeToken<List<MessageContent>>() {
-			}.getType());
+			this.contents = new Gson().fromJson(contents, new TypeToken<List<MessageContent>>() {}.getType());
 		this.created = created.getTime() / 1000L;
 		this.logMessageId = logMessageId;
 	}
@@ -89,7 +88,7 @@ public class DiscordMessage {
 
 	public String getLogJumpUrl() {
 		OlympaGuild opGuild = getOlympaGuild();
-		return new JumpURL(opGuild.getDiscordId(), opGuild.getLogChannel().getIdLong(), logMessageId).get();
+		return "[Jump](" + new JumpURL(opGuild.getDiscordId(), opGuild.getLogChannel().getIdLong(), logMessageId).get() + ")";
 	}
 
 	public long getOlympaDiscordAuthorId() {
@@ -165,7 +164,11 @@ public class DiscordMessage {
 		getContents().add(new MessageContent(true));
 	}
 
-	public String getJumpUrl() {
+	public String getJumpUrlBrut() {
 		return new JumpURL(getOlympaGuild().getDiscordId(), channelId, messageId).get();
+	}
+
+	public String getJumpUrl() {
+		return "[Jump](" + getJumpUrlBrut() + ")";
 	}
 }

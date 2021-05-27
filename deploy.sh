@@ -15,16 +15,21 @@
 # ./deploy.sh master
 # ./deploy.sh dev
 
-# DÉPENDANCES
-(cd /home/repo/olympacore/ && sh ./deploy.sh $1
-if [ "$?" -ne 0 ]; then
-	echo -e "\e[91mErreur > Arrêt de la création des JAR\e[0m"; exit 1
-fi
-)
-
 # PARAMETRES
 PLUGIN_NAME="bot"
 USE_BRANCH="master dev"
+BASEDIR=$(dirname "$0")
+ACTUAL_COMMIT_ID=`cat $BASEDIR/target/commitId`
+ACTUAL_COMMIT_ID_API=`cat $BASEDIR/target/commitIdAPI`
+
+# DÉPENDANCES
+
+cd /home/repo/olympa-core/ && sh ./deploy.sh $1
+if [ "$?" -ne 0 ]; then
+	echo -e "\e[91mErreur > Arrêt du maven build du $PLUGIN_NAME\e[0m"; exit 1
+fi
+
+cd $BASEDIR
 
 ACTUAL_COMMIT_ID=`cat target/commitId`
 
@@ -36,7 +41,7 @@ if [ -n "$1" ]; then
 		SERV="$2"
 	fi
 else
-	echo -e "\e[0;36mTu peux choisir la version du pvpfac en ajoutant une date (ex './deploy.sh date \"2021-02-26 18:30:00\"') ou une branch (ex './deploy.sh dev').\e[0m"
+	echo -e "\e[0;36mTu peux choisir la version du $PLUGIN_NAME en ajoutant une date (ex './deploy.sh date \"2021-02-26 18:30:00\"') ou une branch (ex './deploy.sh dev').\e[0m"
 fi
 git pull --all
 if [ "$?" -ne 0 ]; then
