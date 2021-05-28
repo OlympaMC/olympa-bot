@@ -50,11 +50,11 @@ public class ClearCommand extends DiscordCommand {
 			MessageHistory hists;
 			TextChannel channel = (TextChannel) message.getChannel();
 			DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Suppression de tous les messages du channel " + channel.getAsMention() + " en cours...");
-			while (channel.getHistory().size() <= 100) {
-				hists = channel.getHistoryBefore(message.getIdLong(), 100).complete();
+			while (channel.hasLatestMessage() && channel.getHistory().size() <= 100) {
+				hists = channel.getHistoryBefore(channel.getLatestMessageId(), 100).complete();
 				channel.purgeMessages(hists.getRetrievedHistory());
 				try {
-					Thread.sleep(15000);
+					Thread.sleep(30000);
 				} catch (InterruptedException e) {
 					taskAll = false;
 					DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Une erreur est survenue. Réésaye. " + e.getMessage());

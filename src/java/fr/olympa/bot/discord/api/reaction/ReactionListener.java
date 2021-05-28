@@ -43,12 +43,12 @@ public class ReactionListener extends ListenerAdapter {
 		ReactionEmote reactEmote = react.getReactionEmote();
 		if (reactEmote.isEmoji()) {
 			if (channelType.isGuild() && BANNED_EMOJI.contains(react.getReactionEmote().getEmoji()) && !DiscordPermission.ADMIN.hasPermission(member)) {
-				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS, ErrorResponse.UNKNOWN_MESSAGE));
 				return;
 			}
 		} else if (reactEmote.isEmote()) {
 			if (channelType.isGuild() && !DiscordGroup.isStaff(event.getMember()) && reactEmote.getEmote().isManaged()) {
-				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS, ErrorResponse.UNKNOWN_MESSAGE));
 				return;
 			}
 		} else
@@ -58,7 +58,7 @@ public class ReactionListener extends ListenerAdapter {
 			return;
 		if (!reaction.canInteract(user) || !reaction.hasReactionEmoji(react.getReactionEmote().getName())) {
 			if (channelType.isGuild())
-				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS, ErrorResponse.UNKNOWN_MESSAGE));
 			return;
 		}
 		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
@@ -67,7 +67,7 @@ public class ReactionListener extends ListenerAdapter {
 			if (!reaction.canMultiple())
 				nb = message.getReactions().stream().filter(r -> r.retrieveUsers().complete().contains(user)).count();
 			if (nb > 1 || !reaction.onReactAdd(message, event.getChannel(), user, react, reaction.getReactionsEmojis(react))) {
-				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
+				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS, ErrorResponse.UNKNOWN_MESSAGE));
 				return;
 			}
 		});
