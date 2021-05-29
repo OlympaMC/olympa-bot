@@ -10,7 +10,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
-import fr.olympa.api.permission.OlympaCorePermissions;
+import fr.olympa.api.permission.list.OlympaCorePermissionsBungee;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
 
@@ -83,7 +83,7 @@ public class TsListener extends TS3EventAdapter {
 					i++;
 				}
 			if (i == 0)
-				OlympaCorePermissions.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
+				OlympaCorePermissionsBungee.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
 					int i2 = 0;
 					if (ps != null) {
 						i2 = ps.size();
@@ -120,7 +120,7 @@ public class TsListener extends TS3EventAdapter {
 					i++;
 				}
 			if (i == 0)
-				OlympaCorePermissions.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
+				OlympaCorePermissionsBungee.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
 					if (ps != null)
 						ps.forEach(p -> {
 							p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide d'Administrateur dans %s sur le Teamspeak.", clientInfo.getNickname(), channelInfo.getName()));

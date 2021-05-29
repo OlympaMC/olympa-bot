@@ -9,7 +9,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.bungee.command.BungeeCommand;
-import fr.olympa.api.permission.OlympaCorePermissions;
+import fr.olympa.api.permission.list.OlympaCorePermissionsBungee;
 import fr.olympa.api.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
@@ -162,7 +162,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 			}
 			break;
 		case "stop":
-			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaCorePermissionsBungee.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}
@@ -174,7 +174,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 
 			break;
 		case "start":
-			if (olympaPlayer != null && !OlympaCorePermissions.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaCorePermissionsBungee.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}

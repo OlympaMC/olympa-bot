@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import fr.olympa.api.bungee.command.BungeeCommand;
 import fr.olympa.api.chat.ColorUtils;
-import fr.olympa.api.permission.OlympaCorePermissions;
+import fr.olympa.api.permission.list.OlympaCorePermissionsBungee;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
@@ -21,7 +21,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 public class TeamspeakCommand extends BungeeCommand {
 
 	public TeamspeakCommand(Plugin plugin) {
-		super(plugin, "teamspeak", OlympaCorePermissions.TEAMSPEAK_COMMAND, "ts");
+		super(plugin, "teamspeak", OlympaCorePermissionsBungee.TEAMSPEAK_COMMAND, "ts");
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class TeamspeakCommand extends BungeeCommand {
 			}
 			break;
 		case "stop":
-			if (!hasPermission(OlympaCorePermissions.TEAMSPEAK_COMMAND_MANAGE)) {
+			if (!hasPermission(OlympaCorePermissionsBungee.TEAMSPEAK_COMMAND_MANAGE)) {
 				sendDoNotHavePermission();
 				return;
 			}
@@ -64,7 +64,7 @@ public class TeamspeakCommand extends BungeeCommand {
 			sendMessage(Prefix.DEFAULT_GOOD, "&aTeamspeakBot déconnecté.");
 			break;
 		case "start":
-			if (!hasPermission(OlympaCorePermissions.TEAMSPEAK_COMMAND_MANAGE)) {
+			if (!hasPermission(OlympaCorePermissionsBungee.TEAMSPEAK_COMMAND_MANAGE)) {
 				sendDoNotHavePermission();
 				return;
 			}
