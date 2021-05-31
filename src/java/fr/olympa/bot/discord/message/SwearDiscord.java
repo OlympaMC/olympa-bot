@@ -32,7 +32,7 @@ public class SwearDiscord {
 		message.addReaction("⚠️").queue();
 		message.removeReaction("⚠️").queueAfter(1, TimeUnit.SECONDS);
 		String desc = member.getAsMention() + " dans " + channel.getAsMention() + ".";
-		EmbedBuilder embed = LogsHandler.get("⚠️ Insulte", null, desc + " [jump](" + message.getJumpUrl() + "]", member);
+		EmbedBuilder embed = LogsHandler.get("⚠️ Insulte", null, desc + " [jump](" + message.getJumpUrl() + ")", member);
 
 		embed.addField("Message", messageRaw, true);
 		embed.setTimestamp(message.getTimeCreated());

@@ -187,7 +187,7 @@ public class TextChannelListener extends ListenerAdapter {
 				}
 			}
 			sj.add("S'y rendre: " + discordMessage.getJumpUrl());
-			LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrl(), sj.toString(), member);
+			LogsHandler.sendMessage(discordMessage, "❌ Message supprimé", discordMessage.getJumpUrlBrut(), sj.toString(), member);
 			SQLMessage.updateMessageContent(discordMessage);
 		} catch (SQLException e) {
 			e.printStackTrace();
