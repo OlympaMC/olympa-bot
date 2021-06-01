@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import fr.olympa.api.bungee.command.BungeeCommand;
 import fr.olympa.api.common.chat.ColorUtils;
-import fr.olympa.api.commun.permission.list.OlympaCorePermissionsBungee;
+import fr.olympa.api.common.permission.list.OlympaCorePermissionsBungee;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;

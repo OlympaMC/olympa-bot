@@ -3,7 +3,7 @@ package fr.olympa.bot.discord.link;
 import java.sql.SQLException;
 
 import fr.olympa.api.common.player.OlympaPlayer;
-import fr.olympa.api.commun.provider.AccountProvider;
+import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
