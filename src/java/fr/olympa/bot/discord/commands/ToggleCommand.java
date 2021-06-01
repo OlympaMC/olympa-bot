@@ -1,6 +1,6 @@
 package fr.olympa.bot.discord.commands;
 
-import fr.olympa.api.match.RegexMatcher;
+import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.member.DiscordMember;

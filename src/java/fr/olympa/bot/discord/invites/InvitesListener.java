@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
-import fr.olympa.api.chat.ColorUtils;
+import fr.olympa.api.common.chat.ColorUtils;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;

@@ -7,9 +7,9 @@ import java.sql.Timestamp;
 
 import com.google.gson.Gson;
 
-import fr.olympa.api.sql.SQLClass;
-import fr.olympa.api.sql.statement.OlympaStatement;
-import fr.olympa.api.sql.statement.StatementType;
+import fr.olympa.api.common.sql.SQLClass;
+import fr.olympa.api.common.sql.statement.OlympaStatement;
+import fr.olympa.api.common.sql.statement.StatementType;
 
 public class SQLMessage extends SQLClass {
 

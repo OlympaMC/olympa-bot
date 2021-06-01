@@ -14,8 +14,8 @@ import org.apache.commons.collections4.map.LinkedMap;
 import com.vdurmont.emoji.EmojiManager;
 import com.vdurmont.emoji.EmojiParser;
 
-import fr.olympa.api.match.MatcherPattern;
-import fr.olympa.api.match.RegexMatcher;
+import fr.olympa.api.common.match.MatcherPattern;
+import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.EmbedBuilder;

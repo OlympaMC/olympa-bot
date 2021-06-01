@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import fr.olympa.api.match.RegexMatcher;
-import fr.olympa.api.player.OlympaPlayer;
-import fr.olympa.api.provider.AccountProvider;
+import fr.olympa.api.common.match.RegexMatcher;
+import fr.olympa.api.common.player.OlympaPlayer;
+import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.member.DiscordMember;

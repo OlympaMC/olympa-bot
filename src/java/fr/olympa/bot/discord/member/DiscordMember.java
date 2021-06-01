@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import fr.olympa.api.match.RegexMatcher;
+import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.api.utils.UtilsCore;
 import fr.olympa.bot.OlympaBots;

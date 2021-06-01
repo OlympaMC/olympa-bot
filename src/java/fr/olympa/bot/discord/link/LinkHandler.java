@@ -12,8 +12,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
-import fr.olympa.api.groups.OlympaGroup;
-import fr.olympa.api.player.OlympaPlayer;
+import fr.olympa.api.common.groups.OlympaGroup;
+import fr.olympa.api.common.player.OlympaPlayer;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

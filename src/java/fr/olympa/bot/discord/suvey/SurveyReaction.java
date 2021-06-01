@@ -15,8 +15,8 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
-import fr.olympa.api.match.RegexMatcher;
-import fr.olympa.api.task.NativeTask;
+import fr.olympa.api.common.match.RegexMatcher;
+import fr.olympa.api.common.task.NativeTask;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.reaction.ReactionDiscord;

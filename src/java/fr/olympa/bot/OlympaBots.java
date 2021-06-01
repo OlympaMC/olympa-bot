@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import fr.olympa.api.bungee.config.BungeeCustomConfig;
-import fr.olympa.api.chat.ColorUtils;
-import fr.olympa.api.redis.RedisAccess;
-import fr.olympa.api.redis.RedisChannel;
-import fr.olympa.api.task.NativeTask;
+import fr.olympa.api.common.chat.ColorUtils;
+import fr.olympa.api.common.redis.RedisAccess;
+import fr.olympa.api.common.redis.RedisChannel;
+import fr.olympa.api.common.task.NativeTask;
 import fr.olympa.api.utils.CacheStats;
 import fr.olympa.api.utils.ErrorLoggerHandler;
 import fr.olympa.api.utils.ErrorOutputStream;

@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.olympa.api.player.OlympaPlayer;
-import fr.olympa.api.provider.AccountProvider;
+import fr.olympa.api.common.player.OlympaPlayer;
+import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;

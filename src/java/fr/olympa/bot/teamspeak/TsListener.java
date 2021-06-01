@@ -10,7 +10,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
-import fr.olympa.api.permission.list.OlympaCorePermissionsBungee;
+import fr.olympa.api.commun.permission.list.OlympaCorePermissionsBungee;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
 

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import com.vdurmont.emoji.EmojiParser;
 
 import fr.olympa.api.LinkSpigotBungee;
-import fr.olympa.api.groups.OlympaGroup;
+import fr.olympa.api.common.groups.OlympaGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;

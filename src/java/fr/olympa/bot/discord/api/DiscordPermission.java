@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.olympa.api.groups.OlympaGroup;
+import fr.olympa.api.common.groups.OlympaGroup;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;

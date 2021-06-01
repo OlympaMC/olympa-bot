@@ -1,7 +1,7 @@
 package fr.olympa.bot.discord.commands;
 
-import fr.olympa.api.match.MatcherPattern;
-import fr.olympa.api.match.RegexMatcher;
+import fr.olympa.api.common.match.MatcherPattern;
+import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;

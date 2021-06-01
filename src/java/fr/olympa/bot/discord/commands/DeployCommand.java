@@ -8,8 +8,8 @@ import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.LinkSpigotBungee;
-import fr.olympa.api.machine.OlympaRuntime;
-import fr.olympa.api.match.MatcherPattern;
+import fr.olympa.api.common.bash.OlympaRuntime;
+import fr.olympa.api.common.match.MatcherPattern;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.entities.Message;

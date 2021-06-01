@@ -8,8 +8,8 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
-import fr.olympa.api.sql.statement.OlympaStatement;
-import fr.olympa.api.sql.statement.StatementType;
+import fr.olympa.api.common.sql.statement.OlympaStatement;
+import fr.olympa.api.common.sql.statement.StatementType;
 import fr.olympa.api.utils.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 

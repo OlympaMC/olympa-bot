@@ -22,11 +22,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.LinkSpigotBungee;
-import fr.olympa.api.match.RegexMatcher;
-import fr.olympa.api.sql.SQLColumn;
-import fr.olympa.api.sql.SQLNullObject;
-import fr.olympa.api.sql.SQLTable;
-import fr.olympa.api.sql.statement.OlympaStatement;
+import fr.olympa.api.common.match.RegexMatcher;
+import fr.olympa.api.common.sql.SQLColumn;
+import fr.olympa.api.common.sql.SQLNullObject;
+import fr.olympa.api.common.sql.SQLTable;
+import fr.olympa.api.common.sql.statement.OlympaStatement;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.member.MemberSettings;

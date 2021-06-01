@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
-import fr.olympa.api.groups.OlympaGroup;
+import fr.olympa.api.common.groups.OlympaGroup;
 import fr.olympa.bot.OlympaBots;
 
 public enum TeamspeakGroups {

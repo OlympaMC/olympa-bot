@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import fr.olympa.api.LinkSpigotBungee;
-import fr.olympa.api.match.MatcherPattern;
+import fr.olympa.api.common.match.MatcherPattern;
 import fr.olympa.bot.OlympaBots;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 

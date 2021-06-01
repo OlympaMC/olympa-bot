@@ -3,7 +3,7 @@ package fr.olympa.bot.bungee;
 import java.sql.SQLException;
 
 import fr.olympa.api.bungee.customevent.BungeeOlympaGroupChangeEvent;
-import fr.olympa.api.player.OlympaPlayer;
+import fr.olympa.api.common.player.OlympaPlayer;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;

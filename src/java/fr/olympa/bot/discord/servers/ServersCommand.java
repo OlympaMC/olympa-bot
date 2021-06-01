@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
-import fr.olympa.api.server.ServerStatus;
+import fr.olympa.api.common.server.ServerStatus;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.core.bungee.servers.MonitorInfoBungee;
 import fr.olympa.core.bungee.servers.MonitorServers;

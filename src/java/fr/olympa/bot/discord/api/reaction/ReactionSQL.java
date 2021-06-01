@@ -8,8 +8,8 @@ import java.util.Set;
 
 import com.google.gson.Gson;
 
-import fr.olympa.api.sql.statement.OlympaStatement;
-import fr.olympa.api.sql.statement.StatementType;
+import fr.olympa.api.common.sql.statement.OlympaStatement;
+import fr.olympa.api.common.sql.statement.StatementType;
 
 public class ReactionSQL {
 	static String tableReaction = "discord.reactions";
