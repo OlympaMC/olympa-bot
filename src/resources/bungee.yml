@@ -2,5 +2,5 @@ name: OlympaBots
 website: https://olympa.fr
 main: fr.olympa.bot.OlympaBots
 author: Tristiisch, SkytAsul
-version: 0.1
+version: @plugin_version@
 depend: OlympaBungee
