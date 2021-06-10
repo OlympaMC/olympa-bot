@@ -82,7 +82,8 @@ public class OlympaDiscord {
 		builder.setStatus(OnlineStatus.IDLE);
 		builder.setBulkDeleteSplittingEnabled(false);
 		builder.setMemberCachePolicy(MemberCachePolicy.ONLINE);
-		builder.setEnabledIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_EMOJIS);
+		builder.setEnabledIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_BANS,
+				GatewayIntent.GUILD_INVITES, GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.GUILD_PRESENCES);
 		builder.enableCache(CacheFlag.CLIENT_STATUS);
 
 		builder.addEventListeners(new CommandListener());
