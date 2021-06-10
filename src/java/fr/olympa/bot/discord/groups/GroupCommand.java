@@ -27,7 +27,7 @@ public class GroupCommand extends DiscordCommand {
 
 		OlympaPlayer olympaTarget = null;
 		try {
-			olympaTarget = AccountProvider.getFromDatabase(args[0]);
+			olympaTarget = AccountProvider.getter().getFromDatabase(args[0]);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

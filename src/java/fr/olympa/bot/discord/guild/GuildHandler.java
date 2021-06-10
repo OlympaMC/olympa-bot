@@ -2,6 +2,8 @@ package fr.olympa.bot.discord.guild;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -24,31 +26,37 @@ public class GuildHandler {
 		return guilds.stream().filter(g -> g.getDiscordId() == discordGuildId).findFirst().orElse(null);
 	}
 
-	public static boolean isStaffChannel(TextChannel channel) {
+	@Nullable
+	public static Boolean isStaffChannel(TextChannel channel) {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		return channel.getIdLong() == olympaGuild.getStaffChannelId();
+		return olympaGuild != null ? channel.getIdLong() == olympaGuild.getStaffChannelId() : null;
 	}
 
-	public static boolean isBugsChannel(TextChannel channel) {
+	@Nullable
+	public static Boolean isBugsChannel(TextChannel channel) {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		return channel.getIdLong() == olympaGuild.getBugsChannelId();
+		return olympaGuild != null ? channel.getIdLong() == olympaGuild.getBugsChannelId() : null;
 	}
 
-	public static boolean isMinecraftChannel(TextChannel channel) {
+	@Nullable
+	public static Boolean isMinecraftChannel(TextChannel channel) {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
-		return channel.getIdLong() == olympaGuild.getMinecraftChannelId();
+		return olympaGuild != null ? channel.getIdLong() == olympaGuild.getMinecraftChannelId() : null;
 	}
 
+	@Nullable
 	public static TextChannel getStaffChannel() {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
 		return olympaGuild != null ? olympaGuild.getStaffChannel() : null;
 	}
 
+	@Nullable
 	public static TextChannel getBugsChannel() {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
 		return olympaGuild != null ? olympaGuild.getBugsChannel() : null;
 	}
 
+	@Nullable
 	public static TextChannel getMinecraftChannel() {
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.STAFF);
 		return olympaGuild != null ? olympaGuild.getMinecraftChannel() : null;

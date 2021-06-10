@@ -125,7 +125,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 					return;
 				}
 			}
-			olympaPlayer = AccountProvider.get(proxiedPlayer.getUniqueId());
+			olympaPlayer = AccountProvider.getter().get(proxiedPlayer.getUniqueId());
 			try {
 				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
 				if (discordMember == null) {

@@ -136,7 +136,10 @@ public class DiscordMember {
 
 	@Nullable
 	public User getUser() {
-		return getJDA().getUserById(discordId);
+		JDA jda = getJDA();
+		if (jda == null)
+			return null;
+		return jda.getUserById(discordId);
 	}
 
 	@Nullable

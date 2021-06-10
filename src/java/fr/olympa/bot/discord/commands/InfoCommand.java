@@ -172,7 +172,7 @@ public class InfoCommand extends DiscordCommand {
 				discordMember = CacheDiscordSQL.getDiscordMember(usertarget);
 				if (discordMember.getOlympaId() != 0) {
 					OlympaPlayer olympaTarget = null;
-					olympaTarget = AccountProvider.get(discordMember.getOlympaId());
+					olympaTarget = AccountProvider.getter().get(discordMember.getOlympaId());
 					embed.setThumbnail("https://minotar.net/helm/" + olympaTarget.getName());
 					embed.addField("Compte Minecraft :", olympaTarget.getName(), true);
 				}

@@ -78,7 +78,7 @@ public class MemberListener extends ListenerAdapter {
 			if (discordMember.getOlympaId() != 0)
 				LinkSpigotBungee.Provider.link.getTask().runTaskLater(() -> {
 					try {
-						LinkHandler.updateGroups(member, AccountProvider.get(discordMember.getOlympaId()));
+						LinkHandler.updateGroups(member, AccountProvider.getter().get(discordMember.getOlympaId()));
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}

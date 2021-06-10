@@ -7,6 +7,7 @@ import java.util.StringJoiner;
 
 import javax.security.auth.login.LoginException;
 
+import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.commands.CommandListener;
@@ -49,6 +50,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.md_5.bungee.config.Configuration;
 
 public class OlympaDiscord {
 
@@ -64,12 +69,21 @@ public class OlympaDiscord {
 		this.plugin = plugin;
 	}
 
-	@SuppressWarnings("deprecation")
 	public void connect() {
+		BungeeCustomConfig bungeeConfig = plugin.getConfig();
+		bungeeConfig.addTask("Discord Token", config -> {
+			disconnect();
+			connect(config.getConfig());
+		});
+	}
 
-		JDABuilder builder = new JDABuilder(plugin.getConfig().getConfig().getString("discord.token"));
+	private void connect(Configuration config) {
+		JDABuilder builder = JDABuilder.createDefault(config.getString("discord.token"));
 		builder.setStatus(OnlineStatus.IDLE);
 		builder.setBulkDeleteSplittingEnabled(false);
+		builder.setMemberCachePolicy(MemberCachePolicy.ONLINE);
+		builder.setEnabledIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_EMOJIS);
+		builder.enableCache(CacheFlag.CLIENT_STATUS);
 
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());

@@ -53,7 +53,7 @@ public class OlympaBots extends Plugin {
 
 	@Override
 	public void onLoad() {
-		super.onLoad();
+		instance = this;
 		spigotReceiveError = new SpigotReceiveError();
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
 		LoggerUtils.hook(new ErrorLoggerHandler(spigotReceiveError::sendBungeeError));
@@ -61,7 +61,6 @@ public class OlympaBots extends Plugin {
 
 	@Override
 	public void onEnable() {
-		instance = this;
 		defaultConfig = new BungeeCustomConfig(this, "config");
 		defaultConfig.loadSafe();
 		PluginManager pluginManager = getProxy().getPluginManager();

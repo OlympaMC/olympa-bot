@@ -120,7 +120,7 @@ public abstract class DiscordCommand implements CommandEvent {
 	public Member getMemberByMinecraftName(Guild guild, String arg) throws SQLException {
 		Member member = null;
 		DiscordMember discordMember;
-		OlympaPlayer olympaPlayer = AccountProvider.get(arg);
+		OlympaPlayer olympaPlayer = AccountProvider.getter().get(arg);
 		if (olympaPlayer != null) {
 			discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
 			if (discordMember != null)

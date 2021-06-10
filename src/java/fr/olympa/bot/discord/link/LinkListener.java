@@ -49,7 +49,7 @@ public class LinkListener extends ListenerAdapter {
 				channel.sendMessage(embed.build()).queue();
 				return;
 			}
-			OlympaPlayer olympaPlayer = AccountProvider.get(player.getUniqueId());
+			OlympaPlayer olympaPlayer = AccountProvider.getter().get(player.getUniqueId());
 			discordMember.setOlympaId(olympaPlayer.getId());
 			DiscordSQL.updateMember(discordMember);
 			LinkHandler.updateGroups(member, olympaPlayer);

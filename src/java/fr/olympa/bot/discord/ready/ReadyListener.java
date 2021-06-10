@@ -4,6 +4,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
 
 import fr.olympa.api.common.server.ServerStatus;
 import fr.olympa.api.utils.Utils;
@@ -83,7 +86,8 @@ public class ReadyListener extends ListenerAdapter {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if (OlympaBots.getInstance().getDiscord().getJda() == null) return;
+				if (OlympaBots.getInstance().getDiscord().getJda() == null)
+					return;
 				int usersConnected = 0;
 				int usersTotal = 0;
 				for (Member member : GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC).getGuild().getMembers())
@@ -96,22 +100,30 @@ public class ReadyListener extends ListenerAdapter {
 				presence.setActivity(Activity.watching(usersConnected + "/" + usersTotal + " membres"));
 			}
 		}, 20000, 40000);
-		StringBuilder db = new StringBuilder("&aConnecté aux discords suivants:");
+		OlympaBots.getInstance().sendMessage("&aConnecté aux discords suivants:");
 		for (Guild guild : guilds) {
+			StringBuilder sb = new StringBuilder();
+			@Nullable
+			Consumer<? super Member> consumer = o -> {
+				sb.append("&2" + guild.getName() + " avec " + guild.getMemberCount() + " membres. Owner: " + o.getEffectiveName() + "(" + o.getUser().getAsTag() + ", " + o.getId() + ") ");
+				guild.retrieveInvites().queue(invites -> {
+					if (!invites.isEmpty())
+						sb.append(invites.stream().filter(i -> !i.isTemporary()).findFirst().orElse(invites.get(0)));
+				});
+				sb.append("&7[");
+				if (guild.getSelfMember().hasPermission(Permission.ADMINISTRATOR))
+					sb.append("&a&lADMIN");
+				else
+					sb.append("&4&mADMIN");
+				sb.append("&7]");
+				OlympaBots.getInstance().sendMessage(sb.toString());
+			};
 			Member owner = guild.getOwner();
-			db.append("\n&2" + guild.getName() + " avec " + guild.getMemberCount() + " membres. Owner: " + owner.getEffectiveName() + "(" + owner.getUser().getAsTag() + ", " + owner.getId() + ") ");
-			guild.retrieveInvites().queue(invites -> {
-				if (!invites.isEmpty())
-					db.append(invites.stream().filter(i -> !i.isTemporary()).findFirst().orElse(invites.get(0)));
-			});
-			db.append("&7[");
-			if (guild.getSelfMember().hasPermission(Permission.ADMINISTRATOR))
-				db.append("&a&lADMIN");
+			if (owner != null)
+				consumer.accept(owner);
 			else
-				db.append("&4&mADMIN");
-			db.append("&7]");
+				guild.retrieveOwner().queue(consumer);
 		}
-		OlympaBots.getInstance().sendMessage(db.toString());
 
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
 

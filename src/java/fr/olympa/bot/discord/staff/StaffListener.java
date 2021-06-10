@@ -61,9 +61,9 @@ public class StaffListener extends ListenerAdapter {
 			dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
 			OlympaPlayer olympaPlayer;
 			if (dm.getOlympaId() == 0)
-				olympaPlayer = AccountProvider.getSQL().getPlayer(member.getEffectiveName());
+				olympaPlayer = AccountProvider.getter().getSQL().getPlayer(member.getEffectiveName());
 			else
-				olympaPlayer = AccountProvider.getSQL().getPlayer(dm.getOlympaId());
+				olympaPlayer = AccountProvider.getter().getSQL().getPlayer(dm.getOlympaId());
 			if (olympaPlayer == null) {
 				message.addReaction(guild.getEmotesByName("V_", false).get(0)).queue();
 				return;

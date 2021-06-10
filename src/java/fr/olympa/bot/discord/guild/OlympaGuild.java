@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -117,12 +119,17 @@ public class OlympaGuild {
 		return logChannelId;
 	}
 
+	@Nullable
 	private JDA getJda() {
 		return OlympaBots.getInstance().getDiscord().getJda();
 	}
 
+	@Nullable
 	public Guild getGuild() {
-		return getJda().getGuildById(discordId);
+		JDA jda = getJda();
+		if (jda == null)
+			return null;
+		return jda.getGuildById(discordId);
 	}
 
 	public void setLogChannelId(long logChannelId) {
@@ -197,20 +204,36 @@ public class OlympaGuild {
 		return excludeChannelsIds;
 	}
 
+	@Nullable
 	public TextChannel getLogChannel() {
-		return getJda().getTextChannelById(logChannelId);
+		JDA jda = getJda();
+		if (jda == null)
+			return null;
+		return jda.getTextChannelById(logChannelId);
 	}
 
+	@Nullable
 	public TextChannel getStaffChannel() {
-		return getJda().getTextChannelById(staffChannelId);
+		JDA jda = getJda();
+		if (jda == null)
+			return null;
+		return jda.getTextChannelById(staffChannelId);
 	}
 
+	@Nullable
 	public TextChannel getBugsChannel() {
-		return getJda().getTextChannelById(bugsChannelId);
+		JDA jda = getJda();
+		if (jda == null)
+			return null;
+		return jda.getTextChannelById(bugsChannelId);
 	}
 
+	@Nullable
 	public TextChannel getMinecraftChannel() {
-		return getJda().getTextChannelById(minecraftChannelId);
+		JDA jda = getJda();
+		if (jda == null)
+			return null;
+		return jda.getTextChannelById(minecraftChannelId);
 	}
 
 	public boolean isLogInsult() {
