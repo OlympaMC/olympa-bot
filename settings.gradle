@@ -1,0 +1,5 @@
+rootProject.name = 'olympa-bot'
+
+include 'olympa-api', 'olympa-core'
+project(':olympa-api').projectDir = new File(settingsDir, "../olympa-api")
+project(':olympa-core').projectDir = new File(settingsDir, "../olympa-core")
