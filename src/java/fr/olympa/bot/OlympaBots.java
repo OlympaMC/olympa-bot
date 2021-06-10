@@ -1,15 +1,11 @@
 package fr.olympa.bot;
 
 import java.io.PrintStream;
-import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
-import javax.annotation.Nullable;
 
 import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.common.chat.ColorUtils;
+import fr.olympa.api.common.logger.LoggerUtils;
 import fr.olympa.api.common.redis.RedisAccess;
 import fr.olympa.api.common.redis.RedisChannel;
 import fr.olympa.api.common.task.NativeTask;
@@ -51,6 +47,7 @@ public class OlympaBots extends Plugin {
 			olympaTeamspeak.disconnect();
 		if (olympaDiscord != null)
 			olympaDiscord.disconnect();
+		LoggerUtils.unHookAll();
 		sendMessage("§4" + getDescription().getName() + "§c (" + getDescription().getVersion() + ") est désactivé.");
 	}
 
@@ -59,22 +56,7 @@ public class OlympaBots extends Plugin {
 		super.onLoad();
 		spigotReceiveError = new SpigotReceiveError();
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
-		ErrorLoggerHandler errorHandler = new ErrorLoggerHandler(spigotReceiveError::sendBungeeError);
-		LogManager manager = LogManager.getLogManager();
-		Enumeration<String> names = manager.getLoggerNames();
-		int i = 1;
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			@Nullable
-			Logger logger = manager.getLogger(name);
-			if (logger == null) {
-				sendMessage("&cUnable to hook into logger '§6%s§e', it is null", name);
-				continue;
-			}
-			logger.addHandler(errorHandler);
-			i++;
-		}
-		sendMessage(String.format("Hooked error stream handler into §6%s§e loggers!", i));
+		LoggerUtils.hook(new ErrorLoggerHandler(spigotReceiveError::sendBungeeError));
 	}
 
 	@Override
