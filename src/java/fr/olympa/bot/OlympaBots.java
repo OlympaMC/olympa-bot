@@ -4,6 +4,9 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
 
 import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.common.chat.ColorUtils;
@@ -62,7 +65,13 @@ public class OlympaBots extends Plugin {
 		int i = 1;
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			manager.getLogger(name).addHandler(errorHandler);
+			@Nullable
+			Logger logger = manager.getLogger(name);
+			if (logger == null) {
+				sendMessage("&cUnable to hook into logger '§6%s§e', it is null", name);
+				continue;
+			}
+			logger.addHandler(errorHandler);
 			i++;
 		}
 		sendMessage(String.format("Hooked error stream handler into §6%s§e loggers!", i));
@@ -97,8 +106,8 @@ public class OlympaBots extends Plugin {
 		sendMessage("§2" + getDescription().getName() + "§a (" + getDescription().getVersion() + ") est activé.");
 	}
 
-	public void sendMessage(String message) {
-		getProxy().getConsole().sendMessage(TextComponent.fromLegacyText(ColorUtils.color(getPrefixConsole() + message)));
+	public void sendMessage(String message, Object... args) {
+		getProxy().getConsole().sendMessage(TextComponent.fromLegacyText(ColorUtils.format(getPrefixConsole() + message, args)));
 	}
 
 	public OlympaTeamspeak getTeamspeak() {

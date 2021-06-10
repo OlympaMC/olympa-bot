@@ -3,4 +3,4 @@ website: https://olympa.fr
 main: fr.olympa.bot.OlympaBots
 author: Tristiisch, SkytAsul
 version: 0.1
-depend: OlympaBungee
+depends: [OlympaBungee]

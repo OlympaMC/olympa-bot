@@ -1,5 +1,8 @@
 package fr.olympa.bot.discord.commands;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import fr.olympa.api.common.match.MatcherPattern;
 import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.bot.discord.api.DiscordPermission;
@@ -8,7 +11,6 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -47,22 +49,25 @@ public class ClearCommand extends DiscordCommand {
 			return false;
 		taskAll = true;
 		new Thread(() -> {
-			MessageHistory hists;
+			int count = 1;
 			TextChannel channel = (TextChannel) message.getChannel();
 			DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Suppression de tous les messages du channel " + channel.getAsMention() + " en cours...");
-			while (channel.hasLatestMessage() && channel.getHistory().size() <= 100) {
-				hists = channel.getHistoryBefore(channel.getLatestMessageId(), 100).complete();
-				channel.purgeMessages(hists.getRetrievedHistory());
+			while (true) {
+				List<Message> messagesPurges = channel.getHistory().getRetrievedHistory().stream().filter(msg -> !msg.isPinned()).collect(Collectors.toList());
+				if (messagesPurges.isEmpty())
+					break;
+				channel.purgeMessages(messagesPurges);
 				try {
-					Thread.sleep(30000);
+					Thread.sleep(20000);
 				} catch (InterruptedException e) {
 					taskAll = false;
 					DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Une erreur est survenue. Réésaye. " + e.getMessage());
 					return;
 				}
+				count++;
 			}
 			taskAll = false;
-			DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ La majorité des messages ont été supprimés.");
+			DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Tous les messages ont été supprimés en " + count + " coups, soit " + (count - 1) * 20 + " secondes.");
 		}).start();
 		return true;
 	}
