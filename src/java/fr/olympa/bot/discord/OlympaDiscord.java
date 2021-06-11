@@ -81,10 +81,10 @@ public class OlympaDiscord {
 		JDABuilder builder = JDABuilder.createDefault(config.getString("discord.token"));
 		builder.setStatus(OnlineStatus.IDLE);
 		builder.setBulkDeleteSplittingEnabled(false);
-		builder.setMemberCachePolicy(MemberCachePolicy.ONLINE);
+		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 		builder.setEnabledIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_BANS,
 				GatewayIntent.GUILD_INVITES, GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS, GatewayIntent.GUILD_PRESENCES);
-		builder.enableCache(CacheFlag.CLIENT_STATUS);
+		builder.enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS);
 
 		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new ReadyListener());
