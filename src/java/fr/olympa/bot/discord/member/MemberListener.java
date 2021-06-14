@@ -117,7 +117,7 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onUserUpdateName(UserUpdateNameEvent event) {
 		User user = event.getUser();
-		if (user.isFake())
+		if (user.isSystem())
 			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
@@ -132,7 +132,7 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onUserUpdateActivityOrder(UserUpdateActivityOrderEvent event) {
 		User user = event.getEntity();
-		if (user.isFake())
+		if (user.isSystem() || user.isBot())
 			return;
 		System.out.println("UserUpdateActivityOrderEvent " + user.getAsTag());
 		try {
@@ -151,7 +151,7 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onUserUpdateOnlineStatus(UserUpdateOnlineStatusEvent event) {
 		User user = event.getEntity();
-		if (user.isFake())
+		if (user.isSystem() || user.isBot())
 			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
@@ -164,7 +164,7 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		User user = event.getAuthor();
-		if (user.isFake())
+		if (user.isSystem() || user.isBot())
 			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);

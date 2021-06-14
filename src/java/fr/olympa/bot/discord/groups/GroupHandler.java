@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 public class GroupHandler {
 
@@ -21,7 +22,7 @@ public class GroupHandler {
 		TextChannel channel = guild.getTextChannelById(558148740628611092L);
 		channel.retrieveMessageById(697756335235792907L).queue(msg -> {
 			EmbedBuilder embed = new EmbedBuilder().setTitle("Membres du Staff");
-			Set<Member> staff = new HashSet<>();
+			Set<User> staff = new HashSet<>();
 			embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
 			embed.setTimestamp(OffsetDateTime.now());
 			for (DiscordGroup discordGroup : DiscordGroup.values()) {
@@ -29,20 +30,18 @@ public class GroupHandler {
 					continue;
 				Role role = discordGroup.getRole(guild);
 				if (role != null) {
-					Set<Member> membersRole = guild.getMembersWithRoles(role).stream().filter(m -> !m.getUser().isBot()).collect(Collectors.toSet());
-					String membersRoleS = membersRole.stream().map(Member::getAsMention).collect(Collectors.joining(", "));
+					Set<User> membersRole = guild.getMembersWithRoles(role).stream().map(Member::getUser).filter(m -> !m.isBot()).collect(Collectors.toSet());
+					String membersRoleS = membersRole.stream().map(User::getAsTag).collect(Collectors.joining(", "));
 					if (!membersRoleS.isEmpty()) {
 						staff.addAll(membersRole);
 						embed.addField(role.getName() + " (" + membersRole.size() + ")", membersRoleS, true);
 					}
 				}
 			}
-
 			embed.setDescription("Le staff est composé de " + staff.size() + " membres.");
 			msg.editMessage(embed.build()).queue();
 		});
-
-		return;
 	}
 
+	private GroupHandler() {}
 }
