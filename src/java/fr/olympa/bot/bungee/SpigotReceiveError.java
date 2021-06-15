@@ -12,6 +12,7 @@ import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.ErrorReaction;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.guild.GuildHandler;
+import fr.olympa.core.bungee.servers.ServersConnection;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import redis.clients.jedis.JedisPubSub;
@@ -20,9 +21,16 @@ public class SpigotReceiveError extends JedisPubSub {
 
 	@Override
 	public void onMessage(String channel, String message) {
-		int index = message.indexOf(':');
-		String serverName = message.substring(0, index);
-		String stackTrace = message.substring(index + 1);
+		int index;
+		String serverName, stackTrace;
+		if (message.startsWith("localhost")) {
+			index = message.indexOf(':', message.indexOf(':') + 1);
+			serverName = ServersConnection.getServerByNameOrIpPort(message.substring(0, index)).getName();
+		} else {
+			index = message.indexOf(':'); // need to be changed, : can be use if the server didn't known is name, like localhost:25565
+			serverName = message.substring(0, index);
+		}
+		stackTrace = message.substring(index + 1);
 		sendError(serverName, stackTrace);
 	}
 
