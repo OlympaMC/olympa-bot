@@ -1,7 +1,10 @@
 package fr.olympa.bot;
 
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.logging.slf4j.Log4jLogger;
 
 import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.common.chat.ColorUtils;
@@ -24,6 +27,7 @@ import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.teamspeak.OlympaTeamspeak;
 import fr.olympa.core.bungee.OlympaBungee;
+import net.dv8tion.jda.internal.JDAImpl;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
@@ -57,6 +61,15 @@ public class OlympaBots extends Plugin {
 		spigotReceiveError = new SpigotReceiveError();
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
 		LoggerUtils.hook(new ErrorLoggerHandler(spigotReceiveError::sendBungeeError));
+		try {
+			Field f = Log4jLogger.class.getDeclaredField("logger");
+			f.setAccessible(true);
+			org.apache.logging.log4j.core.Logger log = (org.apache.logging.log4j.core.Logger) f.get(JDAImpl.LOG);
+			log.addAppender(new Log4JErrorAppender(spigotReceiveError::sendBungeeError));
+		}catch (Exception ex) {
+			sendMessage("§cFailed to implement custom appender in JDA logger (type %s).", JDAImpl.LOG.getClass().getName());
+			ex.printStackTrace();
+		}
 	}
 
 	@Override
