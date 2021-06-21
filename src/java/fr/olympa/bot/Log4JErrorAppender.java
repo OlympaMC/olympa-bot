@@ -9,9 +9,13 @@ import org.apache.logging.log4j.core.appender.AbstractAppender;
 
 public class Log4JErrorAppender extends AbstractAppender {
 	
+	private Consumer<String> sendError;
+	
 	public Log4JErrorAppender(Consumer<String> sendError) {
 		super("olympa-error-handler", null, null, false);
-		setHandler(new CustomErrorHandler(sendError));
+		this.sendError = sendError;
+		
+		setHandler(new CustomErrorHandler());
 		setStarted();
 	}
 	
@@ -22,15 +26,14 @@ public class Log4JErrorAppender extends AbstractAppender {
 	}
 	
 	@Override
-	public void append(LogEvent var1) {}
-	
-	public static class CustomErrorHandler implements ErrorHandler {
-		
-		private Consumer<String> sendError;
-		
-		public CustomErrorHandler(Consumer<String> sendError) {
-			this.sendError = sendError;
+	public void append(LogEvent record) {
+		if (record.getThrown() != null) {
+			String stackTrace = ExceptionUtils.getStackTrace(record.getThrown());
+			sendError.accept(record.getLevel().name() + " [" + record.getLoggerName() + "] " + record + "\n" + stackTrace);
 		}
+	}
+	
+	public class CustomErrorHandler implements ErrorHandler {
 		
 		@Override
 		public void error(String var1) {
@@ -48,7 +51,7 @@ public class Log4JErrorAppender extends AbstractAppender {
 		public void error(String var1, LogEvent record, Throwable var3) {
 			System.out.println("Log4JErrorAppender.CustomErrorHandler.error(String, LogEvent, Throwable)");
 			String stackTrace = ExceptionUtils.getStackTrace(var3);
-			sendError.accept(record.getLevel().name() + " [" + record.getLoggerName() + "]\n" + stackTrace);
+			sendError.accept(record.getLevel().name() + " [" + record.getLoggerName() + "] " + var1 + "\n" + stackTrace);
 		}
 		
 	}
