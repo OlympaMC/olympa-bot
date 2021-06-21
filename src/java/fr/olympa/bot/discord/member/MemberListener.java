@@ -177,6 +177,8 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
 		User user = event.getAuthor();
+		if (user.isSystem() || user.isBot())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();
@@ -188,6 +190,8 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
 		User user = event.getEntity().getUser();
+		if (user.isSystem() || user.isBot())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();
@@ -199,6 +203,8 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
 		User user = event.getEntity().getUser();
+		if (user.isSystem() || user.isBot())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();
@@ -210,6 +216,8 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		User user = event.getMember().getUser();
+		if (user.isSystem() || user.isBot())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();
@@ -221,6 +229,8 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent event) {
 		User user = event.getMember().getUser();
+		if (user.isSystem() || user.isBot())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();
@@ -232,6 +242,8 @@ public class MemberListener extends ListenerAdapter {
 	@Override
 	public void onGuildVoiceSelfDeafen(GuildVoiceSelfDeafenEvent event) {
 		User user = event.getMember().getUser();
+		if (user.isSystem() || user.isBot())
+			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
 			discordMember.updateLastSeen();
