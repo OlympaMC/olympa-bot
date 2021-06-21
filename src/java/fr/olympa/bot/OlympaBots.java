@@ -3,6 +3,7 @@ package fr.olympa.bot;
 import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.bungee.config.BungeeCustomConfig;
 import fr.olympa.api.common.chat.ColorUtils;
 import fr.olympa.api.common.logger.LoggerUtils;
@@ -51,11 +52,16 @@ public class OlympaBots extends Plugin {
 		sendMessage("§4" + getDescription().getName() + "§c (" + getDescription().getVersion() + ") est désactivé.");
 	}
 
+	public void sendBungeeErrorTestStandardOutputError(String stackTrace) {
+		LinkSpigotBungee.Provider.link.sendMessage("[TEST TO BE REMOVED] Standard error output catched.");
+	}
+
 	@Override
 	public void onLoad() {
 		instance = this;
 		spigotReceiveError = new SpigotReceiveError();
-		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
+		//		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
+		System.setErr(new PrintStream(new ErrorOutputStream(System.err, this::sendBungeeErrorTestStandardOutputError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
 		LoggerUtils.hook(new ErrorLoggerHandler(spigotReceiveError::sendBungeeError));
 	}
 
@@ -71,15 +77,16 @@ public class OlympaBots extends Plugin {
 		new DiscordCommand(this).register();
 		new TeamspeakCommand(this).register();
 
-		olympaDiscord = new OlympaDiscord(this);
-		olympaDiscord.connect();
+		LinkSpigotBungee.Provider.link.launchAsync(() -> {
+			olympaDiscord = new OlympaDiscord(this);
+			olympaDiscord.connect();
 
-		olympaTeamspeak = new OlympaTeamspeak(this);
-		olympaTeamspeak.connect();
+			olympaTeamspeak = new OlympaTeamspeak(this);
+			olympaTeamspeak.connect();
+			OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), spigotReceiveError, RedisChannel.SPIGOT_RECEIVE_ERROR.name());
+		});
 
 		//new TwitterAPI(this).connect();
-		OlympaBungee.getInstance().registerRedisSub(RedisAccess.INSTANCE.connect(), spigotReceiveError, RedisChannel.SPIGOT_RECEIVE_ERROR.name());
-		//		CacheDiscordSQL.debug();
 		CacheStats.addCache("DISCORD_ERROR_SEND", SpigotReceiveError.cache);
 		CacheStats.addCache("DISCORD_AWAIT_REACTIONS", AwaitReaction.reactions);
 		CacheStats.addCache("DISCORD_LINK_CODE", LinkHandler.waiting);
