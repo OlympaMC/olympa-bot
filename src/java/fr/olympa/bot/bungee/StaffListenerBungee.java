@@ -49,6 +49,8 @@ public class StaffListenerBungee implements Listener {
 				playerName = user.getAsMention();
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getMinecraftChannel();
+		if (channelStaffDiscord == null)
+			return;
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setAuthor(player.getName(), null, "https://minotar.net/helm/" + player.getName());
 		eb.setDescription(playerName + " s'est déconnecté du serveur.");
@@ -82,6 +84,8 @@ public class StaffListenerBungee implements Listener {
 				playerName = user.getAsMention();
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getMinecraftChannel();
+		if (channelStaffDiscord == null)
+			return;
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setAuthor(player.getName(), null, "https://minotar.net/helm/" + player.getName());
 		eb.setDescription(playerName + " s'est connecté au serveur " + player.getServer().getInfo().getName() + ".");
