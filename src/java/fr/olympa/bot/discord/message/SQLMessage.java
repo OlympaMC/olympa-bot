@@ -90,8 +90,7 @@ public class SQLMessage extends SQLClass {
 
 	public static int purge() throws SQLException {
 		try (PreparedStatement statement = purgeStatement.createStatement()) {
-			int rows = purgeStatement.executeUpdate(statement);
-			return rows;
+			return purgeStatement.executeUpdate(statement);
 		}
 	}
 }
