@@ -87,14 +87,14 @@ public abstract class ReactionDiscord {
 
 	public String getReactionsEmojis(MessageReaction messageReaction) {
 		ReactionEmote emote = messageReaction.getReactionEmote();
-		if (emote.isEmote())
+		if (emote.isEmote() || reactionsEmojis == null)
 			return null;
 		String emoji = messageReaction.getReactionEmote().getEmoji();
 		return reactionsEmojis.get(emoji);
 	}
 
 	public boolean hasReactionEmoji(String reactionsEmojisKey) {
-		return reactionsEmojis.keySet().contains(reactionsEmojisKey);
+		return reactionsEmojis != null && reactionsEmojis.keySet().contains(reactionsEmojisKey);
 	}
 
 	public Map<Object, Object> getData() {
@@ -118,7 +118,7 @@ public abstract class ReactionDiscord {
 	}
 
 	public List<String> getEmojis() {
-		return reactionsEmojis.asList();
+		return reactionsEmojis == null ? null : reactionsEmojis.asList();
 	}
 
 	public long getMessageId() {

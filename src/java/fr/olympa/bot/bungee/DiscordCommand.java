@@ -33,9 +33,8 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.HoverEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.api.plugin.TabExecutor;
 
-public class DiscordCommand extends BungeeCommand implements TabExecutor {
+public class DiscordCommand extends BungeeCommand {
 
 	private TextComponent message;
 
@@ -191,7 +190,7 @@ public class DiscordCommand extends BungeeCommand implements TabExecutor {
 	}
 
 	@Override
-	public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
+	public List<String> onTabComplete(CommandSender sender, BungeeCommand command, String[] args) {
 		if (args.length == 1) {
 			List<String> reasons = Arrays.asList("link", "info");
 			return Utils.startWords(args[0], reasons);
