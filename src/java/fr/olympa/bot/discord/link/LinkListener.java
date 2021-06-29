@@ -3,12 +3,12 @@ package fr.olympa.bot.discord.link;
 import java.sql.SQLException;
 
 import fr.olympa.api.common.player.OlympaPlayer;
-import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
+import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

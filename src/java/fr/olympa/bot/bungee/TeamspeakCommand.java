@@ -6,11 +6,11 @@ import java.util.UUID;
 
 import fr.olympa.api.bungee.command.BungeeCommand;
 import fr.olympa.api.common.chat.ColorUtils;
-import fr.olympa.api.common.permission.list.OlympaCorePermissionsBungee;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.teamspeak.TeamspeakHandler;
+import fr.olympa.core.common.permission.list.OlympaCorePermissionsBungee;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;

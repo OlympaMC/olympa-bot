@@ -82,7 +82,7 @@ def getDate() {
 group = 'fr.olympa'
 version = '0.0.1-SNAPSHOT'
 description = 'olympa-bot'
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_16
 
 jar {
 	archiveFileName = 'OlympaBot.jar'

@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.api.common.player.OlympaPlayer;
-import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
+import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

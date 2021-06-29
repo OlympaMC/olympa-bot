@@ -3,10 +3,10 @@ package fr.olympa.bot.discord.groups;
 import java.sql.SQLException;
 
 import fr.olympa.api.common.player.OlympaPlayer;
-import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
+import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;

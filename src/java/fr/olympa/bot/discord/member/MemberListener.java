@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import fr.olympa.api.LinkSpigotBungee;
-import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -14,6 +13,7 @@ import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
+import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;

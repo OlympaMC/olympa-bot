@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.sql.SQLException;
 
 import fr.olympa.api.common.player.OlympaPlayer;
-import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
@@ -12,6 +11,7 @@ import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
 import fr.olympa.core.bungee.staffchat.StaffChatEvent;
+import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

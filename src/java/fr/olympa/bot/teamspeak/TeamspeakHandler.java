@@ -13,10 +13,10 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerGroup;
 
 import fr.olympa.api.common.player.OlympaPlayer;
-import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.core.bungee.redis.RedisBungeeSend;
+import fr.olympa.core.common.provider.AccountProvider;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class TeamspeakHandler {

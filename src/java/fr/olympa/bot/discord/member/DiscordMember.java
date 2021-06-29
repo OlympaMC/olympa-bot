@@ -26,11 +26,11 @@ import com.google.gson.reflect.TypeToken;
 
 import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.api.utils.Utils;
-import fr.olympa.api.utils.UtilsCore;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
+import fr.olympa.core.common.utils.UtilsCore;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

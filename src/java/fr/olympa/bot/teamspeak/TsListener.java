@@ -10,9 +10,9 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
-import fr.olympa.api.common.permission.list.OlympaCorePermissionsBungee;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.core.common.permission.list.OlympaCorePermissionsBungee;
 
 public class TsListener extends TS3EventAdapter {
 

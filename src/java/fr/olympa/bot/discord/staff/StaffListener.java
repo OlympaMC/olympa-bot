@@ -3,11 +3,11 @@ package fr.olympa.bot.discord.staff;
 import java.sql.SQLException;
 
 import fr.olympa.api.common.player.OlympaPlayer;
-import fr.olympa.api.common.provider.AccountProvider;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.core.bungee.staffchat.StaffChatHandler;
+import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
