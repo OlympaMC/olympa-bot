@@ -100,7 +100,7 @@ public class TeamspeakCommand extends BungeeCommand {
 
 		TextComponent ip = new TextComponent(TextComponent.fromLegacyText(ColorUtils.color("&2ts.olympa.fr")));
 		ip.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ColorUtils.color("&2Clique pour sur le lien pour te connecter automatique"))));
-		ip.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "teamspeak.olympa.fr"));
+		ip.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://teamspeak.olympa.fr"));
 		message.addExtra(ip);
 		player.sendMessage(message);
 	}
