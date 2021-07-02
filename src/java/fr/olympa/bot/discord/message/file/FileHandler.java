@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeFormatter;
+import java.util.StringJoiner;
 
 import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.common.match.MatcherPattern;
@@ -79,22 +80,24 @@ public class FileHandler {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			StringJoiner sj = new StringJoiner(", ");
+			try {
+				sj.add("Auteur " + message.getAuthor());
+				sj.add("Serveur Discord " + message.getGuild().getName() + "|" + message.getGuild().getIdLong());
+				sj.add("Serveur Owner " + message.getGuild().getOwner().getUser().getAsTag());
+				sj.add("Channel " + message.getChannel().getName());
+				sj.add("Channel Id " + message.getChannel().getId());
+				sj.add("Link " + new JumpURL(message).get());
+				sj.add("Message text " + message.getContentDisplay());
+				sj.add("Original File Name " + att.getFileName());
+				sj.add("Original URL " + att.getUrl());
+				sj.add("Discord Proxy URL " + att.getProxyUrl());
+				sj.add("Time " + att.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME));
+				Files.setAttribute(path, "user:description", sj.toString());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		});
-		try {
-			Files.setAttribute(path, "user:Auteur", message.getAuthor());
-			Files.setAttribute(path, "user:Serveur Discord", message.getGuild().getName() + "|" + message.getGuild().getIdLong());
-			Files.setAttribute(path, "user:Serveur Owner", message.getGuild().getOwner().getUser().getAsTag());
-			Files.setAttribute(path, "user:Channel", message.getChannel().getName());
-			Files.setAttribute(path, "user:Channel Id", message.getChannel().getId());
-			Files.setAttribute(path, "user:Link", new JumpURL(message).get());
-			Files.setAttribute(path, "user:Message text", message.getContentDisplay());
-			Files.setAttribute(path, "user:Original File Name", att.getFileName());
-			Files.setAttribute(path, "user:Original URL", att.getUrl());
-			Files.setAttribute(path, "user:Discord Proxy URL", att.getProxyUrl());
-			Files.setAttribute(path, "user:Time", att.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return sb.toString() + ext;
 	}
 

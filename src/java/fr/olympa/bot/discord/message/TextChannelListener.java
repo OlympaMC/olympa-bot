@@ -92,7 +92,6 @@ public class TextChannelListener extends ListenerAdapter {
 		File file = new File(OlympaBots.getInstance().getDataFolder(), "discordAttachment");
 		if (!file.exists())
 			file.mkdirs();
-
 		TextChannel channel = message.getTextChannel();
 		DiscordMessage discordMessage = null;
 		try {
@@ -108,7 +107,7 @@ public class TextChannelListener extends ListenerAdapter {
 			if (olympaGuild.getExcludeChannelsIds().stream().anyMatch(ex -> channel.getIdLong() == ex))
 				return;
 			SwearDiscord.check(member, channel, message, olympaGuild);
-			if (!olympaGuild.isLogMsg())
+			if (!olympaGuild.isLogMsg() || message.isPinned())
 				return;
 			String msg = String.format("%s a modifié son message dans %s %s", member.getAsMention(), channel.getAsMention(), discordMessage.getJumpUrl());
 			LogsHandler.sendMessage(discordMessage, "✍️ Message modifié", discordMessage.getJumpUrlBrut(), msg, member, null);
