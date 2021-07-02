@@ -142,7 +142,7 @@ public class ReadyListener extends ListenerAdapter {
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null || !olympaGuilds.isStatusMessageEnabled())
 				continue;
-			logChannel.sendMessage(embed.build()).queue();
+			logChannel.sendMessageEmbeds(embed.build()).queue();
 		}
 		OlympaDiscord.setLastConnection(Utils.getCurrentTimeInSeconds());
 		ReactionHandler.initReactions();
@@ -179,7 +179,7 @@ public class ReadyListener extends ListenerAdapter {
 			TextChannel logChannel = olympaGuilds.getLogChannel();
 			if (logChannel == null || !olympaGuilds.isStatusMessageEnabled())
 				continue;
-			logChannel.sendMessage(embed.build()).queue();
+			logChannel.sendMessageEmbeds(embed.build()).queue();
 		}
 	}
 }

@@ -55,7 +55,7 @@ public class StaffListenerBungee implements Listener {
 		eb.setAuthor(player.getName(), null, "https://minotar.net/helm/" + player.getName());
 		eb.setDescription(playerName + " s'est déconnecté du serveur.");
 		eb.setColor(Color.RED);
-		channelStaffDiscord.sendMessage(eb.build()).queue();
+		channelStaffDiscord.sendMessageEmbeds(eb.build()).queue();
 	}
 
 	@EventHandler
@@ -90,7 +90,7 @@ public class StaffListenerBungee implements Listener {
 		eb.setAuthor(player.getName(), null, "https://minotar.net/helm/" + player.getName());
 		eb.setDescription(playerName + " s'est connecté au serveur " + player.getServer().getInfo().getName() + ".");
 		eb.setColor(Color.GREEN);
-		channelStaffDiscord.sendMessage(eb.build()).queue();
+		channelStaffDiscord.sendMessageEmbeds(eb.build()).queue();
 	}
 
 	@EventHandler

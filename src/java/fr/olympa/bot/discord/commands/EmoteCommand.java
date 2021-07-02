@@ -33,7 +33,7 @@ public class EmoteCommand extends DiscordCommand {
 		}
 		EmbedBuilder embed = new EmbedBuilder().setDescription("Id: " + emote.getId() + " Name: " + emote.getName()).setTitle("Emote");
 		embed.setColor(Color.YELLOW);
-		channel.sendMessage(embed.build()).queue(m -> m.addReaction(emote).queue(m2 -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS)));
+		channel.sendMessageEmbeds(embed.build()).queue(m -> m.addReaction(emote).queue(m2 -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS)));
 	}
 
 }

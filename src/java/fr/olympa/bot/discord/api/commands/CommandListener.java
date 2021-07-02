@@ -47,7 +47,7 @@ public class CommandListener extends ListenerAdapter {
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
 				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " mon prefix est `" + DiscordCommand.prefix + "`" + ".");
-				channel.sendMessage(eb.build()).queue();
+				channel.sendMessageEmbeds(eb.build()).queue();
 			}
 			return;
 		}

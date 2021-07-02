@@ -25,15 +25,14 @@ public class PlayersCommand extends DiscordCommand {
 
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des joueurs connectés :");
-		for (ServerInfo server : ProxyServer.getInstance().getServers().values()) {
+		for (ServerInfo server : ProxyServer.getInstance().getServersCopy().values()) {
 			Collection<ProxiedPlayer> players = server.getPlayers();
-			if (!players.isEmpty()) {
+			if (!players.isEmpty())
 				embedBuilder.addField(server.getName() + " (" + players.size() + ")", players.stream().map(ProxiedPlayer::getName).collect(Collectors.joining(", ")), true);
-			}
 		}
-		
+
 		embedBuilder.setColor(embedBuilder.getFields().isEmpty() ? Color.RED : Color.GREEN);
-		channel.sendMessage(embedBuilder.build()).queue();
+		channel.sendMessageEmbeds(embedBuilder.build()).queue();
 	}
 
 }

@@ -69,7 +69,7 @@ public class InfoCommand extends DiscordCommand {
 					.addField("Donnés envoyés", String.valueOf(jda.getResponseTotal()), true)
 					.addField("Connecté depuis ", OlympaDiscord.connectedFrom(), true);
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
+			channel.sendMessageEmbeds(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
 			return;
 		}
 		User user = message.getAuthor();
@@ -83,7 +83,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setTitle("Les 25 membres les plus anciens :");
 			embed.setDescription(older.stream().map(m -> m.getUser().getAsMention() + " depuis " + Utils.timestampToDuration(m.getTimeJoined().toEpochSecond())).collect(Collectors.joining("\n")));
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		case "nitro", "boost":
 			if (!checkPrivateChannel(message, user))
@@ -93,7 +93,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setTitle("Les Nitros Boost :");
 			embed.setDescription(boost.map(m -> m.getAsMention() + " depuis " + Utils.timestampToDuration(m.getTimeBoosted().toEpochSecond())).collect(Collectors.joining("\n")));
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		case "bots", "bot":
 			if (!checkPrivateChannel(message, user))
@@ -103,7 +103,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setTitle("Les Bots: (" + bots.size() + ")");
 			embed.setDescription(bots.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		case "nonsigne":
 			if (!checkPrivateChannel(message, user))
@@ -119,7 +119,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setTitle("Ceux qui n'ont pas signé la clause sont : (" + noSigned.size() + "/" + totalSize + ")");
 			embed.setDescription(noSigned.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		case "signe":
 			if (!checkPrivateChannel(message, user))
@@ -135,7 +135,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setTitle("Ceux qui ont signé la clause sont : (" + signed.size() + "/" + totalSize + ")");
 			embed.setDescription(signed.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		case "joueur", "membre":
 			embed = new EmbedBuilder();
@@ -148,7 +148,7 @@ public class InfoCommand extends DiscordCommand {
 			if (memberTarget == null) {
 				embed.setTitle("Erreur");
 				embed.setDescription("Membre " + (args.length > 1 ? args[1] : "") + " introuvable.");
-				channel.sendMessage(embed.build()).queue();
+				channel.sendMessageEmbeds(embed.build()).queue();
 				return;
 			}
 			User usertarget = memberTarget.getUser();
@@ -188,7 +188,7 @@ public class InfoCommand extends DiscordCommand {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		case "roles", "role":
 			if (!checkPrivateChannel(message, user))
@@ -199,7 +199,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setTitle("Membre avec le role " + roles.stream().map(Role::getName).collect(Collectors.joining(", ")) + ": ");
 			embed.setDescription(members.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		case "absent":
 			if (!checkPrivateChannel(message, user))
@@ -213,7 +213,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setTitle("Membre avec le role " + roleAbsent.getName() + ": ");
 			embed.setDescription(guild.getMembersWithRoles(roleAbsent).stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
 			embed.setColor(discord.getColor());
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			break;
 		default:
 			channel.sendMessage(user.getAsMention() + " > Usage .info " + usage).queue();

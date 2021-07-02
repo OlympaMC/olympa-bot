@@ -88,6 +88,6 @@ public class SupportChatListener extends ListenerAdapter {
 			eb.addField("Dans ", gc.getAsMention(), true);
 		} else
 			eb.setTitle("Message privé reçu" + author.getName());
-		author.openPrivateChannel().queue(ch -> ch.sendMessage(eb.build()).queue());
+		author.openPrivateChannel().queue(ch -> ch.sendMessageEmbeds(eb.build()).queue());
 	}
 }

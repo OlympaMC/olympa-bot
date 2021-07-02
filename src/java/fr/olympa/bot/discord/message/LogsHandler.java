@@ -155,7 +155,7 @@ public class LogsHandler {
 			if (messageAction != null)
 				messageAction.embed(embed.build()).queue(succes);
 			else
-				logChannel.sendMessage(embed.build()).queue(succes);
+				logChannel.sendMessageEmbeds(embed.build()).queue(succes);
 		}
 
 	}

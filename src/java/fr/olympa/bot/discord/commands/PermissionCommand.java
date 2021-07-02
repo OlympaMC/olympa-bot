@@ -44,27 +44,27 @@ public class PermissionCommand extends DiscordCommand {
 		if (memberTarget == null) {
 			embed.setTitle("Erreur");
 			embed.setDescription("Membre " + String.join(" ", args) + " introuvable.");
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			return;
 		}
 		discordMember = command.getDm();
 		if (discordMember == null) {
 			embed.setTitle("Erreur");
 			embed.setDescription("Données de " + memberTarget.getAsMention() + " introuvables.");
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			return;
 		}
 		if (args.length == 1) {
 			embed.setTitle("Permission de " + memberTarget.getEffectiveName());
 			embed.setDescription(discordMember.getPermissionsWithOlympaGuild().entrySet().stream().map(entry -> entry.getKey().getName()).collect(Collectors.joining("\n")));
-			channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
+			channel.sendMessageEmbeds(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
 			return;
 		}
 		DiscordPermission newPermission = DiscordPermission.getByName(args[1]);
 		if (newPermission == null) {
 			embed.setTitle("Erreur");
 			embed.setDescription("La permission discord " + args[1] + " n'existe pas.");
-			channel.sendMessage(embed.build()).queue();
+			channel.sendMessageEmbeds(embed.build()).queue();
 			return;
 		}
 		if (label.equalsIgnoreCase("removepermission") || label.equalsIgnoreCase("premove")) {
@@ -81,7 +81,7 @@ public class PermissionCommand extends DiscordCommand {
 			e.printStackTrace();
 		}
 		embed.setDescription(newPermission.getName() + " (" + newPermission.getAllow().stream().map(dg -> dg.getOlympaGroup().getName()).collect(Collectors.joining(", ")) + ")");
-		channel.sendMessage(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
+		channel.sendMessageEmbeds(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
 	}
 
 }

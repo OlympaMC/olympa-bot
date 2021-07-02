@@ -64,7 +64,7 @@ public class SupportListener extends ListenerAdapter {
 				EmbedBuilder embed = new EmbedBuilder().setTitle("Support Olympa");
 				embed.setDescription(resp.getMsg());
 				embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-				channel.sendMessage(embed.build()).append(supporter.getAsMention()).queue();
+				channel.sendMessageEmbeds(embed.build()).append(supporter.getAsMention()).queue();
 				if (resp == AutoResponse.CLOSE) {
 					SupportHandler.setChannelStatus(channel, StatusSupportChannel.CLOSE);
 					DiscordUtils.deny(channel, supporter, Permission.MESSAGE_WRITE);

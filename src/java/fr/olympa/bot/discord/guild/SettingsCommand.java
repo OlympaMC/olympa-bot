@@ -58,7 +58,7 @@ public class SettingsCommand extends DiscordCommand {
 				embed.setDescription("❌ Une erreur SQL est survenu: `" + e.getMessage() + "`.");
 				e.printStackTrace();
 			}
-		channel.sendMessage(embed.build()).queue(msg -> {
+		channel.sendMessageEmbeds(embed.build()).queue(msg -> {
 			for (String unicode : new String[] { "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣" })
 				msg.addReaction(unicode).queue();
 

@@ -77,7 +77,7 @@ public class InvitesListener extends ListenerAdapter {
 						embed.addField("Invité par ", ColorUtils.join(inviters.stream().map(inviter -> {
 							return inviter.getAsMention() + " (" + inviter.getAsTag() + ")";
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
-					olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 				}
 			}, discordMember);
 			InvitesHandler.removeLeaverUser(discordMember, opGuild);
@@ -116,7 +116,7 @@ public class InvitesListener extends ListenerAdapter {
 							}
 							return "null";
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
-					olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 				}
 			});
 		} catch (SQLException e) {

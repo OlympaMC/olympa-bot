@@ -23,6 +23,6 @@ public class AnnonceCommand extends DiscordCommand {
 		CharSequence description = String.join(" ", args);
 		EmbedBuilder embed = new EmbedBuilder().setDescription(description).setTitle("📢 Annonce");
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		channel.sendMessage("@everyone").queue(msg -> channel.sendMessage(embed.build()).queue(m -> m.addReaction("☑️").queue()));
+		channel.sendMessage("@everyone").queue(msg -> channel.sendMessageEmbeds(embed.build()).queue(m -> m.addReaction("☑️").queue()));
 	}
 }

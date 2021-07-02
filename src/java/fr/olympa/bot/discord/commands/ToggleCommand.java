@@ -28,7 +28,7 @@ public class ToggleCommand extends DiscordCommand {
 			for (MemberSettings set : MemberSettings.values())
 				embed.addField(set.getName() + " (n°" + i++ + ")", discordMember.hasSetting(set) ? "✅" : "❌", true);
 			embed.setFooter(DiscordCommand.prefix + label + " <numéro> pour changer un paramètre");
-			message.getChannel().sendMessage(embed.build()).queue();
+			message.getChannel().sendMessageEmbeds(embed.build()).queue();
 		} else if (args.length > 0 && RegexMatcher.INT.is(args[0])) {
 			MemberSettings[] values = MemberSettings.values();
 			int i = RegexMatcher.INT.parse(args[0]) - 1;

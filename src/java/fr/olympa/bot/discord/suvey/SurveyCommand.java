@@ -44,7 +44,7 @@ public class SurveyCommand extends DiscordCommand {
 			embed.addField("Sondage multi réponses avec Emoji", "```." + command.getName() + " \"Quel est le serveur le plus prometteur ?\" \"🥵Olympa\" \"😈Olympa\" \"😇Olympa\" \"🥳Olympa\" -multi```", false);
 			embed.addField("Sondage avec fin dans 7jours (en secondes)", "```." + command.getName() + " \"Votre mode de jeux préférer ?\" \"BedWars/Rush\" \"SkyBlock\" \"Practice\" \"Semi-RP\" -t604800```", false);
 			embed.setColor(Color.CYAN);
-			channel.sendMessage(embed.build()).mention(message.getAuthor()).queue(msg -> msg.delete().queueAfter(10, TimeUnit.MINUTES));
+			channel.sendMessageEmbeds(embed.build()).mention(message.getAuthor()).queue(msg -> msg.delete().queueAfter(10, TimeUnit.MINUTES));
 			return;
 		}
 

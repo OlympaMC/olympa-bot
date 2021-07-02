@@ -54,7 +54,7 @@ public class LogListener extends ListenerAdapter {
 		String s = Utils.withOrWithoutS(addedRoles.size());
 		EmbedBuilder embed = LogsHandler.get("✅ Ajout d'un role", null, member.getAsMention() + " a désormais le" + s + " role" + s + " " + rolesString + ".", member);
 		embed.setColor(Color.GREEN);
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+		olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class LogListener extends ListenerAdapter {
 		String s = Utils.withOrWithoutS(removedRoles.size());
 		EmbedBuilder embed = LogsHandler.get("❌ Suppression d'un role", null, member.getAsMention() + " n'a désormais plus le" + s + " role" + s + " " + rolesString + ".", member);
 		embed.setColor(Color.RED);
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+		olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class LogListener extends ListenerAdapter {
 		if (!olympaGuild.isLogVoice() || user.isBot())
 			return;
 		EmbedBuilder embed = LogsHandler.get("✅ Connecté au vocal", null, member.getAsMention() + " est connecté au salon vocal `" + event.getChannelJoined().getName() + "`.", member);
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+		olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class LogListener extends ListenerAdapter {
 		if (!olympaGuild.isLogVoice() || user.isBot())
 			return;
 		EmbedBuilder embed = LogsHandler.get("❌ Déconnecté du vocal", null, member.getAsMention() + " est déconnecté du salon vocal `" + event.getChannelLeft().getName() + "`.", member);
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+		olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public class LogListener extends ListenerAdapter {
 		EmbedBuilder embed = LogsHandler.get("🪑 Changement de salon vocal", null, member.getAsMention() + " s'est déplacé.", member);
 		embed.addField("Avant", "`" + event.getChannelLeft().getName() + "`", true);
 		embed.addField("Apres", "`" + event.getChannelJoined().getName() + "`", true);
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+		olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public class LogListener extends ListenerAdapter {
 			EmbedBuilder embed = LogsHandler.get("✏️ Changement de pseudo", null, user.getAsMention() + " a changer de **pseudo Discord**.", member);
 			embed.addField("Avant", "`" + event.getOldName() + "`", true);
 			embed.addField("Apres", "`" + event.getNewName() + "`", true);
-			olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+			olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 		}
 	}
 
@@ -147,7 +147,7 @@ public class LogListener extends ListenerAdapter {
 		EmbedBuilder embed = LogsHandler.get("✏️ Changement de surnom", null, member.getAsMention() + " a changer de **surnom**.", member);
 		embed.addField("Avant", "`" + event.getOldNickname() + "`", true);
 		embed.addField("Apres", "`" + event.getNewNickname() + "`", true);
-		olympaGuild.getLogChannel().sendMessage(embed.build()).queue();
+		olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 	}
 
 }
