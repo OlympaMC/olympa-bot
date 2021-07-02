@@ -3,6 +3,7 @@ package fr.olympa.bot.discord.staff;
 import java.sql.SQLException;
 
 import fr.olympa.api.common.player.OlympaPlayer;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -42,7 +43,7 @@ public class StaffListener extends ListenerAdapter {
 		Member member = event.getMember();
 		Message message = event.getMessage();
 		TextChannel channel = event.getChannel();
-		if (member == null || member.isFake() || member.getUser().isBot() || !GuildHandler.isStaffChannel(channel))
+		if (member == null || !DiscordUtils.isReal(member) || !GuildHandler.isStaffChannel(channel))
 			return;
 		message.clearReactions().queue(r -> message.addReaction(guild.getEmotesByName("VNO", false).get(0)).queue());
 
@@ -54,7 +55,7 @@ public class StaffListener extends ListenerAdapter {
 		Member member = event.getMember();
 		Message message = event.getMessage();
 		TextChannel channel = event.getChannel();
-		if (member == null || member.isFake() || member.getUser().isBot() || !GuildHandler.isStaffChannel(channel))
+		if (member == null || !DiscordUtils.isReal(member) || !GuildHandler.isStaffChannel(channel))
 			return;
 		DiscordMember dm;
 		try {

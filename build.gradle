@@ -38,7 +38,7 @@ configurations {
 
 dependencies {
     compileOnly 'fr.olympa:olympa-core:0.0.1-SNAPSHOT'
-    implementation 'net.dv8tion:JDA:4.2.1_276'
+    implementation 'net.dv8tion:JDA:4.3.+'
     implementation 'club.minnced:discord-webhooks:0.5.7'
     implementation 'com.vdurmont:emoji-java:5.1.1'
     implementation 'org.twitter4j:twitter4j-core:4.0.7'

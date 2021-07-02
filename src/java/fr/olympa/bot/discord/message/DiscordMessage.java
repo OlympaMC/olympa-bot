@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.observer.MessageContent;
@@ -45,7 +46,7 @@ public class DiscordMessage {
 		channelId = message.getChannel().getIdLong();
 		olympaDiscordAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
 		created = message.getTimeCreated().toEpochSecond();
-		if (!message.getAuthor().isBot() && !message.getAuthor().isFake())
+		if (DiscordUtils.isReal(message.getAuthor()))
 			addEditedMessage(message);
 	}
 
@@ -55,7 +56,7 @@ public class DiscordMessage {
 		channelId = message.getChannel().getIdLong();
 		olympaDiscordAuthorId = CacheDiscordSQL.getDiscordMember(message.getAuthor()).getId();
 		created = message.getTimeCreated().toEpochSecond();
-		if (!message.getAuthor().isBot() && !message.getAuthor().isFake())
+		if (DiscordUtils.isReal(message.getAuthor()))
 			addEditedMessage(message, map);
 	}
 
@@ -169,6 +170,6 @@ public class DiscordMessage {
 	}
 
 	public String getJumpUrl() {
-		return "[Jump](" + getJumpUrlBrut() + ")";
+		return new JumpURL(getOlympaGuild().getDiscordId(), channelId, messageId).getJumpLabel();
 	}
 }

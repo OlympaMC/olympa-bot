@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
@@ -24,11 +25,12 @@ public class SpamListener extends ListenerAdapter {
 		Guild guild = message.getGuild();
 		Member member = message.getMember();
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-		if (olympaGuild.getType() == DiscordGuildType.STAFF || member == null || member.getUser().isBot())
+		if (olympaGuild.getType() == DiscordGuildType.STAFF || member == null || member.getUser().isBot() || event.getMessage().getReferencedMessage() != null
+				&& message.getMentionedMembers().contains(event.getMessage().getReferencedMessage().getMember()))
 			return;
 		SpamHandler.removeAllTagMember(member);
 		TextChannel channel = message.getTextChannel();
-		List<Member> mentionedMembers = message.getMentionedMembers().stream().filter(m -> !m.getUser().isBot() && !m.getUser().isFake() && m.getPermissions(channel).contains(Permission.MESSAGE_READ)).distinct()
+		List<Member> mentionedMembers = message.getMentionedMembers().stream().filter(m -> DiscordUtils.isReal(m.getUser()) && m.getPermissions(channel).contains(Permission.MESSAGE_READ)).distinct()
 				.collect(Collectors.toList());
 		if (mentionedMembers.isEmpty())
 			return;
@@ -36,12 +38,12 @@ public class SpamListener extends ListenerAdapter {
 		if (out.isEmpty())
 			return;
 		EmbedBuilder em = new EmbedBuilder();
-		em.setTitle("Mais pas si vite !");
+		em.setTitle("Tu envoies trop de tag");
 		if (out.size() == 1)
 			em.setDescription("Attends que " + out.get(0).getAsMention() + " réponde à ta précédente mention avant de le re-mentionner.");
 		else
 			em.setDescription("Attends que " + out.stream().map(Member::getAsMention).collect(Collectors.joining(", ")) + " répondent à ta précédente mention avant de les re-mentionner.");
 		em.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		channel.sendMessage(em.build()).append(member.getAsMention()).queue();
+		channel.sendMessageEmbeds(em.build()).append(member.getAsMention()).queue();
 	}
 }

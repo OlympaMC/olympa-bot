@@ -75,8 +75,7 @@ public class InfoCommand extends DiscordCommand {
 		User user = message.getAuthor();
 
 		switch (Utils.removeAccents(args[0]).toLowerCase()) {
-		case "ancien":
-		case "vieux":
+		case "ancien", "vieux":
 			if (!checkPrivateChannel(message, user))
 				return;
 			List<Member> older = message.getGuild().getMembers().stream().sorted((e1, e2) -> e1.getTimeJoined().compareTo(e2.getTimeJoined())).limit(25).collect(Collectors.toList());
@@ -86,8 +85,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
 			break;
-		case "nitro":
-		case "boost":
+		case "nitro", "boost":
 			if (!checkPrivateChannel(message, user))
 				return;
 			Stream<Member> boost = message.getGuild().getBoosters().stream().sorted((e1, e2) -> e1.getTimeBoosted().compareTo(e2.getTimeBoosted())).limit(25);
@@ -97,8 +95,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
 			break;
-		case "bots":
-		case "bot":
+		case "bots", "bot":
 			if (!checkPrivateChannel(message, user))
 				return;
 			Set<Member> bots = message.getGuild().getMembers().stream().filter(m -> m.getUser().isBot()).collect(Collectors.toSet());
@@ -140,8 +137,7 @@ public class InfoCommand extends DiscordCommand {
 			embed.setColor(discord.getColor());
 			channel.sendMessage(embed.build()).queue();
 			break;
-		case "joueur":
-		case "membre":
+		case "joueur", "membre":
 			embed = new EmbedBuilder();
 			List<Member> members = message.getMentionedMembers();
 			Member memberTarget = null;
@@ -194,8 +190,7 @@ public class InfoCommand extends DiscordCommand {
 			}
 			channel.sendMessage(embed.build()).queue();
 			break;
-		case "roles":
-		case "role":
+		case "roles", "role":
 			if (!checkPrivateChannel(message, user))
 				return;
 			List<Role> roles = message.getMentionedRoles();

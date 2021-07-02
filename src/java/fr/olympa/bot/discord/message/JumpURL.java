@@ -45,4 +45,13 @@ public class JumpURL {
 	public String get() {
 		return String.format("https://discordapp.com/channels/%s/%s/%s", guildId, channelId, messageId);
 	}
+
+	public String get(String label) {
+
+		return String.format("[%s](https://discordapp.com/channels/%s/%s/%s)", label, guildId, channelId, messageId);
+	}
+
+	public String getJumpLabel() {
+		return get("Jump");
+	}
 }

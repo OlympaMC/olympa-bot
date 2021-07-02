@@ -32,6 +32,14 @@ public class DiscordUtils {
 		});
 	}
 
+	public static boolean isReal(Member member) {
+		return isReal(member.getUser());
+	}
+
+	public static boolean isReal(User user) {
+		return !user.isBot() && !user.isSystem();
+	}
+
 	public static void allow(GuildChannel channel, IPermissionHolder role, Permission... perms) {
 		allow(channel, role, null, perms);
 	}
@@ -108,7 +116,10 @@ public class DiscordUtils {
 	}
 
 	public static String getMemberMentionNameFull(Member member) {
-		User user = member.getUser();
-		return member.getAsMention() + "(`" + user.getAsTag() + "`)";
+		return getMemberMentionNameFull(member);
+	}
+
+	public static String getMemberMentionNameFull(User user) {
+		return user.getAsMention() + "(`" + user.getAsTag() + "`)";
 	}
 }

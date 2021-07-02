@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
+import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.message.file.FileHandler;
 import fr.olympa.bot.discord.observer.MessageAttachement;
 import fr.olympa.bot.discord.observer.MessageContent;
@@ -29,20 +30,31 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 public class LogsHandler {
 
 	public static EmbedBuilder get(String title, String titleUrl, String description, Member member) {
-		User user = member.getUser();
+		return get(title, titleUrl, description, member.getUser());
+	}
+
+	public static EmbedBuilder get(String title, String titleUrl, String description, User user) {
 		EmbedBuilder embed = new EmbedBuilder().setTitle(title, titleUrl).setDescription(description);
-		//embed.setAuthor(member.getEffectiveName(), user.getAvatarUrl(), user.getEffectiveAvatarUrl());
-		embed.setFooter(user.getAsTag() + " | " + member.getId());
+		if (user != null) {
+			embed.setFooter(user.getAsTag() + " | " + user.getId());
+			embed.setThumbnail(user.getAvatarUrl());
+		}
 		embed.setColor(OlympaBots.getInstance().getDiscord().getColor());
-		embed.setThumbnail(user.getAvatarUrl());
 		embed.setTimestamp(OffsetDateTime.now());
 		return embed;
 	}
 
-	public static void sendMessage(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member) {
-		if (member.getUser().isBot() || member.getUser().isFake() || discordMessage.isEmpty())
+	public static EmbedBuilder get(String title, String titleUrl, String description, User user, User author) {
+		EmbedBuilder embed = get(title, titleUrl, description, user);
+		if (author != null)
+			embed.setAuthor(author.getAsTag(), author.getAvatarUrl(), author.getEffectiveAvatarUrl());
+		return embed;
+	}
+
+	public static void sendMessage(DiscordMessage discordMessage, String title, String titleUrl, String description, Member member, User author) {
+		if (member.getUser().isBot() || !DiscordUtils.isReal(member.getUser()) || discordMessage.isEmpty())
 			return;
-		EmbedBuilder embed = get(title, titleUrl, description, member);
+		EmbedBuilder embed = get(title, titleUrl, description, member.getUser(), author);
 		int i = 0;
 		MessageContent lastMContent = null;
 		TextChannel logChannel = discordMessage.getOlympaGuild().getLogChannel();

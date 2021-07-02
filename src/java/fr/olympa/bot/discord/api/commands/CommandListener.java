@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageType;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -29,7 +30,7 @@ public class CommandListener extends ListenerAdapter {
 	private void checkMsg(GenericMessageEvent event, Message message) {
 		User user = message.getAuthor();
 		MessageChannel channel = event.getChannel();
-		if (user.isFake() || message.getJDA().getSelfUser().getIdLong() == message.getAuthor().getIdLong())
+		if (!DiscordUtils.isReal(user) || message.getJDA().getSelfUser().getIdLong() == message.getAuthor().getIdLong())
 			return;
 
 		MessageType type = message.getType();
@@ -41,7 +42,8 @@ public class CommandListener extends ListenerAdapter {
 		String label = args[0];
 		List<User> mentions = message.getMentionedUsers();
 		if (!Pattern.compile("^\\" + DiscordCommand.prefix + "[a-zA-Z]+$").matcher(label).find()) {
-			if (!message.isEdited() && !user.isBot() && !user.isFake() && mentions.contains(event.getJDA().getSelfUser())) {
+			SelfUser self = event.getJDA().getSelfUser();
+			if (!message.isEdited() && mentions.contains(self) && message.getContentRaw().length() == self.getAsMention().length()) {
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setColor(OlympaBots.getInstance().getDiscord().getColor());
 				eb.setDescription(OlympaBots.getInstance().getDiscord().getJda().getSelfUser().getAsMention() + " mon prefix est `" + DiscordCommand.prefix + "`" + ".");

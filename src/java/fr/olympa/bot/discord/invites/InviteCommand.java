@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
@@ -67,7 +66,7 @@ public class InviteCommand extends DiscordCommand {
 				em.addField("Membres parrainés", mInv.getUsers().stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", ")), false);
 				em.addField("Liens", mInv.getInvites().stream().map(di -> di.getUrl()).collect(Collectors.joining(", ")), false);
 				em.setFooter(DiscordCommand.prefix + "invitetop pour voir le classement");
-				channel.sendMessage(em.build()).queue();
+				channel.sendMessageEmbeds(em.build()).queue();
 			} else if (label.equalsIgnoreCase("invitetop")) {
 				Map<Long, Integer> stats = DiscordInvite.getStats(opGuild);
 				em.setTitle("💌 Invitations");
@@ -82,7 +81,7 @@ public class InviteCommand extends DiscordCommand {
 					if (user == null || !guild.isMember(user))
 						inviterName += " (🚪 " + Utils.tsToShortDur(author.getLeaveTime()) + ")";
 					String out = nb++ + " | `" + uses + " membre" + Utils.withOrWithoutS(uses) + "` " + inviterName + ".\n";
-					if (em.getDescriptionBuilder().length() + out.length() >= MessageEmbed.TEXT_MAX_LENGTH)
+					if (em.getDescriptionBuilder().length() + out.length() >= 4096) // TODO Change 4096 to MessageEmbed.TEXT_MAX_LENGTH (At this time MessageEmbed.TEXT_MAX_LENGTH * 2 = 4096)
 						break;
 					//						channel.sendMessage(em.build()).queue();
 					//em = new EmbedBuilder();
@@ -90,7 +89,7 @@ public class InviteCommand extends DiscordCommand {
 					em.appendDescription(out);
 				}
 				em.setFooter(DiscordCommand.prefix + "invite [nom|mention] pour voir les stats d'un membre");
-				channel.sendMessage(em.build()).queue();
+				channel.sendMessageEmbeds(em.build()).queue();
 			} else if (label.equalsIgnoreCase("inviteall")) {
 				if (!DiscordPermission.STAFF.hasPermission(member)) {
 					MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
@@ -117,14 +116,14 @@ public class InviteCommand extends DiscordCommand {
 					if (invite.getUsesLeaver() != 0)
 						smallSb.append(" *" + invite.getRealUsesLeaver() + " ont quitté" + Utils.withOrWithoutS(invite.getUsesLeaver()) + "*");
 					String out = inviterName + ": " + smallSb.toString() + "\n";
-					if (em.getDescriptionBuilder().length() + out.length() >= MessageEmbed.TEXT_MAX_LENGTH) {
-						channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
+					if (em.getDescriptionBuilder().length() + out.length() >= 4096) { // TODO Change 4096 to MessageEmbed.TEXT_MAX_LENGTH (At this time MessageEmbed.TEXT_MAX_LENGTH * 2 = 4096)
+						channel.sendMessageEmbeds(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
 						em = new EmbedBuilder();
 						em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 					}
 					em.appendDescription(out);
 				}
-				channel.sendMessage(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
+				channel.sendMessageEmbeds(em.build()).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
 			} else if (label.equalsIgnoreCase("invitefix")) {
 				List<DiscordInvite> targetInvites = null;
 
@@ -168,7 +167,7 @@ public class InviteCommand extends DiscordCommand {
 						e.printStackTrace();
 						em.addField(di.getCode(), "Erreur > `" + e.getMessage() + "`", true);
 					}
-				channel.sendMessage(em.build()).queue();
+				channel.sendMessageEmbeds(em.build()).queue();
 			}
 		} catch (SQLException | IllegalAccessException e) {
 			e.printStackTrace();
