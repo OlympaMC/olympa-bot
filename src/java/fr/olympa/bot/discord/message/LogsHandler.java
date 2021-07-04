@@ -86,8 +86,6 @@ public class LogsHandler {
 				if (attachments != null && !attachments.isEmpty())
 					attachments.stream().filter(att -> attWithData.keySet().stream().noneMatch(ma -> ma.getOriginalFileName().equals(att.getOriginalFileName()))).forEach(att -> {
 						if (att.getFileName() != null)
-							//							logChannel.sendFile(FileHandler.getFile(att.getFileName()))
-							//									.append(member.getEffectiveName() + " a un fichier `" + att.getOriginalFileName() + "` dans son message \nLien Original : `" + att.getUrl() + "`").queue();
 							attWithData.put(att, FileHandler.getFile(att.getFileName()));
 					});
 				String editTime;
@@ -137,8 +135,8 @@ public class LogsHandler {
 					messageAction = messageAction.addFile(e.getValue()).append(desc);
 			}
 		if (discordMessage.getLogMessageId() != 0) {
-			discordMessage.getLogMsg().queue(logMsg -> logMsg.editMessage(embed.build()).queue());
-			logChannel.editMessageById(discordMessage.getLogMessageId(), embed.build()).queue();
+			discordMessage.getLogMsg().queue(logMsg -> logMsg.editMessageEmbeds(embed.build()).queue());
+			logChannel.editMessageEmbedsById(discordMessage.getLogMessageId(), embed.build()).queue();
 			if (messageAction != null)
 				messageAction.append("Info sur le msg supprimé : " + discordMessage.getLogJumpUrl() + "\n").queue();
 		} else {

@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.api.common.server.ServerStatus;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -13,6 +14,7 @@ import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
+import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -56,7 +58,7 @@ public class MemberListener extends ListenerAdapter {
 				if (discordMember.getOlympaId() == 0)
 					em.appendDescription("\n⚠️ Tu dois relier ton compte Minecraft & Discord avec la commande **/discord link** sur le serveur pour accéder aux channels du staff.");
 				em.setColor(OlympaBots.getInstance().getDiscord().getColor());
-				member.getUser().openPrivateChannel().queue(ch -> ch.sendMessage(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
+				member.getUser().openPrivateChannel().queue(ch -> ch.sendMessageEmbeds(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 				WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
 				EmbedBuilder messageEmbed = new EmbedBuilder();
 				messageEmbed.setDescription("Bienvenue à " + member.getAsMention() + " !");
@@ -69,9 +71,35 @@ public class MemberListener extends ListenerAdapter {
 				long usersTotal = updateChannelMember(guild);
 				EmbedBuilder em = new EmbedBuilder();
 				em.setTitle("Bienvenue sur notre discord " + member.getEffectiveName() + " !");
-				em.setDescription("Tu es le " + usersTotal + " ème membre à rejoindre le discord.\n❌ Le serveur est actuellement en développement, suis les dernières informations dans <#558148715286888448>.");
+				em.setDescription("Tu es le " + usersTotal + " ème membre à rejoindre le discord.\n");
+				ServerStatus status = OlympaBungee.getInstance().getStatus();
+				if (status != null) {
+					switch (status) {
+					case BETA:
+						em.appendDescription("Notre serveur minecraft est actuellement en bêta.\n Suis les dernières informations dans <#558148715286888448>.");
+						break;
+					case CLOSE:
+						em.appendDescription("❌ Notre serveur minecraft est actuellement indisponible. Suis les dernières informations dans <#558148715286888448>.");
+						break;
+					case CLOSE_BETA:
+						em.appendDescription("❌ Notre serveur minecraft est actuellement en bêta fermer. Suis les dernières informations dans <#558148715286888448>.");
+						break;
+					case DEV:
+						em.appendDescription("❌ Notre serveur minecraft est actuellement en développement, suis les dernières informations dans <#558148715286888448>.");
+						break;
+					case MAINTENANCE, UNKNOWN:
+						em.appendDescription("Notre serveur minecraft est actuellement en maintenance.\n Suis les dernières informations dans <#558148715286888448>.");
+						break;
+					case SOON:
+						em.appendDescription("Notre serveur minecraft va bientôt ouvrir.\n Suis les dernières informations dans <#558148715286888448>.");
+						break;
+					default:
+						break;
+					}
+					em.appendDescription("\nIP du serveur Minecraft `play.olympa.fr`");
+				}
 				em.setColor(OlympaBots.getInstance().getDiscord().getColor());
-				member.getUser().openPrivateChannel().queue(ch -> ch.sendMessage(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
+				member.getUser().openPrivateChannel().queue(ch -> ch.sendMessageEmbeds(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 				discordMember.updateJoinTime(member.getTimeJoined().toEpochSecond());
 				DiscordSQL.updateMember(discordMember);
 			}

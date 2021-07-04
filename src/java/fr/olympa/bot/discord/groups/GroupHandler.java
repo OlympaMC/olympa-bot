@@ -31,7 +31,7 @@ public class GroupHandler {
 				Role role = discordGroup.getRole(guild);
 				if (role != null) {
 					Set<User> membersRole = guild.getMembersWithRoles(role).stream().map(Member::getUser).filter(m -> !m.isBot()).collect(Collectors.toSet());
-					String membersRoleS = membersRole.stream().map(User::getAsTag).collect(Collectors.joining(", "));
+					String membersRoleS = membersRole.stream().map(User::getAsTag).collect(Collectors.joining("\n", "```", "```"));
 					if (!membersRoleS.isEmpty()) {
 						staff.addAll(membersRole);
 						embed.addField(role.getName() + " (" + membersRole.size() + ")", membersRoleS, true);
@@ -39,7 +39,7 @@ public class GroupHandler {
 				}
 			}
 			embed.setDescription("Le staff est composé de " + staff.size() + " membres.");
-			msg.editMessage(embed.build()).queue();
+			msg.editMessageEmbeds(embed.build()).queue();
 		});
 	}
 
