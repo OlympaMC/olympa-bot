@@ -115,9 +115,9 @@ public class LogsHandler {
 					}
 				} else
 					content = "`Message vide`";
-				EmbedBuilder em2 = new EmbedBuilder(embed).addField(editTime, content, true);
+				EmbedBuilder em2 = new EmbedBuilder(embed).addField(editTime, content, false);
 				if (em2.isValidLength())
-					embed.addField(editTime, content, true);
+					embed.addField(editTime, content, false);
 				else {
 					embed.addField(editTime, "`Erreur > Trop de charatères dans l'Embed.`", true);
 					break;
