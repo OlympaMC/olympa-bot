@@ -87,7 +87,8 @@ public class InvitesListener extends ListenerAdapter {
 						MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, CacheDiscordSQL.getDiscordMember(inviters.get(0))));
 						TextChannel defaultChannel = guild.getDefaultChannel();
 						if (defaultChannel != null)
-							defaultChannel.sendMessage(member.getAsMention() + " nous a rejoints grâce à " + inviters.get(0).getAsMention() + ". Son nombre totale d'inviations est de " + mInv.getRealUses())
+							defaultChannel.sendMessage(String.format("%s rejoint %s suite à l'invitation de %s, qui comptabilise maintenant **%d** invitation%s.",
+									member.getAsMention(), guild.getName(), inviters.get(0).getAsMention(), mInv.getRealUses(), Utils.withOrWithoutS(mInv.getRealUses())))
 									.allowedMentions(Arrays.asList(MentionType.ROLE)).queue();
 					} catch (SQLException e) {
 						e.printStackTrace();

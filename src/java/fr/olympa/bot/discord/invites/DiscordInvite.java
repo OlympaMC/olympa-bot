@@ -553,18 +553,19 @@ public class DiscordInvite extends DiscordSmallInvite {
 			em.setTitle(targetMember.getEffectiveName() + " est arrivé sur **" + discordGuild.getName() + "** grâce à toi !");
 			List<DiscordInvite> invites = InvitesHandler.getByAuthor(discordGuild, dm);
 			if (invites.size() > 1) {
+				MemberInvites mInv = new MemberInvites(discordGuild, InvitesHandler.getByAuthor(discordGuild, dm));
 				int nbJoueurs = invites.stream().mapToInt(DiscordInvite::getUsesUnique).sum();
 				int nbJoueursLeave = invites.stream().mapToInt(DiscordInvite::getUsesLeaver).sum();
-				em.setDescription("Tu as déjà invité `" + nbJoueurs + " joueurs`");
+				em.setDescription("Tu as déjà invité `" + mInv.getRealUses() + " membres`");
 				if (nbJoueursLeave != 0)
-					em.appendDescription(" mais malheureusement, " + nbJoueursLeave + " joueurs sont partis...");
+					em.appendDescription(" mais malheureusement, " + mInv.getRealLeaves() + " membres sont partis...");
 				else
 					em.appendDescription(".");
 				em.appendDescription("\n");
 				if (nbJoueurs > 3) {
 					int i = getPosOfAuthor(getDiscordGuild(), dm);
 					if (i != -1)
-						em.appendDescription("\nTop " + i + " sur " + discordGuild.getName() + ".");
+						em.appendDescription("\nTop " + i + " sur `" + discordGuild.getName() + "`.");
 				}
 				List<String> msg = Arrays.asList("Merci à toi !", "Tu es sur la bonne voie !", "Encore encore", "Tu peux mieux faire", "Plus, plus, toujours plus",
 						"On aime voir ça !", "T'es le boss !", "Stonks", "Badass quoi");

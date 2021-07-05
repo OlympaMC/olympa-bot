@@ -35,6 +35,7 @@ public class SettingsCommand extends DiscordCommand {
 			embed.addField("Logs pseudo", olympaGuild.isLogUsername() ? "✅" : "❌", true);
 			embed.addField("Logs channel vocal", olympaGuild.isLogVoice() ? "✅" : "❌", true);
 			embed.addField("Logs insultes", olympaGuild.isLogInsult() ? "✅" : "❌", true);
+			embed.addField("Envoie un message dans le channel d'acceuil pour connaître celui qui a invité le nouveau", olympaGuild.isSendingWelcomeMessage() ? "✅" : "❌", true);
 			embed.addField("Message de status du bot", olympaGuild.isStatusMessageEnabled() ? "✅" : "❌", true);
 			String s = "❌";
 			if (olympaGuild.getLogChannelId() != 0)
@@ -50,6 +51,10 @@ public class SettingsCommand extends DiscordCommand {
 				s = olympaGuild.getExcludeChannelsIds().stream().map(id -> guild.getTextChannelById(id).getAsMention()).collect(Collectors.joining(", "));
 			embed.addField("Excludes Log Channel", s, true);
 			embed.addField("OlympaGuild Type", olympaGuild.getType().getName(), true);
+			channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+				//				for (String unicode : new String[] { "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣" })
+				//					msg.addReaction(unicode).queue();
+			});
 		} else if (args[0].equalsIgnoreCase("reload"))
 			try {
 				GuildHandler.updateGuild(GuildSQL.selectGuildById(olympaGuild.getId()));
@@ -58,11 +63,6 @@ public class SettingsCommand extends DiscordCommand {
 				embed.setDescription("❌ Une erreur SQL est survenu: `" + e.getMessage() + "`.");
 				e.printStackTrace();
 			}
-		channel.sendMessageEmbeds(embed.build()).queue(msg -> {
-			for (String unicode : new String[] { "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣" })
-				msg.addReaction(unicode).queue();
-
-		});
 	}
 
 }
