@@ -41,6 +41,7 @@ import fr.olympa.bot.discord.ready.ReadyListener;
 import fr.olympa.bot.discord.sanctions.MuteCommand;
 import fr.olympa.bot.discord.servers.ServersCommand;
 import fr.olympa.bot.discord.spam.SpamListener;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.staff.StaffListener;
 import fr.olympa.bot.discord.support.SupportCommand;
 import fr.olympa.bot.discord.support.SupportListener;
@@ -137,6 +138,8 @@ public class OlympaDiscord {
 	}
 
 	public void disconnect() {
+		CacheDiscordSQL.cacheMembers.invalidateAll();
+		CacheDiscordSQL.cacheMembers.cleanUp();
 		for (Entry<MessageChannel, StringJoiner> e : DeployCommand.OUT.entrySet())
 			e.getKey().sendMessage(e.getValue().toString()).queue();
 		if (jda != null) {

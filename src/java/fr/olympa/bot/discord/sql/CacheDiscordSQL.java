@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
 
 import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -25,6 +26,8 @@ public class CacheDiscordSQL {
 
 	// <discordId, DiscordMember>
 	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().recordStats().expireAfterAccess(30, TimeUnit.MINUTES).maximumSize(500).removalListener(notification -> {
+		if (notification.getCause() == RemovalCause.REPLACED)
+			return;
 		try {
 			DiscordSQL.updateMember((DiscordMember) notification.getValue());
 		} catch (SQLException e) {
