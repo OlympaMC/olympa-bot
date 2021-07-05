@@ -1,10 +1,10 @@
 package fr.olympa.bot.discord.support.chat;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.common.task.NativeTask;
+import fr.olympa.bot.discord.message.JumpURL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
@@ -57,9 +57,7 @@ public class SupportChatListener extends ListenerAdapter {
 					TextChannel txtCh = event.getJDA().getTextChannelById(id.substring(1));
 					String msgFinal = msg.substring(id.length() + 1);
 					txtCh.sendTyping().queue();
-					Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-						txtCh.sendMessage(msgFinal).queue();
-					}, msgFinal.length() * 20l, TimeUnit.MILLISECONDS);
+					NativeTask.getInstance().runTaskLater(() -> txtCh.sendMessage(msgFinal).queue(), msgFinal.length() * 100l, TimeUnit.MILLISECONDS);
 					channel.sendMessage("Message envoyé dans " + txtCh.getAsMention() + " sur " + txtCh.getGuild().getName()).queue();
 
 				} else if (id.startsWith("!")) {
@@ -84,7 +82,7 @@ public class SupportChatListener extends ListenerAdapter {
 			eb.addField(att.getFileName(), att.getProxyUrl(), true);
 		if (message.isFromGuild()) {
 			TextChannel gc = (TextChannel) message.getChannel();
-			eb.addField("Dans ", gc.getAsMention(), true);
+			eb.addField("Dans ", gc.getAsMention() + " " + new JumpURL(message).get(), true);
 			if (message.getReferencedMessage() == null)
 				eb.setTitle("Mentionner dans le channel " + gc.getName());
 			else {
@@ -93,7 +91,7 @@ public class SupportChatListener extends ListenerAdapter {
 				eb.addField("Citation de réponse de " + msgReferenced.getAuthor().getAsMention(), msgReferenced.getContentRaw(), false);
 			}
 		} else
-			eb.setTitle("Message privé reçu" + author.getName());
+			eb.setTitle("Message privé reçu");
 		author.openPrivateChannel().queue(ch -> ch.sendMessageEmbeds(eb.build()).queue());
 	}
 }

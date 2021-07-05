@@ -12,8 +12,8 @@ public class MemberInvites {
 
 	OlympaGuild guild;
 	List<DiscordInvite> invites;
-	Set<DiscordMember> users, usersPast, leavers;
-	int realUses, totalUses, leaves, realLeaves, reinvited = 0;
+	Set<DiscordMember> users, usersReivited, leavers;
+	int realUses, totalUses, leaves, allLeaves, reinvited = 0;
 
 	/**
 	 * @param guild
@@ -21,22 +21,22 @@ public class MemberInvites {
 	 */
 	public MemberInvites(OlympaGuild guild, List<DiscordInvite> invites) {
 		users = new HashSet<>();
-		usersPast = new HashSet<>();
+		usersReivited = new HashSet<>();
 		leavers = new HashSet<>();
 		this.guild = guild;
 		this.invites = invites;
 		invites.forEach(di -> {
 			totalUses += di.getUses();
 			realUses += di.getUsesUnique();
-			leaves += di.getUsesLeaver();
+			leaves += di.getRealUsesLeaver();
 			users.addAll(di.getUsers());
 			leavers.addAll(di.getLeaveUsers());
-			usersPast.addAll(di.getPastUsers().stream().filter(dm -> !di.getUsers().contains(dm) && !di.getLeaveUsers().contains(dm)).collect(Collectors.toSet()));
+			usersReivited.addAll(di.getPastUsers().stream().filter(dm -> !di.getUsers().contains(dm) && !di.getLeaveUsers().contains(dm)).collect(Collectors.toSet()));
 		});
-		usersPast.removeIf(dm -> users.contains(dm) || leavers.contains(dm));
+		usersReivited.removeIf(dm -> users.contains(dm) || leavers.contains(dm));
 		leavers.removeIf(dm -> users.contains(dm));
-		realLeaves = usersPast.size() + leavers.size();
-		reinvited = usersPast.size();
+		allLeaves = usersReivited.size() + leavers.size();
+		reinvited = usersReivited.size();
 	}
 
 	public OlympaGuild getGuild() {
@@ -52,7 +52,7 @@ public class MemberInvites {
 	}
 
 	public Set<DiscordMember> getUsersPast() {
-		return usersPast;
+		return usersReivited;
 	}
 
 	public Set<DiscordMember> getLeavers() {
@@ -67,12 +67,17 @@ public class MemberInvites {
 		return totalUses;
 	}
 
+	// Not unique, can't check userId for multiple invites
 	public int getLeaves() {
 		return leaves;
 	}
 
 	public int getRealLeaves() {
-		return realLeaves;
+		return leavers.size();
+	}
+
+	public int getAllLeaves() {
+		return allLeaves;
 	}
 
 	public int getReinvited() {

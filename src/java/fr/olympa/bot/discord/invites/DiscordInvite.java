@@ -455,7 +455,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 	}
 
 	public int getRealUsesLeaver() {
-		return pastUsersIds.size() - usersIds.size();
+		return leaveUsersIds.size();
 	}
 
 	//	public int getRealUse() {
