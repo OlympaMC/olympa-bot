@@ -49,7 +49,7 @@ public class LinkListener extends ListenerAdapter {
 				channel.sendMessageEmbeds(embed.build()).queue();
 				return;
 			}
-			OlympaPlayer olympaPlayer = AccountProvider.getter().get(player.getUniqueId());
+			OlympaPlayer olympaPlayer = new AccountProvider(player.getUniqueId()).get();
 			discordMember.setOlympaId(olympaPlayer.getId());
 			DiscordSQL.updateMember(discordMember);
 			LinkHandler.updateGroups(member, olympaPlayer);
@@ -60,7 +60,7 @@ public class LinkListener extends ListenerAdapter {
 			embed.setDescription("Tu as relié ton compte Olympa " + player.getName() + " avec ton compte discord " + user.getAsMention() + ". Tu as reçu les bons rôles sur discord.");
 			channel.sendMessageEmbeds(embed.build()).queue();
 		} catch (SQLException e) {
-			channel.sendMessage("⚠  Une erreur est survenue.").queue();
+			channel.sendMessage("⚠ Une erreur est survenue.").queue();
 			e.printStackTrace();
 		}
 
