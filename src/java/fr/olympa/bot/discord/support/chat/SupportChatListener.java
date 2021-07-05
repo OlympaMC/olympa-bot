@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import fr.olympa.api.common.task.NativeTask;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
@@ -48,9 +49,7 @@ public class SupportChatListener extends ListenerAdapter {
 					String msgFinal = msg.substring(id.length() + 1);
 					user.openPrivateChannel().queue(pv -> {
 						pv.sendTyping().queue();
-						Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-							pv.sendMessage(msgFinal).queue();
-						}, msgFinal.length() * 100l, TimeUnit.MILLISECONDS);
+						NativeTask.getInstance().runTaskLater(() -> pv.sendMessage(msgFinal).queue(), msgFinal.length() * 100l, TimeUnit.MILLISECONDS);
 					});
 					channel.sendMessage("Message envoyé à " + user.getAsMention()).queue();
 

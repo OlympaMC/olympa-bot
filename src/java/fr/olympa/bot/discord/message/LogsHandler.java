@@ -117,8 +117,10 @@ public class LogsHandler {
 				if (em2.isValidLength())
 					embed.addField(editTime, content, false);
 				else {
-					embed.addField(editTime, "`Erreur > Trop de charatères dans l'Embed.`", true);
-					break;
+					content = "`Erreur > Trop de charatères dans l'Embed.`";
+					em2 = new EmbedBuilder(embed).addField(editTime, content, false);
+					if (em2.isValidLength())
+						embed.addField(editTime, content, true);
 				}
 			}
 			lastMContent = mContent;
