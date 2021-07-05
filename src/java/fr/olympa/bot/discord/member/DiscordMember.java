@@ -83,7 +83,8 @@ public class DiscordMember {
 
 	public void addUpdateQueue(SQLColumn<DiscordMember> column, Object newValue) {
 		updateQueueSQL.put(column, newValue);
-		addTask();
+		if (!column.equals(COLUMN_LAST_SEEN))
+			addTask();
 	}
 
 	public boolean cacheNeedToBeSave() {
@@ -168,7 +169,7 @@ public class DiscordMember {
 				resultSet.getTimestamp(COLUMN_LAST_SEEN.getCleanName()),
 				resultSet.getDate(COLUMN_JOIN_DATE.getCleanName()),
 				resultSet.getDate(COLUMN_LEAVE_DATE.getCleanName()),
-				resultSet.getString(COLUMN_LEAVE_DATE.getCleanName()),
+				resultSet.getString(COLUMN_OLD_NAMES.getCleanName()),
 				resultSet.getString(COLUMN_PERMISSIONS.getCleanName()),
 				resultSet.getString(COLUMN_SETTINGS.getCleanName()));
 	}
