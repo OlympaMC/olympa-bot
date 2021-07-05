@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.entities.User;
 public class CacheDiscordSQL {
 
 	public static void debug() {
-		LinkSpigotBungee link = LinkSpigotBungee.Provider.link;
+		LinkSpigotBungee<?> link = LinkSpigotBungee.getInstance();
 		link.getTask().scheduleSyncRepeatingTask(() -> link.sendMessage("§dNombre de DiscordMember en cache §5" + cacheMembers.size()), 29, 60, TimeUnit.MINUTES);
 	}
 
@@ -28,16 +28,20 @@ public class CacheDiscordSQL {
 	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().recordStats().expireAfterAccess(30, TimeUnit.MINUTES).maximumSize(500).removalListener(notification -> {
 		if (notification.getCause() == RemovalCause.REPLACED)
 			return;
-		try {
-			DiscordSQL.updateMember((DiscordMember) notification.getValue());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		DiscordMember member = (DiscordMember) notification.getValue();
+		if (member.cacheNeedToBeSave())
+			member.saveCacheToDb();
 	}).build();
+
+	public static void saveToDbIfNeeded() {
+		cacheMembers.asMap().forEach((id, discordMember) -> {
+			if (discordMember.cacheNeedToBeSave())
+				discordMember.saveCacheToDb();
+		});
+	}
 
 	public static void update(DiscordMember discordMember) {
 		cacheMembers.put(discordMember.getDiscordId(), discordMember);
-
 	}
 
 	public static DiscordMember getDiscordMember(User user) throws SQLException {
@@ -48,6 +52,7 @@ public class CacheDiscordSQL {
 		DiscordMember discordMember = getDiscordMember(user.getIdLong());
 		if (discordMember == null) {
 			discordMember = new DiscordMember(user);
+			//			discordMember.insert();
 			DiscordSQL.addMember(discordMember);
 			setDiscordMember(user.getIdLong(), discordMember);
 		}

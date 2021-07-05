@@ -47,9 +47,12 @@ public class DiscordInvite extends DiscordSmallInvite {
 	static final SQLColumn<DiscordInvite> COLUMN_USES_LEAVER = new SQLColumn<DiscordInvite>("uses_leaver", "INT(10) UNSIGNED NULL DEFAULT '0'", Types.INTEGER).setUpdatable();
 	static final SQLColumn<DiscordInvite> COLUMN_CREATED = new SQLColumn<DiscordInvite>("created", "TIMESTAMP NOT NULL DEFAULT current_timestamp()", Types.TIMESTAMP).setNotDefault();
 	static final SQLColumn<DiscordInvite> COLUMN_CODE = new SQLColumn<DiscordInvite>("code", "VARCHAR(7) NOT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR).setNotDefault();
-	static final SQLColumn<DiscordInvite> COLUMN_USERS_OLYMPA_DISCORD_ID = new SQLColumn<DiscordInvite>("users_olympa_discord_id", "MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR).setUpdatable();
-	static final SQLColumn<DiscordInvite> COLUMN_USERS_PAST_OLYMPA_DISCORD_ID = new SQLColumn<DiscordInvite>("users_olympa_past_discord_id", "MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR).setUpdatable();
-	static final SQLColumn<DiscordInvite> COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID = new SQLColumn<DiscordInvite>("users_olympa_leaver_discord_id", "MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR).setUpdatable();
+	static final SQLColumn<DiscordInvite> COLUMN_USERS_OLYMPA_DISCORD_ID = new SQLColumn<DiscordInvite>("users_olympa_discord_id", "MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR)
+			.setUpdatable().allowNull();
+	static final SQLColumn<DiscordInvite> COLUMN_USERS_PAST_OLYMPA_DISCORD_ID = new SQLColumn<DiscordInvite>("users_olympa_past_discord_id", "MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR)
+			.setUpdatable().allowNull();
+	static final SQLColumn<DiscordInvite> COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID = new SQLColumn<DiscordInvite>("users_olympa_leaver_discord_id", "MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR).setUpdatable()
+			.allowNull();
 	static final SQLColumn<DiscordInvite> COLUMN_DELETED = new SQLColumn<DiscordInvite>("deleted", "TINYINT(1) UNSIGNED NULL DEFAULT '0'", Types.BOOLEAN).setUpdatable();
 
 	static final List<SQLColumn<DiscordInvite>> COLUMNS = Arrays.asList(COLUMN_ID, COLUMN_OLYMPA_GUILD_ID, COLUMN_OLYMPA_DISCORD_ID, COLUMN_USES, COLUMN_USES_UNIQUE, COLUMN_USES_LEAVER, COLUMN_CREATED, COLUMN_CODE,
@@ -546,7 +549,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	private void sendNewJoinToAuthor(DiscordMember target) {
 		try {
-			if (!target.hasSetting(MemberSettings.ALLOW_NOTIF_INVITE_USED))
+			if (!target.hasSettingEnable(MemberSettings.ALLOW_NOTIF_INVITE_USED))
 				return;
 			DiscordMember dm = getAuthor();
 			User user = dm.getUser();
@@ -557,19 +560,15 @@ public class DiscordInvite extends DiscordSmallInvite {
 			List<DiscordInvite> invites = InvitesHandler.getByAuthor(discordGuild, dm);
 			if (invites.size() > 1) {
 				MemberInvites mInv = new MemberInvites(discordGuild, InvitesHandler.getByAuthor(discordGuild, dm));
-				int nbJoueurs = invites.stream().mapToInt(DiscordInvite::getUsesUnique).sum();
-				int nbJoueursLeave = invites.stream().mapToInt(DiscordInvite::getUsesLeaver).sum();
 				em.setDescription("Tu as déjà invité `" + mInv.getRealUses() + " membres`");
-				if (nbJoueursLeave != 0)
+				if (mInv.getRealLeaves() != 0)
 					em.appendDescription(" mais malheureusement, " + mInv.getRealLeaves() + " membres sont partis...");
 				else
 					em.appendDescription(".");
 				em.appendDescription("\n");
-				if (nbJoueurs > 3) {
-					int i = getPosOfAuthor(getDiscordGuild(), dm);
-					if (i != -1)
-						em.appendDescription("\nTop " + i + " sur `" + discordGuild.getName() + "`.");
-				}
+				int i = getPosOfAuthor(getDiscordGuild(), dm);
+				if (i != -1)
+					em.appendDescription("\nTop " + i);
 				List<String> msg = Arrays.asList("Merci à toi !", "Tu es sur la bonne voie !", "Encore encore", "Tu peux mieux faire", "Plus, plus, toujours plus",
 						"On aime voir ça !", "T'es le boss !", "Stonks", "Badass quoi");
 				em.appendDescription("\n" + msg.get(new Random().nextInt(msg.size())));

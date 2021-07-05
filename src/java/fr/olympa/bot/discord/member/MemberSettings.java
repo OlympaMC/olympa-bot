@@ -4,7 +4,7 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 
 public enum MemberSettings {
 
-	ALLOW_NOTIF_INVITE_USED("Notification lors de l'utilisation d'une invation");
+	ALLOW_NOTIF_INVITE_USED("Notification lors de l'utilisation d'une invation", true);
 
 	String name;
 	boolean def;

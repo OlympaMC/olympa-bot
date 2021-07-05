@@ -12,7 +12,6 @@ import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
 import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.common.provider.AccountProvider;
@@ -101,7 +100,7 @@ public class MemberListener extends ListenerAdapter {
 				em.setColor(OlympaBots.getInstance().getDiscord().getColor());
 				member.getUser().openPrivateChannel().queue(ch -> ch.sendMessageEmbeds(em.build()).queue(null, ErrorResponseException.ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 				discordMember.updateJoinTime(member.getTimeJoined().toEpochSecond());
-				DiscordSQL.updateMember(discordMember);
+				//				DiscordSQL.updateMember(discordMember);
 			}
 			if (discordMember.getOlympaId() != 0)
 				LinkSpigotBungee.Provider.link.getTask().runTaskLater(() -> {

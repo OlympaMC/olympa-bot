@@ -1,6 +1,5 @@
 package fr.olympa.bot.discord.commands;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -11,8 +10,6 @@ import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
-import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.bot.discord.sql.DiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -74,12 +71,12 @@ public class PermissionCommand extends DiscordCommand {
 			discordMember.addPermission(newPermission, (OlympaGuild) null);
 			embed.setTitle("Permission ajouté à " + memberTarget.getEffectiveName() + ".");
 		}
-		CacheDiscordSQL.update(discordMember);
-		try {
-			DiscordSQL.updateMember(discordMember);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		//		CacheDiscordSQL.update(discordMember);
+		//		try {
+		//			DiscordSQL.updateMember(discordMember);
+		//		} catch (SQLException e) {
+		//			e.printStackTrace();
+		//		}
 		embed.setDescription(newPermission.getName() + " (" + newPermission.getAllow().stream().map(dg -> dg.getOlympaGroup().getName()).collect(Collectors.joining(", ")) + ")");
 		channel.sendMessageEmbeds(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));
 	}

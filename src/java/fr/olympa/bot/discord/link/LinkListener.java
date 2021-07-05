@@ -7,7 +7,6 @@ import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.bot.discord.sql.DiscordSQL;
 import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -51,7 +50,7 @@ public class LinkListener extends ListenerAdapter {
 			}
 			OlympaPlayer olympaPlayer = new AccountProvider(player.getUniqueId()).get();
 			discordMember.setOlympaId(olympaPlayer.getId());
-			DiscordSQL.updateMember(discordMember);
+			//			DiscordSQL.updateMember(discordMember);
 			LinkHandler.updateGroups(member, olympaPlayer);
 			Member memberStaff = GuildHandler.getMember(DiscordGuildType.STAFF, user);
 			if (memberStaff != null)

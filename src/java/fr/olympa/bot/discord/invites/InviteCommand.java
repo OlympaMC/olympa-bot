@@ -94,14 +94,14 @@ public class InviteCommand extends DiscordCommand {
 				MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, dmTarget));
 				StringJoiner sj = new StringJoiner("\n");
 				Set<DiscordMember> users = mInv.getUsers();
-				sj.add(String.format("**Membre%s parrainé%s** (%d) %s", Utils.withOrWithoutS(users.size()), Utils.withOrWithoutS(users.size()), users.size(), users.stream().map(DiscordMember::getAsTag)
+				sj.add(String.format("**Membre%s parrainé%s** (%d) %s", Utils.withOrWithoutS(users.size()), Utils.withOrWithoutS(users.size()), users.size(), users.stream().map(DiscordMember::getAsMention)
 						.collect(Collectors.joining(", "))));
 				users = mInv.getLeavers();
 				sj.add(String.format("**Membre%s %s quitté%s** (%d) %s", Utils.withOrWithoutS(users.size()), users.size() > 1 ? "qui ont" : "qui a", Utils.withOrWithoutS(users.size()), users.size(),
-						users.stream().map(DiscordMember::getAsTag).collect(Collectors.joining(", "))));
+						users.stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", "))));
 				users = mInv.getUsersPast();
 				sj.add(String.format("**Membre%s qui %s revenu avec une autre invitation** (%d) %s", Utils.withOrWithoutS(users.size()), users.size() > 1 ? "sont" : "est",
-						users.size(), users.stream().map(DiscordMember::getAsTag).collect(Collectors.joining(", "))));
+						users.size(), users.stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", "))));
 				channel.sendMessage(sj.toString()).allowedMentions(Arrays.asList(MentionType.EMOTE)).queue();
 			} else if (label.equalsIgnoreCase("invitetop")) {
 				Map<Long, Integer> stats = DiscordInvite.getStats(opGuild);

@@ -138,6 +138,7 @@ public class OlympaDiscord {
 	}
 
 	public void disconnect() {
+		CacheDiscordSQL.cacheMembers.asMap().forEach((time, dm) -> dm.saveCacheToDb());
 		CacheDiscordSQL.cacheMembers.invalidateAll();
 		CacheDiscordSQL.cacheMembers.cleanUp();
 		for (Entry<MessageChannel, StringJoiner> e : DeployCommand.OUT.entrySet())
