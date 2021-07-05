@@ -243,8 +243,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 	public void update() throws SQLException {
 		//		if (isUpWithDb)
 		//			return;
-		table.updateAsync(this, Map.of(COLUMN_USES, getUses(), COLUMN_USERS_OLYMPA_DISCORD_ID, getUsersToDB(), COLUMN_USERS_PAST_OLYMPA_DISCORD_ID, getPastUsersToDB(), COLUMN_USES_LEAVER, getUsesLeaver(), COLUMN_DELETED, deleted,
-				COLUMN_USES_UNIQUE, usesUnique), null, null);
+		table.updateAsync(this, Map.of(COLUMN_USES, getUses(), COLUMN_USERS_OLYMPA_DISCORD_ID, getUsersToDB(), COLUMN_USERS_PAST_OLYMPA_DISCORD_ID, getPastUsersToDB(),
+				COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, getLeaveUsersToDB(), COLUMN_USES_LEAVER, usesLeaver, COLUMN_DELETED, deleted, COLUMN_USES_UNIQUE, usesUnique), null, null);
 		isUpWithDb = true;
 	}
 
@@ -325,6 +325,14 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	public boolean fixInvite() throws SQLException {
 		boolean fixed = false;
+		for (Long userId : usersIds) {
+			if (pastUsersIds.contains(userId))
+				continue;
+			if (pastUsersIds.add(userId)) {
+				fixed = true;
+				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addPastUsers from users");
+			}
+		}
 		Set<DiscordMember> toBeRemoved = new HashSet<>();
 		Guild guild = getDiscordGuild().getGuild();
 		for (Long userId : usersIds) {
@@ -399,31 +407,26 @@ public class DiscordInvite extends DiscordSmallInvite {
 					}
 				});
 		}
-		// Check if user can pretent to be leaver
-		//		for (Long userId : pastUsersIds) {
-		//			if (usersIds.contains(userId) || leaveUsersIds.contains(userId))
-		//				continue;
-		//			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
-		//			List<DiscordInvite> list = DiscordInvite.getLastAssociedInvites(discordMember, getDiscordGuild());
-		//			if (list.isEmpty()) {
-		//				fixed = true;
-		//				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
-		//				removeUser(discordMember);
-		//			}
-		//		}
-		//		for (Long userId : leaveUsersIds) {
-		//			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
-		//			if (discordMember == null)
-		//				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
-		//			User user = discordMember.getUser();
-		//			if (user == null || !guild.isMember(user)) {
-		//				toBeRemoved.add(discordMember);
-		//				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c user removeLeaver");
-		//				fixed = true;
-		//			}
-		//		}
+		//		 Check if user can pretent to be leaver
+		for (Long userId : pastUsersIds) {
+			if (usersIds.contains(userId) || leaveUsersIds.contains(userId))
+				continue;
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMemberByDiscordOlympaId(userId);
+			if (discordMember == null)
+				throw new UnsupportedOperationException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
+			User user = discordMember.getUser();
+			if (user == null || !guild.isMember(user)) {
+				List<DiscordInvite> list = DiscordInvite.getLastAssociedInvites(discordMember, getDiscordGuild());
+				if (list.isEmpty()) {
+					fixed = true;
+					LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
+					removeUser(discordMember);
+				}
+			}
+		}
 		//		toBeRemoved.forEach(dm -> removeLeaver(dm));
 		//		toBeRemoved.clear();
+		//
 		if (leaveUsersIds.size() != usesLeaver) {
 			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver (%d != %d)", leaveUsersIds.size(), usesLeaver);
 			usesLeaver = leaveUsersIds.size();
@@ -475,15 +478,15 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return listUsersIdsToListUsers(leaveUsersIds);
 	}
 
-	public Object getUsersToDB() {
+	private Object getUsersToDB() {
 		return listUsersToString(usersIds);
 	}
 
-	public Object getPastUsersToDB() {
+	private Object getPastUsersToDB() {
 		return listUsersToString(pastUsersIds);
 	}
 
-	public Object getLeaveUsersToDB() {
+	private Object getLeaveUsersToDB() {
 		return listUsersToString(leaveUsersIds);
 	}
 
