@@ -3,6 +3,7 @@ package fr.olympa.bot.discord.invites;
 import java.awt.Color;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.common.chat.ColorUtils;
@@ -17,6 +18,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message.MentionType;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
@@ -79,6 +82,16 @@ public class InvitesListener extends ListenerAdapter {
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
 					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 				}
+				if (opGuild.isSendingWelcomeMessage() && inviters.size() == 1)
+					try {
+						MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, CacheDiscordSQL.getDiscordMember(inviters.get(0))));
+						TextChannel defaultChannel = guild.getDefaultChannel();
+						if (defaultChannel != null)
+							defaultChannel.sendMessage(member.getAsMention() + " nous a rejoints grâce à " + inviters.get(0).getAsMention() + ". Son nombre totale d'inviations est de " + mInv.getRealUses())
+									.allowedMentions(Arrays.asList(MentionType.ROLE)).queue();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 			}, discordMember);
 			InvitesHandler.removeLeaverUser(discordMember, opGuild);
 		} catch (SQLException e) {

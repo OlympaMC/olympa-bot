@@ -41,7 +41,7 @@ public class OlympaGuild {
 	private String name;
 	private final long id, discordId;
 	private long logChannelId, staffChannelId, bugsChannelId, minecraftChannelId;
-	private boolean logVoice, logMsg, logUsername, logAttachment, logRoles, logEntries, logInsult, statusMessageEnabled;
+	private boolean logVoice, logMsg, logUsername, logAttachment, logRoles, logEntries, logInsult, statusMessageEnabled, sendWelcomeMessage;
 	private DiscordGuildType type;
 	private List<Long> excludeChannelsIds;
 
@@ -69,7 +69,8 @@ public class OlympaGuild {
 				resultSet.getLong("bugs_channel_id"),
 				resultSet.getLong("minecraft_channel_id"),
 				listExcludeChIds,
-				resultSet.getInt("guild_type"));
+				resultSet.getInt("guild_type"),
+				resultSet.getInt("send_welcome_message"));
 	}
 
 	public long getStaffChannelId() {
@@ -82,7 +83,7 @@ public class OlympaGuild {
 
 	public OlympaGuild(long id, long discordId, String guildName, int logVoice, int logMsg, int logUsername, int logAttachment, int logRoles, int logEntries, int logInsult, int statusMessageEnabled,
 			long logChannelId, long staffChannelId, long bugsChannelId, long minecraftChannelId,
-			List<Long> excludeChannelsIds, int type) {
+			List<Long> excludeChannelsIds, int type, int sendWelcomeMessage) {
 		this.id = id;
 		this.discordId = discordId;
 		name = guildName;
@@ -94,6 +95,7 @@ public class OlympaGuild {
 		this.logEntries = logEntries == 1;
 		this.logInsult = logInsult == 1;
 		this.statusMessageEnabled = statusMessageEnabled == 1;
+		this.sendWelcomeMessage = sendWelcomeMessage == 1;
 		this.logChannelId = logChannelId;
 		this.staffChannelId = staffChannelId;
 		this.bugsChannelId = bugsChannelId;
@@ -258,5 +260,10 @@ public class OlympaGuild {
 
 	public void cacheIncomplete() {
 		isCacheComplete = false;
+	}
+
+	// TODO implement
+	public boolean isSendingWelcomeMessage() {
+		return sendWelcomeMessage;
 	}
 }

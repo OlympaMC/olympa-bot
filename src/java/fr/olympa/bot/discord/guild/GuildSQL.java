@@ -54,14 +54,15 @@ public class GuildSQL {
 		try (PreparedStatement statement = selectGuildsIdStatement.createStatement()) {
 			List<OlympaGuild> olympaGuilds = new ArrayList<>();
 			ResultSet resultSet = selectGuildsIdStatement.executeQuery(statement);
-			while (resultSet.next()) olympaGuilds.add(OlympaGuild.createObject(resultSet));
+			while (resultSet.next())
+				olympaGuilds.add(OlympaGuild.createObject(resultSet));
 			resultSet.close();
 			return olympaGuilds;
 		}
 	}
 
 	private static OlympaStatement updateGuildStatement = new OlympaStatement(StatementType.UPDATE, tableGuild, "id", new String[] {
-			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_insult", "status_message_enabled",
+			"guild_name", "log_voice", "log_msg", "log_username", "log_attachment", "log_roles", "log_entries", "log_insult", "status_message_enabled", "send_welcome_message",
 			"log_channel_id", "staff_channel_id", "bugs_channel_id", "minecraft_channel_id", "exclude_channels_ids",
 			"guild_type" });
 
@@ -77,6 +78,7 @@ public class GuildSQL {
 			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogEntries()));
 			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isLogInsult()));
 			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isStatusMessageEnabled()));
+			statement.setLong(i++, Utils.booleanToBinary(olympaGuild.isSendingWelcomeMessage()));
 			if (olympaGuild.getLogChannelId() != 0)
 				statement.setLong(i++, olympaGuild.getLogChannelId());
 			else
