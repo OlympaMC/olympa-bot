@@ -64,13 +64,13 @@ public class DiscordMember {
 
 	long id;
 	final long discordId;
-	ObservableLong olympaId = new ObservableLong(-1);
+	ObservableLong olympaId = new ObservableLong(0);
 	String name;
 	String tag;
 	ObservableDouble xp = new ObservableDouble(0);
-	ObservableLong lastSeen = new ObservableLong(-1);
-	ObservableLong joinTime = new ObservableLong(-1);
-	ObservableLong leaveTime = new ObservableLong(-1);
+	ObservableLong lastSeen = new ObservableLong(0);
+	ObservableLong joinTime = new ObservableLong(0);
+	ObservableLong leaveTime = new ObservableLong(0);
 	ObservableMap<Long, String> oldNames = new ObservableMap<>(new TreeMap<>(Comparator.comparing(Long::longValue).reversed()));
 	ObservableMap<DiscordPermission, Long> permissionsOlympaDiscordGuildId = new ObservableMap<>(new HashMap<>());
 	ObservableMap<MemberSettings, ObservableBoolean> settings = new ObservableMap<>(new HashMap<>());
@@ -103,19 +103,25 @@ public class DiscordMember {
 		removeTask();
 		if (!updateQueueSQL.isEmpty()) {
 			Map<SQLColumn<DiscordMember>, Object> toRemoved = new HashMap<>(updateQueueSQL);
-			OlympaBungee.getInstance().sendMessage("&7[DEBUG] DiscordMember de %s a été sauvegardé en bdd avec %d modifications", getAsTag(), updateQueueSQL.size());
-			table.updateAsync(this, updateQueueSQL, () -> toRemoved.forEach((key, value) -> updateQueueSQL.remove(key, value)), null);
+			OlympaBungee.getInstance().sendMessage("&7[DEBUG] DiscordMember de %s a été sauvegardé en bdd les modifications %d ", getAsTag(),
+					updateQueueSQL.keySet().stream().map(SQLColumn::getCleanName).collect(Collectors.joining(", ")));
+			try {
+				table.update(this, updateQueueSQL);
+				toRemoved.forEach((key, value) -> updateQueueSQL.remove(key, value));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 			return true;
 		}
 		return false;
 	}
 
 	public void obverse() {
-		olympaId.observe("datas", () -> addUpdateQueue(COLUMN_OLYMPA_ID, olympaId.get() == -1 ? null : olympaId.get()));
+		olympaId.observe("datas", () -> addUpdateQueue(COLUMN_OLYMPA_ID, olympaId.get() == 0 ? null : olympaId.get()));
 		xp.observe("datas", () -> addUpdateQueue(COLUMN_XP, xp.get()));
-		lastSeen.observe("datas", () -> addUpdateQueue(COLUMN_LAST_SEEN, lastSeen.get() == -1 ? null : new Timestamp(lastSeen.get() * 1000L)));
-		joinTime.observe("datas", () -> addUpdateQueue(COLUMN_JOIN_DATE, joinTime.get() == -1 ? null : new Date(joinTime.get() * 1000L)));
-		leaveTime.observe("datas", () -> addUpdateQueue(COLUMN_LEAVE_DATE, leaveTime.get() == -1 ? null : new Date(leaveTime.get() * 1000L)));
+		lastSeen.observe("datas", () -> addUpdateQueue(COLUMN_LAST_SEEN, lastSeen.get() == 0 ? null : new Timestamp(lastSeen.get() * 1000L)));
+		joinTime.observe("datas", () -> addUpdateQueue(COLUMN_JOIN_DATE, joinTime.get() == 0 ? null : new Date(joinTime.get() * 1000L)));
+		leaveTime.observe("datas", () -> addUpdateQueue(COLUMN_LEAVE_DATE, leaveTime.get() == 0 ? null : new Date(leaveTime.get() * 1000L)));
 		leaveTime.observe("datas", () -> addUpdateQueue(COLUMN_OLD_NAMES, oldNames.toJson()));
 		leaveTime.observe("datas", () -> addUpdateQueue(COLUMN_PERMISSIONS, permissionsOlympaDiscordGuildId.toJson()));
 		leaveTime.observe("datas", () -> addUpdateQueue(COLUMN_SETTINGS, settings.toJson()));

@@ -89,7 +89,7 @@ public class DiscordMessage {
 
 	public String getLogJumpUrl() {
 		OlympaGuild opGuild = getOlympaGuild();
-		return "[Jump](" + new JumpURL(opGuild.getDiscordId(), opGuild.getLogChannel().getIdLong(), logMessageId).get() + ")";
+		return new JumpURL(opGuild.getDiscordId(), opGuild.getLogChannel().getIdLong(), logMessageId).getJumpLabel();
 	}
 
 	public long getOlympaDiscordAuthorId() {

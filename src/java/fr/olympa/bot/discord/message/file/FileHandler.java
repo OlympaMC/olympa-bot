@@ -53,9 +53,15 @@ public class FileHandler {
 	}
 
 	public static String addFile(Attachment att, Message message) {
-		String[] fileNameAndExt = att.getFileName().split("\\.");
-		StringBuilder sb = new StringBuilder(fileNameAndExt[0]);
-		String ext = fileNameAndExt.length > 1 ? "." + fileNameAndExt[1] : "";
+		StringBuilder sb = new StringBuilder();
+		String fileName = att.getFileName();
+		int index = fileName.lastIndexOf('.') + 1;
+		String ext = null;
+		if (index == 0 || index == fileName.length()) {
+			ext = fileName.substring(index);
+			fileName = fileName.substring(0, index);
+		}
+		sb.append(fileName);
 		File attFile;
 		int i = 0;
 		do {
@@ -66,7 +72,7 @@ public class FileHandler {
 					sb = new StringBuilder(sb.toString().replace("\\(\\d\\)$", "(" + i + ")"));
 				else
 					sb.append(" (" + i + ")");
-			attFile = new File(getFolder(), sb.toString() + ext);
+			attFile = new File(getFolder(), sb.toString() + ext != null ? ext : "");
 			i++;
 		} while (attFile.exists() && i < 1000);
 
