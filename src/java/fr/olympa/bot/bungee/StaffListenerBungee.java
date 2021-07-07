@@ -2,6 +2,7 @@ package fr.olympa.bot.bungee;
 
 import java.awt.Color;
 import java.sql.SQLException;
+import java.util.List;
 
 import fr.olympa.api.common.player.OlympaPlayer;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -111,8 +112,10 @@ public class StaffListenerBungee implements Listener {
 				e.printStackTrace();
 				return;
 			}
-			if (member == null)
-				member = guild.getMembersByEffectiveName(olympaPlayer.getName(), true).get(0);
+			if (member == null) {
+				List<Member> members = guild.getMembersByEffectiveName(olympaPlayer.getName(), true);
+				member = members.isEmpty() ? null : members.get(0);
+			}
 			if (member != null)
 				WebHookHandler.send(message, channelStaffDiscord, member);
 		} else
