@@ -164,8 +164,8 @@ public class DiscordInvite extends DiscordSmallInvite {
 	protected static List<DiscordInvite> getLastAssociedInvites(DiscordMember dm, OlympaGuild opGuild) {
 		List<DiscordInvite> dis = new ArrayList<>();
 		OlympaStatement getUsers = new OlympaStatement(
-				"SELECT * FROM " + table.getName() + " WHERE (" + COLUMN_OLYMPA_GUILD_ID.getCleanName() + " REGEXP ? OR " + COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID.getCleanName() + " REGEXP ?) AND " + COLUMN_OLYMPA_GUILD_ID.getName()
-						+ " = ?");
+				"SELECT * FROM " + table.getName() + " WHERE (" + COLUMN_OLYMPA_GUILD_ID.getCleanName() + " REGEXP ? OR " + COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID.getCleanName() + " REGEXP ?) AND "
+						+ COLUMN_OLYMPA_GUILD_ID.getName() + " = ?");
 		try (PreparedStatement statement = getUsers.createStatement()) {
 			int i = 1;
 			String format = String.format("\\b(%d)\\b", dm.getId());
@@ -257,7 +257,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			throw new IllegalAccessError("Unable to update deleted DiscordInvite");
 		int inviteUses = invite.getUses();
 		if (inviteUses != uses) {
-			LinkSpigotBungee.Provider.link.sendMessage("&e[DISCORD INVITE] &cL'invitation %s par %s n'était pas à jour dans la bdd ...", invite.getCode(), invite.getInviter().getAsTag());
+			LinkSpigotBungee.getInstance().sendMessage("&e[DISCORD INVITE] &cL'invitation %s par %s n'était pas à jour dans la bdd ...", invite.getCode(), invite.getInviter().getAsTag());
 			isUpWithDb = false;
 			uses = invite.getUses();
 		}

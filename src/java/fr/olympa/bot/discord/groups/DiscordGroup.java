@@ -26,6 +26,7 @@ public enum DiscordGroup {
 	RESP_STAFF(OlympaGroup.RESP_STAFF, 600766523354644491L, 600770102006120452L, null, false),
 	RESP_BUILDER(OlympaGroup.RESP_BUILDER, 570320569443155983L, 560935286289203202L, null, false),
 	RESP_ANIMATION(OlympaGroup.RESP_ANIMATION, 606158641355292723L, 606162089903521827L, null, false),
+	RESP_COM(OlympaGroup.RESP_COM, 861676968449802250L, 861677576799256576L, null, false),
 	MODP(OlympaGroup.MODP, 558322952009941012L, 558179276973932546L, null, false),
 	MOD(OlympaGroup.MOD, 558322952706326548L, 545830186738909195L, "Erreur liée aux sanctions automatiques uniquement. Si tu as été sanctionné par un membre du staff, passe par le forum.", true),
 	ASSISTANT(OlympaGroup.ASSISTANT, 558322953314631690L, 558168138848403456L, "Question ou autre demande. Il saura t'aider pour toute autre situation.", true),
@@ -53,7 +54,7 @@ public enum DiscordGroup {
 				.filter(dg -> Arrays.stream(DiscordGroup.values()).anyMatch(dg2 -> !dg2.name().equals(dg.name()) && (dg2.idStaff != 0 && dg2.idStaff == dg.idStaff || dg2.idPublic != 0 && dg2.idPublic == dg.idPublic)))
 				.map(DiscordGroup::name).collect(Collectors.joining(", "));
 		if (badParameter != null && !badParameter.isEmpty())
-			LinkSpigotBungee.Provider.link.sendMessage("&4CRITICAL ERROR &cL'enum DiscordGroup a mal été configurer, en effet, les groupes %s ont un id discord qui est utiliser plusieurs fois.", badParameter);
+			LinkSpigotBungee.getInstance().sendMessage("&4CRITICAL ERROR &cL'enum DiscordGroup a mal été configurer, en effet, les groupes %s ont un id discord qui est utiliser plusieurs fois.", badParameter);
 
 	}
 

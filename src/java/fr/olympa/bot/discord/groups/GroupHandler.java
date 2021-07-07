@@ -33,10 +33,8 @@ public class GroupHandler {
 					Set<User> membersRole = guild.getMembersWithRoles(role).stream().map(Member::getUser).filter(m -> !m.isBot()).collect(Collectors.toSet());
 					if (!membersRole.isEmpty()) {
 						String membersRoleS = membersRole.stream().map(User::getAsTag).collect(Collectors.joining("\n", "```", "```"));
-						if (!membersRoleS.isEmpty()) {
-							staff.addAll(membersRole);
-							embed.addField(role.getName() + " (" + membersRole.size() + ")", membersRoleS, true);
-						}
+						staff.addAll(membersRole);
+						embed.addField(role.getName() + " (" + membersRole.size() + ")", membersRoleS, true);
 					}
 				}
 			}
