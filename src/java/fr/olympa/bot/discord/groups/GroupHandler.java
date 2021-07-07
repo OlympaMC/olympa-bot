@@ -59,7 +59,7 @@ public class GroupHandler {
 			//				}
 			//			}
 			//			sj.add("Le staff est composé de " + staff.size() + " membres.");
-			msg.editMessage("").setEmbeds(embed.build()).allowedMentions(Arrays.asList(MentionType.EMOTE)).queue();
+			msg.editMessageEmbeds(embed.build()).allowedMentions(Arrays.asList(MentionType.EMOTE)).queue();
 		});
 	}
 
