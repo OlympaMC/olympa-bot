@@ -1,6 +1,7 @@
 package fr.olympa.bot.discord.groups;
 
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message.MentionType;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -57,7 +59,7 @@ public class GroupHandler {
 			//				}
 			//			}
 			//			sj.add("Le staff est composé de " + staff.size() + " membres.");
-			//			msg.editMessage(sj.toString()).allowedMentions(Arrays.asList(MentionType.EMOTE)).queue();
+			msg.editMessage("").setEmbeds(embed.build()).allowedMentions(Arrays.asList(MentionType.EMOTE)).queue();
 		});
 	}
 
