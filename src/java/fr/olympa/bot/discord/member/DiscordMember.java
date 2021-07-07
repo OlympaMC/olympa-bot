@@ -103,7 +103,7 @@ public class DiscordMember {
 		removeTask();
 		if (!updateQueueSQL.isEmpty()) {
 			Map<SQLColumn<DiscordMember>, Object> toRemoved = new HashMap<>(updateQueueSQL);
-			OlympaBungee.getInstance().sendMessage("&7[DEBUG] DiscordMember de %s a été sauvegardé en bdd les modifications %d ", getAsTag(),
+			OlympaBungee.getInstance().sendMessage("&7[DEBUG] DiscordMember de %s a été sauvegardé en bdd les modifications %s", getAsTag(),
 					updateQueueSQL.keySet().stream().map(SQLColumn::getCleanName).collect(Collectors.joining(", ")));
 			try {
 				table.update(this, updateQueueSQL);
