@@ -5,12 +5,14 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.User;
 
@@ -42,7 +44,7 @@ public class InvitesHandler {
 		};
 	}
 
-	public static void detectNewInvite(OlympaGuild opGuild, Consumer<List<User>> inviter, DiscordMember invited) throws SQLException {
+	public static void detectNewInvite(OlympaGuild opGuild, Consumer<List<User>> inviter, DiscordMember memberInvited, BiConsumer<MemberInvites, DiscordMember> memberWhoInviteScore) throws SQLException {
 		Collection<DiscordSmallInvite> invites = DiscordInvite.getAllSmalls(opGuild);
 		opGuild.getGuild().retrieveInvites().queue(invs -> {
 			//			Map<Invite, DiscordInvite> discordInvitesMap = new HashMap<>();
@@ -54,28 +56,27 @@ public class InvitesHandler {
 			//				}
 			//			}
 			List<Invite> discordInvites = invites.stream()
-					.map(dsi -> {
-						return invs.stream().filter(iv -> dsi.getUses() == iv.getUses() - 1 && dsi.getCode().equals(iv.getCode()))
-								.findFirst()
-								.orElse(null);
-					})
-					.filter(di -> di != null)
-					.collect(Collectors.toList());
+					.map(dsi -> invs.stream().filter(iv -> dsi.getUses() == iv.getUses() - 1 && dsi.getCode().equals(iv.getCode())).findFirst().orElse(null))
+					.filter(di -> di != null).collect(Collectors.toList());
 			inviter.accept(discordInvites.stream().map(Invite::getInviter).collect(Collectors.toList()));
 			if (discordInvites.size() != 1) {
-				LinkSpigotBungee.Provider.link.sendMessage("&e[DISCORD INVITE] &cImpossible de déterminer comment %s est arrivé là, il y a %d possibilités ...", invited.getName(), discordInvites.size());
+				LinkSpigotBungee.getInstance().sendMessage("&e[DISCORD INVITE] &cImpossible de déterminer comment %s est arrivé là, il y a %d possibilités ...", memberInvited.getName(), discordInvites.size());
 				init(opGuild);
 				return;
 			}
 			Invite invite = discordInvites.get(0);
 			DiscordInvite discordInvite = get(invite.getCode()).expand();
-			discordInvite.addUser(invited);
+			discordInvite.addUser(memberInvited);
 			try {
 				discordInvite.update();
+				addInvite(discordInvite);
+				if (memberWhoInviteScore != null) {
+					DiscordMember authorMember = CacheDiscordSQL.getDiscordMember(invite.getInviter());
+					memberWhoInviteScore.accept(new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, authorMember)), authorMember);
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			addInvite(discordInvite);
 		});
 	}
 

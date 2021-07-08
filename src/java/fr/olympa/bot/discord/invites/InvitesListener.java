@@ -82,18 +82,15 @@ public class InvitesListener extends ListenerAdapter {
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
 					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
 				}
-				if (opGuild.isSendingWelcomeMessage() && inviters.size() == 1)
-					try {
-						MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, CacheDiscordSQL.getDiscordMember(inviters.get(0))));
-						TextChannel defaultChannel = guild.getDefaultChannel();
-						if (defaultChannel != null)
-							defaultChannel.sendMessage(String.format("%s rejoint %s suite à l'invitation de %s, qui comptabilise maintenant **%d** invitation%s.",
-									member.getAsMention(), guild.getName(), inviters.get(0).getAsMention(), mInv.getRealUses(), Utils.withOrWithoutS(mInv.getRealUses())))
-									.allowedMentions(Arrays.asList(MentionType.ROLE)).queue();
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-			}, discordMember);
+			}, discordMember, (memberWhoInviteScore, authorMember) -> {
+				if (opGuild.isSendingWelcomeMessage()) {
+					TextChannel defaultChannel = guild.getDefaultChannel();
+					if (defaultChannel != null)
+						defaultChannel.sendMessage(String.format("%s rejoint %s suite à l'invitation de %s, qui comptabilise maintenant **%d** invitation%s.",
+								member.getAsMention(), guild.getName(), authorMember.getAsMention(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
+								.allowedMentions(Arrays.asList(MentionType.ROLE)).queue();
+				}
+			});
 			InvitesHandler.removeLeaverUser(discordMember, opGuild);
 		} catch (SQLException e) {
 			e.printStackTrace();
