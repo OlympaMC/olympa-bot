@@ -72,7 +72,7 @@ public class FileHandler {
 					sb = new StringBuilder(sb.toString().replace("\\(\\d\\)$", "(" + i + ")"));
 				else
 					sb.append(" (" + i + ")");
-			attFile = new File(getFolder(), sb.toString() + ext != null ? ext : "");
+			attFile = new File(getFolder(), sb.toString() + (ext != null ? ext : ""));
 			i++;
 		} while (attFile.exists() && i < 1000);
 
