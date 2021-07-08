@@ -58,7 +58,7 @@ public class DiscordMember {
 	static final SQLColumn<DiscordMember> COLUMN_PERMISSIONS = new SQLColumn<DiscordMember>("permissions", "TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR).setUpdatable().allowNull();
 	static final SQLColumn<DiscordMember> COLUMN_SETTINGS = new SQLColumn<DiscordMember>("settings", "MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci'", Types.VARCHAR).setUpdatable().allowNull();
 
-	static final List<SQLColumn<DiscordMember>> COLUMNS = Arrays.asList(COLUMN_ID, COLUMN_DISCORD_ID, COLUMN_DISCORD_NAME, COLUMN_DISCORD_TAG, COLUMN_OLYMPA_ID, COLUMN_OLYMPA_ID, COLUMN_XP, COLUMN_LAST_SEEN,
+	static final List<SQLColumn<DiscordMember>> COLUMNS = Arrays.asList(COLUMN_ID, COLUMN_DISCORD_ID, COLUMN_DISCORD_NAME, COLUMN_DISCORD_TAG, COLUMN_OLYMPA_ID, COLUMN_XP,
 			COLUMN_LAST_SEEN, COLUMN_JOIN_DATE, COLUMN_LEAVE_DATE, COLUMN_LEAVE_DATE, COLUMN_OLD_NAMES, COLUMN_PERMISSIONS, COLUMN_SETTINGS);
 	static SQLTable<DiscordMember> table = new SQLTable<>("discord.members", COLUMNS, DiscordMember::createObject);
 
@@ -91,11 +91,11 @@ public class DiscordMember {
 		return !updateQueueSQL.isEmpty();
 	}
 
-	public void addTask() {
+	private void addTask() {
 		NativeTask.getInstance().runTaskLater(getName() + "_" + id, () -> saveCacheToDb(), 10, TimeUnit.SECONDS);
 	}
 
-	public void removeTask() {
+	private void removeTask() {
 		NativeTask.getInstance().cancelTaskByName(getName() + "_" + id);
 	}
 
