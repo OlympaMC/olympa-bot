@@ -97,10 +97,9 @@ public class TeamspeakCommand extends BungeeCommand {
 
 	public static void sendTeamspeakIp(ProxiedPlayer player) {
 		TextComponent message = new TextComponent(TextComponent.fromLegacyText(ColorUtils.color(Prefix.DEFAULT_GOOD + "&aTeamspeak : &2")));
-
 		TextComponent ip = new TextComponent(TextComponent.fromLegacyText(ColorUtils.color("&2ts.olympa.fr")));
-		ip.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ColorUtils.color("&2Clique pour sur le lien pour te connecter automatique"))));
-		ip.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://teamspeak.olympa.fr"));
+		ip.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ColorUtils.color("&2Clique pour copier l'ip"))));
+		ip.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "ts.olympa.fr"));
 		message.addExtra(ip);
 		player.sendMessage(message);
 	}

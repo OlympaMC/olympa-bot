@@ -10,10 +10,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 
 import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.message.DiscordMessage;
 import fr.olympa.bot.discord.message.SQLMessage;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
@@ -44,12 +46,15 @@ public class CacheDiscordSQL {
 		cacheMembers.put(discordMember.getDiscordId(), discordMember);
 	}
 
-	public static DiscordMember getDiscordMember(User user) throws SQLException {
-		return getDiscordMember(user.getIdLong());
+	public static void updateNameOrTagIfNeeded(User user, DiscordMember discordMember) throws SQLException {
+		if (user == null)
+			user = OlympaBots.getInstance().getDiscord().getJda().getUserById(discordMember.getDiscordId());
+		if (user != null)
+			discordMember.updateName(user);
 	}
 
 	public static DiscordMember getDiscordMemberAndCreateIfNotExist(User user) throws SQLException {
-		DiscordMember discordMember = getDiscordMember(user.getIdLong());
+		DiscordMember discordMember = getDiscordMember(user);
 		if (discordMember == null) {
 			discordMember = new DiscordMember(user);
 			//			discordMember.insert();
@@ -59,19 +64,27 @@ public class CacheDiscordSQL {
 		return discordMember;
 	}
 
-	public static DiscordMember getDiscordMemberWithoutCaching(long userDiscordId) throws SQLException {
-		DiscordMember discordMember = cacheMembers.asMap().get(userDiscordId);
+	public static DiscordMember getDiscordMemberWithoutCaching(User user) throws SQLException {
+		DiscordMember discordMember = cacheMembers.asMap().get(user.getIdLong());
 		if (discordMember == null)
-			discordMember = DiscordSQL.selectMemberByDiscordId(userDiscordId);
+			discordMember = DiscordSQL.selectMemberByDiscordId(user.getIdLong());
+		if (discordMember != null)
+			updateNameOrTagIfNeeded(user, discordMember);
 		return discordMember;
 	}
 
-	public static DiscordMember getDiscordMember(long userDiscordId) throws SQLException {
-		DiscordMember discordMember = cacheMembers.asMap().get(userDiscordId);
+	public static DiscordMember getDiscordMember(Member member) throws SQLException {
+		return getDiscordMember(member.getUser());
+	}
+
+	public static DiscordMember getDiscordMember(User user) throws SQLException {
+		DiscordMember discordMember = cacheMembers.asMap().get(user.getIdLong());
 		if (discordMember == null) {
-			discordMember = DiscordSQL.selectMemberByDiscordId(userDiscordId);
-			if (discordMember != null)
-				setDiscordMember(userDiscordId, discordMember);
+			discordMember = DiscordSQL.selectMemberByDiscordId(user.getIdLong());
+			if (discordMember != null) {
+				updateNameOrTagIfNeeded(user, discordMember);
+				setDiscordMember(user.getIdLong(), discordMember);
+			}
 		}
 		return discordMember;
 	}
@@ -80,8 +93,10 @@ public class CacheDiscordSQL {
 		DiscordMember discordMember = cacheMembers.asMap().values().stream().filter(dm -> dm.getId() == discordOlympaId).findFirst().orElse(null);
 		if (discordMember == null) {
 			discordMember = DiscordSQL.selectMemberByDiscordOlympaId(discordOlympaId);
-			if (discordMember != null)
+			if (discordMember != null) {
+				updateNameOrTagIfNeeded(null, discordMember);
 				setDiscordMember(discordMember.getDiscordId(), discordMember);
+			}
 		}
 		return discordMember;
 	}
@@ -90,8 +105,10 @@ public class CacheDiscordSQL {
 		DiscordMember discordMember = cacheMembers.asMap().values().stream().filter(dm -> dm.getOlympaId() == olympaId).findFirst().orElse(null);
 		if (discordMember == null) {
 			discordMember = DiscordSQL.selectMemberByOlympaId(olympaId);
-			if (discordMember != null)
+			if (discordMember != null) {
+				updateNameOrTagIfNeeded(null, discordMember);
 				setDiscordMember(discordMember.getDiscordId(), discordMember);
+			}
 		}
 		return discordMember;
 	}

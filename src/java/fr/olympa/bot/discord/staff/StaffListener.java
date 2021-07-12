@@ -59,7 +59,7 @@ public class StaffListener extends ListenerAdapter {
 			return;
 		DiscordMember dm;
 		try {
-			dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
+			dm = CacheDiscordSQL.getDiscordMember(member.getUser());
 			OlympaPlayer olympaPlayer;
 			if (dm.getOlympaId() == 0)
 				olympaPlayer = AccountProvider.getter().getSQL().getPlayer(member.getEffectiveName());

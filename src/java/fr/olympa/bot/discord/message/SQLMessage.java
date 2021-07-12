@@ -60,7 +60,7 @@ public class SQLMessage extends SQLClass {
 	public static void updateMessageContent(DiscordMessage discordMessage) throws SQLException {
 		String contents;
 		if (!discordMessage.isEmpty())
-			contents = new Gson().toJson(discordMessage.getContents());
+			contents = discordMessage.getContentsToJson();
 		else
 			contents = null;
 		try (PreparedStatement statement = updateMessageStatement.createStatement()) {

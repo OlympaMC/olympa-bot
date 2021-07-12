@@ -34,31 +34,28 @@ public class SanctionHandler {
 	public static void addSanction(Member target, User author, String reason, DiscordSanctionType type, Long expire) throws SQLException {
 		Guild guild = target.getGuild();
 		OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-		DiscordMember authorMember = CacheDiscordSQL.getDiscordMember(author.getIdLong());
-		DiscordMember targetMember = CacheDiscordSQL.getDiscordMember(target.getIdLong());
+		DiscordMember authorMember = CacheDiscordSQL.getDiscordMember(author);
+		DiscordMember targetMember = CacheDiscordSQL.getDiscordMember(target);
 		DiscordSanction discordSanction = new DiscordSanction(targetMember.getId(), authorMember.getId(), type, reason, expire);
 		EmbedBuilder em = new EmbedBuilder();
 		em.setTitle(type.getName());
 		em.setDescription(target.getAsMention() + " a été " + type.getNameLowerCase() + " par " + author.getAsMention() + " pour **" + reason + "**");
-		if (expire != null) {
+		if (expire != null)
 			em.appendDescription(" pendant **" + Utils.timestampToDuration(expire) + "**");
-		}
 		em.appendDescription(".");
 		olympaGuild.getLogChannel().sendMessage(em.build()).queue();
 
 		if (discordSanction.getType() == DiscordSanctionType.MUTE) {
-			if (expire != null) {
+			if (expire != null)
 				new Timer().schedule(new TimerTask() {
 					@Override
 					public void run() {
 						guild.removeRoleFromMember(target, DiscordGroup.MUTED.getRole(guild)).queue();
 					}
 				}, new Date(expire * 1000L));
-			}
 			guild.addRoleToMember(target, DiscordGroup.MUTED.getRole(guild)).queue();
-		} else {
+		} else
 			guild.kick(target, "Ban par " + author.getAsTag() + " pour " + reason).queue();
-		}
 	}
 
 	public static void addSanctionFromMsg(Member target, Message message, DiscordSanctionType type) throws SQLException {

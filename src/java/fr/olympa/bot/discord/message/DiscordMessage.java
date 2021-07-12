@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -102,10 +103,14 @@ public class DiscordMessage {
 
 	public void addEditedMessage(Message message, Map<Attachment, String> attachments) {
 		getContents().add(new MessageContent(message, this, attachments));
+		while (isFullContents())
+			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", new Gson().toJson(contents.remove(contents.size() / 2)));
 	}
 
 	public void addEditedMessage(Message message) {
 		getContents().add(new MessageContent(message, this));
+		while (isFullContents())
+			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", new Gson().toJson(contents.remove(contents.size() / 2)));
 	}
 
 	public OlympaGuild getOlympaGuild() {
@@ -137,6 +142,14 @@ public class DiscordMessage {
 		if (contents == null)
 			contents = new ArrayList<>();
 		return contents;
+	}
+
+	public String getContentsToJson() {
+		return new Gson().toJson(getContents());
+	}
+
+	public boolean isFullContents() {
+		return getContentsToJson().length() > 65_000;
 	}
 
 	public boolean isDeleted() {

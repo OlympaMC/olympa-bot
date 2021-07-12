@@ -20,7 +20,6 @@ public class LinkBungeeListener implements Listener {
 
 	@EventHandler
 	public void onOlympaGroupChange(BungeeOlympaGroupChangeEvent event) {
-		System.out.println("update ok");
 		OlympaPlayer olympaPlayer = event.getOlympaPlayer();
 		//		ChangeType state = event.getState();
 		//		switch (state) {

@@ -60,7 +60,7 @@ public class InvitesListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		OlympaGuild opGuild = GuildHandler.getOlympaGuild(guild);
 		try {
-			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member.getIdLong());
+			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member);
 			User user = member.getUser();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			EmbedBuilder embed = LogsHandler.get("✅ Un nouveau joueur est arrivé !", null, member.getAsMention() + " est le **" + DiscordUtils.getMembersSize(guild) + "ème** a rejoindre le discord.", member);
@@ -86,8 +86,8 @@ public class InvitesListener extends ListenerAdapter {
 				if (opGuild.isSendingWelcomeMessage()) {
 					TextChannel defaultChannel = guild.getDefaultChannel();
 					if (defaultChannel != null)
-						defaultChannel.sendMessage(String.format("%s rejoint %s suite à l'invitation de %s, qui comptabilise maintenant **%d** invitation%s.",
-								member.getAsMention(), guild.getName(), authorMember.getAsMention(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
+						defaultChannel.sendMessage(String.format("`%s` rejoint %s suite à l'invitation de `%s`, qui comptabilise maintenant **%d** invitation%s.",
+								member.getUser().getAsTag(), guild.getName(), authorMember.getAsTag(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
 								.allowedMentions(Arrays.asList(MentionType.ROLE)).queue();
 				}
 			});
@@ -105,7 +105,7 @@ public class InvitesListener extends ListenerAdapter {
 		OlympaGuild opGuild = GuildHandler.getOlympaGuild(event.getGuild());
 		DiscordMember dm;
 		try {
-			dm = CacheDiscordSQL.getDiscordMember(member.getIdLong());
+			dm = CacheDiscordSQL.getDiscordMember(member);
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
 			String name;
