@@ -25,7 +25,7 @@ public class CacheDiscordSQL {
 	}
 
 	// <discordId, DiscordMember>
-	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().recordStats().expireAfterAccess(30, TimeUnit.MINUTES).maximumSize(500).removalListener(notification -> {
+	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().recordStats().maximumSize(500).removalListener(notification -> {
 		if (notification.getCause() == RemovalCause.REPLACED)
 			return;
 		DiscordMember member = (DiscordMember) notification.getValue();

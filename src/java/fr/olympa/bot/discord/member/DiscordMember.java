@@ -83,7 +83,7 @@ public class DiscordMember {
 
 	public void addUpdateQueue(SQLColumn<DiscordMember> column, Object newValue) {
 		updateQueueSQL.put(column, newValue);
-		if (!column.equals(COLUMN_LAST_SEEN))
+		if (!COLUMN_LAST_SEEN.equals(column))
 			addTask();
 	}
 
