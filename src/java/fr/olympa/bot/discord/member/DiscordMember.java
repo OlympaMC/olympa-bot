@@ -281,7 +281,7 @@ public class DiscordMember {
 		}
 		if (tag == null || !newTag.equals(tag)) {
 			tag = newTag;
-			addUpdateQueue(COLUMN_DISCORD_TAG, newName);
+			addUpdateQueue(COLUMN_DISCORD_TAG, newTag);
 		}
 	}
 
