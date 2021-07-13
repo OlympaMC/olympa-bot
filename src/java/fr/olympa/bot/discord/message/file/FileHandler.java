@@ -14,7 +14,7 @@ import java.util.StringJoiner;
 import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.common.match.MatcherPattern;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.bot.discord.message.JumpURL;
+import fr.olympa.bot.discord.message.DiscordURL;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 
@@ -93,7 +93,7 @@ public class FileHandler {
 				sj.add("Serveur Owner " + message.getGuild().getOwner().getUser().getAsTag());
 				sj.add("Channel " + message.getChannel().getName());
 				sj.add("Channel Id " + message.getChannel().getId());
-				sj.add("Link " + new JumpURL(message).get());
+				sj.add("Link " + new DiscordURL(message).get());
 				sj.add("Message text " + message.getContentDisplay());
 				sj.add("Original File Name " + att.getFileName());
 				sj.add("Original URL " + att.getUrl());

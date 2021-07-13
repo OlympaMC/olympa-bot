@@ -3,16 +3,20 @@ package fr.olympa.bot.discord.api;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import fr.olympa.api.common.groups.OlympaGroup;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.groups.DiscordGroup;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 
 public class DiscordPermission {
 
@@ -24,6 +28,7 @@ public class DiscordPermission {
 	//	BUILDER(DiscordGroup.RESP_BUILDER, DiscordGroup.BUILDER, DiscordGroup.DEV, DiscordGroup.RESP_TECH, DiscordGroup.ADMIN, DiscordGroup.FONDA),
 	//	STAFF(DiscordGroup.MOD, DiscordGroup.MODP, DiscordGroup.ADMIN, DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.DEV, DiscordGroup.ASSISTANT, DiscordGroup.BUILDER, DiscordGroup.GRAPHISTE),
 	//	;
+	public static final DiscordPermission AUTHOR = new DiscordPermission(450_125_243_592_343_563L);
 	public static final DiscordPermission ADMIN = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH);
 	public static final DiscordPermission HIGH_DEV = new DiscordPermission(DiscordGroup.getAllUpper(OlympaGroup.RESP_TECH));
 	public static final DiscordPermission HIGH_STAFF = new DiscordPermission(DiscordGroup.FONDA, DiscordGroup.ADMIN, DiscordGroup.RESP_TECH, DiscordGroup.MODP, DiscordGroup.RESP_ANIMATION, DiscordGroup.RESP_STAFF,
@@ -58,10 +63,15 @@ public class DiscordPermission {
 	}
 
 	List<DiscordGroup> allow;
+	List<Long> allowIds;
 	String name;
 
 	private DiscordPermission(DiscordGroup... allow) {
 		this.allow = Arrays.asList(allow);
+	}
+
+	private DiscordPermission(Long... allowIds) {
+		this.allowIds = Arrays.asList(allowIds);
 	}
 
 	private DiscordPermission(List<DiscordGroup> allow) {
@@ -86,6 +96,18 @@ public class DiscordPermission {
 				}
 			return "unknown";
 		}).filter(s -> !s.equals("unknown")).findFirst().orElse("unknown");
+	}
+
+	public void fetchAllowIdsUser(Consumer<User> users) {
+		if (allowIds == null)
+			return;
+		JDA jda = OlympaBots.getInstance().getDiscord().getJda();
+		for (Long allowId : allowIds)
+			jda.retrieveUserById(allowId).queue(u -> users.accept(u));
+	}
+
+	public boolean hasPermissionIdUser(User user) {
+		return allowIds.contains(user.getIdLong());
 	}
 
 	public boolean hasPermission(Member member) {

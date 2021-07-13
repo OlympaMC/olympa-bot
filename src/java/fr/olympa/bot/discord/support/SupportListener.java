@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.groups.DiscordGroup;
-import fr.olympa.bot.discord.message.JumpURL;
+import fr.olympa.bot.discord.message.DiscordURL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -74,7 +74,7 @@ public class SupportListener extends ListenerAdapter {
 			// Alert group
 			break;
 		case CLOSE:
-			DiscordUtils.sendTempMessage(channel, member, "Le ticket est fermé. Ouvre-le sur le panel staff du ticket : " + new JumpURL(channel, event.getMessageId()).get());
+			DiscordUtils.sendTempMessage(channel, member, "Le ticket est fermé. Ouvre-le sur le panel staff du ticket : " + new DiscordURL(channel, event.getMessageId()).get());
 			break;
 		default:
 			channel.retrieveMessageById(event.getMessageIdLong()).queue(msg -> msg.removeReaction(event.getReactionEmote().getEmoji(), member.getUser()));

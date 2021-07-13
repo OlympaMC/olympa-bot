@@ -258,13 +258,8 @@ public class DiscordMember {
 	}
 
 	public void updateName(User user) {
-		java.util.regex.Matcher matcher = User.USER_TAG.matcher(user.getAsTag());
-		if (!matcher.find()) {
-			new IllegalAccessError("Unable to get tag of " + user.getAsTag()).printStackTrace();
-			return;
-		}
-		String newName = matcher.group(1);
-		String newTag = matcher.group(2);
+		String newName = user.getName();
+		String newTag = user.getDiscriminator();
 		if (name == null) {
 			name = newName;
 			addUpdateQueue(COLUMN_DISCORD_NAME, newName);

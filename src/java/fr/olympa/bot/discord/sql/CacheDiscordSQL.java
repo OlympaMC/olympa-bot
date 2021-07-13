@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.AbstractMap;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -27,7 +28,7 @@ public class CacheDiscordSQL {
 	}
 
 	// <discordId, DiscordMember>
-	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().recordStats().maximumSize(500).removalListener(notification -> {
+	public static Cache<Long, DiscordMember> cacheMembers = CacheBuilder.newBuilder().recordStats().expireAfterAccess(6, TimeUnit.HOURS).maximumSize(500).removalListener(notification -> {
 		if (notification.getCause() == RemovalCause.REPLACED)
 			return;
 		DiscordMember member = (DiscordMember) notification.getValue();
@@ -47,10 +48,11 @@ public class CacheDiscordSQL {
 	}
 
 	public static void updateNameOrTagIfNeeded(User user, DiscordMember discordMember) throws SQLException {
+		Consumer<User> consumer = u -> discordMember.updateName(u);
 		if (user == null)
-			user = OlympaBots.getInstance().getDiscord().getJda().getUserById(discordMember.getDiscordId());
-		if (user != null)
-			discordMember.updateName(user);
+			OlympaBots.getInstance().getDiscord().getJda().retrieveUserById(discordMember.getDiscordId()).queue(consumer);
+		else
+			consumer.accept(user);
 	}
 
 	public static DiscordMember getDiscordMemberAndCreateIfNotExist(User user) throws SQLException {

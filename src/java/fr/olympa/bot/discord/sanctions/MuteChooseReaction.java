@@ -35,7 +35,7 @@ public class MuteChooseReaction extends ReactionDiscord {
 
 		EmbedBuilder em = new EmbedBuilder();
 		em.setDescription("Tu as choisis " + target.getAsMention());
-		messageChannel.sendMessage(em.build()).queue();
+		messageChannel.sendMessageEmbeds(em.build()).queue();
 		// anctionHandler.mute(target, user, messageChannel);
 		messageReaction.clearReactions().queue();
 		AwaitReaction.removeReaction(message.getIdLong());
