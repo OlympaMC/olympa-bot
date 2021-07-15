@@ -23,8 +23,7 @@ public class TsListener extends TS3EventAdapter {
 		ClientInfo client = query.getClientInfo(clientID);
 		if (event.getTargetMode() == TextMessageTargetMode.CLIENT && !client.isServerQueryClient()) {
 			String message = event.getMessage().toLowerCase();
-
-			if (message.startsWith("salut"))
+			if (message.startsWith("salut") || message.startsWith("slt") || message.startsWith("bonjour"))
 				query.sendPrivateMessage(clientID, "Bonjour " + event.getInvokerName() + "!");
 		}
 	}
@@ -63,73 +62,73 @@ public class TsListener extends TS3EventAdapter {
 	public void onClientMoved(ClientMovedEvent event) {
 		OlympaTeamspeak ts = OlympaBots.getInstance().getTeamspeak();
 		TS3Api query = OlympaBots.getInstance().getTeamspeak().getQuery();
-		int channelID = event.getTargetChannelId();
-		int clientID = event.getClientId();
+		int channelId = event.getTargetChannelId();
+		int clientId = event.getClientId();
 
 		//		ClientInfo client = query.getClientInfo(clientID);
 
-		ChannelInfo channelInfo = query.getChannelInfo(channelID);
+		ChannelInfo channelInfo = query.getChannelInfo(channelId);
 		Channel channel = query.getChannelByNameExact(channelInfo.getName(), false);
 		if (channel.getTotalClients() != 1)
 			return;
 
-		if (ts.helpChannels.stream().anyMatch(c -> c.getId() == channelID)) {
-			ClientInfo clientInfo = query.getClientInfo(clientID);
-			int i = 0;
+		if (ts.helpChannels != null && ts.helpChannels.stream().anyMatch(c -> c.getId() == channelId)) {
+			ClientInfo clientInfo = query.getClientInfo(clientId);
+			boolean modAreOnline = false;
 			for (Client staff : query.getClients())
 				if (TeamspeakGroups.ASSISTANT.hasPermission(staff) || TeamspeakGroups.MOD.hasPermission(staff) || TeamspeakGroups.MODP.hasPermission(staff)) {
 					query.sendPrivateMessage(staff.getId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=green] a besoin de l'aide d'un Modérateur/Assistant dans le channel [/color]"
 							+ TeamspeakUtils.getChannelURI(channelInfo));
-					i++;
+					modAreOnline = true;
 				}
-			if (i == 0)
+			if (!modAreOnline)
 				OlympaCorePermissionsBungee.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
-					int i2 = 0;
+					boolean hasModOnMinecraft = false;
 					if (ps != null) {
-						i2 = ps.size();
-						ps.forEach(p -> p
-								.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide sur le Teamspeak dans %s. Aucun Modérateur/Assistant n'y est actuellement connecté.", clientInfo.getNickname(), channelInfo.getName())));
+						hasModOnMinecraft = !ps.isEmpty();
+						ps.forEach(p -> p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide sur le Teamspeak dans %s. Aucun staff de la branche modération n'y est actuellement connecté.",
+								clientInfo.getNickname(), channelInfo.getName())));
 					} else {
 						for (Client admin : query.getClients())
 							if (TeamspeakGroups.ADMIN.hasPermission(admin)) {
 								query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) +
 										"[color=red] a besoin de l'aide d'un Modérateur/Assistant mais aucun n'est disponible IG/TS dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
-								i2++;
+								hasModOnMinecraft = true;
 							}
-						if (i2 != 0) {
-							query.pokeClient(clientID, "[color=green]Tu es en attente d'un Assistant ou Modérateur. Aucun n'est actuellement disponible, merci de patienter ...[/color]");
+						if (!hasModOnMinecraft) {
+							query.pokeClient(clientId, "[color=green]Tu es en attente d'un Assistant ou Modérateur. Aucun n'est actuellement disponible, merci de patienter ...[/color]");
 							return;
 						}
 					}
-					if (i2 == 0) {
-						query.kickClientFromChannel(clientID);
-						query.pokeClient(clientID, "Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.");
+					if (hasModOnMinecraft) {
+						query.kickClientFromChannel(clientId);
+						query.pokeClient(clientId, "Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.");
 					} else
-						query.pokeClient(clientID, "[color=green]Tu es en attente d'un Assistant ou Modérateur. Aucun Assistant ou Modérateur n'est actuellement disponible, merci de patienter quelques minutes ...[/color]");
+						query.pokeClient(clientId, "[color=green]Tu es en attente d'un Assistant ou Modérateur. Aucun Assistant ou Modérateur n'est actuellement disponible, merci de patienter, un staff a été notifié ...[/color]");
 				});
 			else
-				query.pokeClient(clientID, "[color=green]Merci de patienter l'arrivée d'un Assitant ou Modérateur.[/color]");
-		} else if (ts.helpQueueChannel.getId() == channelID)
-			query.sendPrivateMessage(clientID, "[color=green]Bienvenue dans la salle d'attente. Glisses-toi dans un channel 'Demande d'aide' au dessus dès qu'il y a de la place.[/color]");
-		else if (ts.helpChannelsAdmin.getId() == channelID) {
-			ClientInfo clientInfo = query.getClientInfo(clientID);
-			int i = 0;
+				query.pokeClient(clientId, "[color=green]Merci de patienter l'arrivée d'un Assitant ou Modérateur.[/color]");
+		} else if (ts.helpQueueChannel != null && ts.helpQueueChannel.getId() == channelId)
+			query.sendPrivateMessage(clientId, "[color=green]Bienvenue dans la salle d'attente. Glisses-toi dans un channel 'Demande d'aide' au dessus dès qu'il y a de la place.[/color]");
+		else if (ts.helpChannelsAdmin != null && ts.helpChannelsAdmin.getId() == channelId) {
+			ClientInfo clientInfo = query.getClientInfo(clientId);
+			boolean adminAreOnline = false;
 			for (Client admin : query.getClients())
 				if (TeamspeakGroups.ADMIN.hasPermission(admin) || TeamspeakGroups.MODP.hasPermission(admin)) {
 					query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=red] a besoin de l'aide d'un Administrateur dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
-					i++;
+					adminAreOnline = true;
 				}
-			if (i == 0)
+			if (!adminAreOnline)
 				OlympaCorePermissionsBungee.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
 					if (ps != null)
 						ps.forEach(p -> {
 							p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide d'Administrateur dans %s sur le Teamspeak.", clientInfo.getNickname(), channelInfo.getName()));
 
 						});
-					query.pokeClient(clientID, "[color=red]Aucun Administrateur n'est actuellement disponible, merci de patienter.[/color]");
+					query.pokeClient(clientId, "[color=red]Aucun Administrateur n'est actuellement disponible, merci de patienter.[/color]");
 				});
 			else
-				query.pokeClient(clientID, "[color=green]Tu es en attente d'un Administrateur. Merci de patienter ...[/color]");
+				query.pokeClient(clientId, "[color=green]Tu es en attente d'un Administrateur. Merci de patienter ...[/color]");
 		}
 	}
 
