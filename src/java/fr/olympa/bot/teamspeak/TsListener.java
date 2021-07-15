@@ -91,8 +91,8 @@ public class TsListener extends TS3EventAdapter {
 					} else {
 						for (Client admin : query.getClients())
 							if (TeamspeakGroups.ADMIN.hasPermission(admin)) {
-								query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) +
-										"[color=red] a besoin de l'aide d'un Modérateur/Assistant mais aucun n'est disponible IG/TS dans le channel [/color]" + TeamspeakUtils.getChannelURI(channelInfo));
+								query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) + "[color=red] a besoin de l'aide dans le channel [/color]"
+										+ TeamspeakUtils.getChannelURI(channelInfo) + "[color=red] d'un Modérateur/Assistant mais aucun n'est disponible IG/TS[/color]");
 								hasModOnMinecraft = true;
 							}
 						if (!hasModOnMinecraft) {
@@ -100,10 +100,9 @@ public class TsListener extends TS3EventAdapter {
 							return;
 						}
 					}
-					if (hasModOnMinecraft) {
-						query.kickClientFromChannel(clientId);
-						query.pokeClient(clientId, "Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.");
-					} else
+					if (!hasModOnMinecraft)
+						query.kickClientFromChannel("Aucun Assistant ou Modérateur n'est actuellement disponible, merci de réésayer plus tard.", clientId);
+					else
 						query.pokeClient(clientId, "[color=green]Tu es en attente d'un Assistant ou Modérateur. Aucun Assistant ou Modérateur n'est actuellement disponible, merci de patienter, un staff a été notifié ...[/color]");
 				});
 			else
