@@ -44,10 +44,6 @@ public class SpigotReceiveError extends JedisPubSub {
 
 	public static Cache<String, ErrorReaction> cache = CacheBuilder.newBuilder().recordStats().maximumSize(50).build();
 
-	static {
-		fr.olympa.api.utils.CacheStats.addCache("ERROR_TRACE", cache);
-	}
-
 	public void sendBungeeError(String stackTrace) {
 		sendError("bungee", stackTrace);
 	}
