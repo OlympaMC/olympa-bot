@@ -47,11 +47,7 @@ public class InvitesListener extends ListenerAdapter {
 		if (discordInvite == null)
 			return;
 		discordInvite.delete();
-		try {
-			discordInvite.update();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		discordInvite.update();
 	}
 
 	@Override

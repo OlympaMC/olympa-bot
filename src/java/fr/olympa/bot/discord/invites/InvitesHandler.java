@@ -67,27 +67,24 @@ public class InvitesHandler {
 			Invite invite = discordInvites.get(0);
 			DiscordInvite discordInvite = get(invite.getCode()).expand();
 			discordInvite.addUser(memberInvited);
-			try {
-				discordInvite.update();
-				addInvite(discordInvite);
-				if (memberWhoInviteScore != null) {
-					DiscordMember authorMember = CacheDiscordSQL.getDiscordMember(invite.getInviter());
-					memberWhoInviteScore.accept(new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, authorMember)), authorMember);
+			discordInvite.update(() -> {
+				try {
+					if (memberWhoInviteScore != null) {
+						DiscordMember authorMember = CacheDiscordSQL.getDiscordMember(invite.getInviter());
+						memberWhoInviteScore.accept(new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, authorMember)), authorMember);
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			});
+			addInvite(discordInvite);
 		});
 	}
 
 	public static void removeLeaverUser(DiscordMember dm, OlympaGuild opGuild) {
 		DiscordInvite.getByUser(DiscordInvite.COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, dm, opGuild).forEach(di -> {
 			di.removeLeaver(dm);
-			try {
-				di.update();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			di.update();
 		});
 	}
 
@@ -95,11 +92,7 @@ public class InvitesHandler {
 		List<DiscordInvite> invites = DiscordInvite.getByUser(DiscordInvite.COLUMN_USERS_OLYMPA_DISCORD_ID, dm, opGuild);
 		invites.forEach(di -> {
 			di.removeUser(dm);
-			try {
-				di.update();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			di.update();
 		});
 		if (invite != null)
 			invite.accept(invites);

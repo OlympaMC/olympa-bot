@@ -243,11 +243,15 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return this;
 	}
 
-	public void update() throws SQLException {
+	public void update() {
+		update((Runnable) null);
+	}
+
+	public void update(Runnable successCallback) {
 		//		if (isUpWithDb)
 		//			return;
 		table.updateAsync(this, Map.of(COLUMN_USES, getUses(), COLUMN_USERS_OLYMPA_DISCORD_ID, getUsersToDB(), COLUMN_USERS_PAST_OLYMPA_DISCORD_ID, getPastUsersToDB(),
-				COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, getLeaveUsersToDB(), COLUMN_USES_LEAVER, usesLeaver, COLUMN_DELETED, deleted, COLUMN_USES_UNIQUE, usesUnique), null, null);
+				COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, getLeaveUsersToDB(), COLUMN_USES_LEAVER, usesLeaver, COLUMN_DELETED, deleted, COLUMN_USES_UNIQUE, usesUnique), successCallback, null);
 		isUpWithDb = true;
 	}
 
@@ -290,7 +294,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			usesUnique++;
 			pastUsersIds.add(member.getId());
 		}
-		sendNewJoinToAuthor(member);
+		//		sendNewJoinToAuthor(member); pv msg
 		isUpWithDb = false;
 	}
 
@@ -353,11 +357,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 				DiscordInvite.getByUser(DiscordInvite.COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, discordMember, getDiscordGuild()).forEach(di -> {
 					LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite");
 					di.removeLeaver(discordMember);
-					try {
-						di.update();
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
+					di.update();
 				});
 		}
 		toBeRemoved.forEach(dm -> removeUser(dm));
@@ -371,11 +371,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 					if (!di.getCode().equals(code)) {
 						LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c remove cause it is on other invite");
 						di.removeUser(discordMember);
-						try {
-							di.update();
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
+						di.update();
 					}
 				});
 		}
@@ -402,11 +398,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 					if (!di.getCode().equals(code)) {
 						LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite as leaver");
 						di.removeLeaver(discordMember);
-						try {
-							di.update();
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
+						di.update();
 					}
 				});
 		}

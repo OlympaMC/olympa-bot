@@ -71,8 +71,8 @@ public class InviteCommand extends DiscordCommand {
 				if (nb > 0)
 					em.addField("Classement du serveur", "n°" + nb, true);
 				em.addField("Utilisations Totales", String.valueOf(mInv.getTotalUses()), true);
-				em.addField("Membres parrainés", mInv.getUsers().stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", ")), false);
-				em.addField("Liens", mInv.getInvites().stream().map(di -> di.getUrl()).collect(Collectors.joining(", ")), false);
+				em.addField("Membres parrainés " + mInv.getUsers().size(), mInv.getUsers().stream().map(DiscordMember::getAsMention).limit(40).collect(Collectors.joining(", ")), false);
+				em.addField("Liens " + mInv.getInvites().size(), mInv.getInvites().stream().limit(40).map(di -> di.getUrl()).collect(Collectors.joining(", ")), false);
 				em.setFooter(DiscordCommand.prefix + "invitetop pour voir le classement");
 				channel.sendMessageEmbeds(em.build()).queue();
 			} else if (label.equalsIgnoreCase("inviteparrain")) {
@@ -94,14 +94,14 @@ public class InviteCommand extends DiscordCommand {
 				MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, dmTarget));
 				StringJoiner sj = new StringJoiner("\n");
 				Set<DiscordMember> users = mInv.getUsers();
-				sj.add(String.format("**Membre%s parrainé%s** (%d) %s", Utils.withOrWithoutS(users.size()), Utils.withOrWithoutS(users.size()), users.size(), users.stream().map(DiscordMember::getAsMention)
+				sj.add(String.format("**Membre%s parrainé%s** (%d) %s", Utils.withOrWithoutS(users.size()), Utils.withOrWithoutS(users.size()), users.size(), users.stream().map(DiscordMember::getAsMention).limit(40)
 						.collect(Collectors.joining(", "))));
 				users = mInv.getLeavers();
 				sj.add(String.format("**Membre%s %s quitté%s** (%d) %s", Utils.withOrWithoutS(users.size()), users.size() > 1 ? "qui ont" : "qui a", Utils.withOrWithoutS(users.size()), users.size(),
-						users.stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", "))));
+						users.stream().map(DiscordMember::getAsMention).limit(40).collect(Collectors.joining(", "))));
 				users = mInv.getUsersPast();
 				sj.add(String.format("**Membre%s qui %s revenu avec une autre invitation** (%d) %s", Utils.withOrWithoutS(users.size()), users.size() > 1 ? "sont" : "est",
-						users.size(), users.stream().map(DiscordMember::getAsMention).collect(Collectors.joining(", "))));
+						users.size(), users.stream().map(DiscordMember::getAsMention).limit(40).collect(Collectors.joining(", "))));
 				channel.sendMessage(sj.toString()).allowedMentions(Arrays.asList(MentionType.EMOTE)).queue();
 			} else if (label.equalsIgnoreCase("invitetop")) {
 				Map<Long, Integer> stats = DiscordInvite.getStats(opGuild);
@@ -115,7 +115,7 @@ public class InviteCommand extends DiscordCommand {
 					User user = author.getUser();
 					String inviterName = author.getAsMention() + "(`" + author.getAsTag() + "`)";
 					if (user == null || !guild.isMember(user))
-						inviterName += " (🚪 " + Utils.tsToShortDur(author.getLeaveTime()) + ")";
+						inviterName += " (🚪 " + (author.getLeaveTime() != 0 ? Utils.tsToShortDur(author.getLeaveTime()) : "") + ")";
 					String out = nb++ + " | `" + uses + " membre" + Utils.withOrWithoutS(uses) + "` " + inviterName + ".\n";
 					if (em.getDescriptionBuilder().length() + out.length() >= MessageEmbed.TEXT_MAX_LENGTH)
 						break;

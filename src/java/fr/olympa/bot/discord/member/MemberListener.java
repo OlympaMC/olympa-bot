@@ -81,7 +81,7 @@ public class MemberListener extends ListenerAdapter {
 						em.appendDescription("❌ Notre serveur minecraft est actuellement indisponible. Suis les dernières informations dans <#558148715286888448>.");
 						break;
 					case CLOSE_BETA:
-						em.appendDescription("❌ Notre serveur minecraft est actuellement en bêta fermer. Suis les dernières informations dans <#558148715286888448>.");
+						em.appendDescription("❌ Notre serveur minecraft est actuellement en bêta fermée. Suis les dernières informations dans <#558148715286888448>.");
 						break;
 					case DEV:
 						em.appendDescription("❌ Notre serveur minecraft est actuellement en développement, suis les dernières informations dans <#558148715286888448>.");
