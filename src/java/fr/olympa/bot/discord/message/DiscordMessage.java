@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -104,13 +105,13 @@ public class DiscordMessage {
 	public void addEditedMessage(Message message, Map<Attachment, String> attachments) {
 		getContents().add(new MessageContent(message, this, attachments));
 		while (isFullContents())
-			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", new Gson().toJson(contents.remove(contents.size() / 2)));
+			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", "?", new Gson().toJson(contents.remove(contents.size() / 2)));
 	}
 
 	public void addEditedMessage(Message message) {
-		getContents().add(new MessageContent(message, this));
+		getContents().add(new MessageContent(message, this, Collections.emptyMap()));
 		while (isFullContents())
-			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", new Gson().toJson(contents.remove(contents.size() / 2)));
+			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", "?", new Gson().toJson(contents.remove(contents.size() / 2)));
 	}
 
 	public OlympaGuild getOlympaGuild() {
