@@ -3,6 +3,8 @@ package fr.olympa.bot.discord.invites;
 import java.awt.Color;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.common.chat.ColorUtils;
@@ -57,16 +59,18 @@ public class InvitesListener extends ListenerAdapter {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member);
 			User user = member.getUser();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-			EmbedBuilder embed = LogsHandler.get("✅ Un nouveau joueur est arrivé !", null, member.getAsMention() + " est le **" + DiscordUtils.getMembersSize(guild) + "ème** a rejoindre le discord.", member);
+			EmbedBuilder embed = LogsHandler.get("✅ Un nouveau joueur est arrivé !", null, "`" + member.getUser().getAsTag() + "` est le **" + DiscordUtils.getMembersSize(guild)
+					+ "ème** a rejoindre.", member);
 			embed.setColor(Color.GREEN);
+			embed.setFooter(null);
 			long time = user.getTimeCreated().toEpochSecond();
 			long duration = Utils.getCurrentTimeInSeconds() - time;
-			String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
+			String sDuration = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
 			if (duration < 60 * 12 * 31)
-				embed.addField("Nouveau compte", "Créé il y a `" + t + "`", true);
+				embed.addField("Nouveau compte", "Créé il y a `" + sDuration + "`", true);
 			else {
-				String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-				embed.addField("Création du compte", "Créé le " + date + " (" + t + ")", true);
+				String date = user.getTimeCreated().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(Locale.FRANCE));
+				embed.addField("Création du compte", "Le " + date + " (" + sDuration + ")", true);
 			}
 			InvitesHandler.detectNewInvite(opGuild, inviters -> {
 				if (olympaGuild.isLogEntries()) {
@@ -74,13 +78,13 @@ public class InvitesListener extends ListenerAdapter {
 						embed.addField("Invité par ", ColorUtils.join(inviters.stream().map(inviter -> {
 							return inviter.getAsMention() + " (" + inviter.getAsTag() + ")";
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
-					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
+					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).append(member.getAsMention()).queue();
 				}
 			}, discordMember, (memberWhoInviteScore, authorMember) -> {
 				if (opGuild.isSendingWelcomeMessage()) {
 					TextChannel defaultChannel = guild.getDefaultChannel();
 					if (defaultChannel != null)
-						if (authorMember != null)
+						if (memberWhoInviteScore != null && authorMember != null)
 							defaultChannel.sendMessage(String.format("%s nous a rejoint suite à l'invitation de `%s`, qui comptabilise maintenant **%d** invitation%s.",
 									member.getUser().getAsMention(), authorMember.getAsTag(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
 									.queue();

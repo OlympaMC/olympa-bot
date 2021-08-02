@@ -62,6 +62,8 @@ public class InvitesHandler {
 			if (discordInvites.size() != 1) {
 				LinkSpigotBungee.getInstance().sendMessage("&e[DISCORD INVITE] &cImpossible de déterminer comment %s est arrivé là, il y a %d possibilités ...", memberInvited.getName(), discordInvites.size());
 				init(opGuild);
+				if (memberWhoInviteScore != null)
+					memberWhoInviteScore.accept(null, null);
 				return;
 			}
 			Invite invite = discordInvites.get(0);

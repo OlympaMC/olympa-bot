@@ -133,6 +133,12 @@ public class ReadyListener extends ListenerAdapter {
 		members.stream().filter(m -> m.getRoles().isEmpty()).forEach(member -> {
 			defaultGuild.addRoleToMember(member, defaultRole).queue();
 			OlympaBots.getInstance().sendMessage("&c" + member.getUser().getAsTag() + " n'avait pas de roles.");
+			if (olympaGuild.isSendingWelcomeMessage()) {
+				TextChannel defaultChannel = defaultGuild.getDefaultChannel();
+				long compare = Utils.getCurrentTimeInSeconds() - member.getTimeJoined().toEpochSecond();
+				if (defaultChannel != null && compare < 604_800L) // si le joueur a rejoint il y a moins de 7 jours
+					defaultChannel.sendMessage(String.format("%s nous a rejoint quand le bot était absent.", member.getUser().getAsMention())).queue();
+			}
 		});
 
 		EmbedBuilder embed = new EmbedBuilder().setTitle("Bot connecté").setDescription("Je suis de retour.");
