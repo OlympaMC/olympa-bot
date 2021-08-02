@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.Message;
 public class StartStopCommand extends DiscordCommand {
 
 	public StartStopCommand() {
-		super("stop", DiscordPermission.BUILDER, "restart", "start", "stopserv", "restart", "restartserv");
+		super("stop", DiscordPermission.BUILDER, "restart", "start", "stopserv", "restartserv");
 		description = "[serveurs]";
 		minArg = 1;
 		description = "Effectue une action (stop/start/restart) sur un serveur.";

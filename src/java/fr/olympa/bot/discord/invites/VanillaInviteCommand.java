@@ -23,8 +23,8 @@ import net.dv8tion.jda.api.entities.User;
 public class VanillaInviteCommand extends DiscordCommand {
 
 	public VanillaInviteCommand() {
-		super("vanillainvite", DiscordPermission.STAFF, "oldinvite");
-		description = "Donnes des stats concernant les invitations.";
+		super("vanillainvite", DiscordPermission.HIGH_DEV, "oldinvite");
+		description = "Donne des stats concernant les invitations.";
 	}
 
 	@Override

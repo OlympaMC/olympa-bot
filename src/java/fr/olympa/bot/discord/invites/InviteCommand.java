@@ -34,13 +34,12 @@ public class InviteCommand extends DiscordCommand {
 
 	public InviteCommand() {
 		super("invite", "invitetop", "inviteall", "inviteparrain", "invitefix");
-		description = "Donnes des stats concernant les invitations.";
+		description = "Donne des stats concernant les invitations.";
 	}
 
 	@Override
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		MessageChannel channel = message.getChannel();
-		Member member = this.member;
 		Guild guild = message.getGuild();
 		OlympaGuild opGuild = GuildHandler.getOlympaGuild(guild);
 		EmbedBuilder em = new EmbedBuilder();
