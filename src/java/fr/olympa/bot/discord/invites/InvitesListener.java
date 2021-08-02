@@ -13,7 +13,6 @@ import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
-import fr.olympa.bot.discord.message.LogsHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -59,10 +58,10 @@ public class InvitesListener extends ListenerAdapter {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member);
 			User user = member.getUser();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-			EmbedBuilder embed = LogsHandler.get("✅ Un nouveau joueur est arrivé !", null, "`" + member.getUser().getAsTag() + "` est le **" + DiscordUtils.getMembersSize(guild)
-					+ "ème** a rejoindre.", member);
+			EmbedBuilder embed = new EmbedBuilder();
+			embed.setDescription("`" + member.getUser().getAsTag() + "` est le **" + DiscordUtils.getMembersSize(guild) + "**ème a rejoindre.");
+			embed.setThumbnail(member.getUser().getAvatarUrl());
 			embed.setColor(Color.GREEN);
-			embed.setFooter(null);
 			long time = user.getTimeCreated().toEpochSecond();
 			long duration = Utils.getCurrentTimeInSeconds() - time;
 			String sDuration = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
@@ -70,7 +69,7 @@ public class InvitesListener extends ListenerAdapter {
 				embed.addField("Nouveau compte", "Créé il y a `" + sDuration + "`", true);
 			else {
 				String date = user.getTimeCreated().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(Locale.FRANCE));
-				embed.addField("Création du compte", "Le " + date + " (" + sDuration + ")", true);
+				embed.addField("Création du compte", date + " (" + sDuration + ")", true);
 			}
 			InvitesHandler.detectNewInvite(opGuild, inviters -> {
 				if (olympaGuild.isLogEntries()) {
@@ -109,13 +108,15 @@ public class InvitesListener extends ListenerAdapter {
 			dm = CacheDiscordSQL.getDiscordMember(member);
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
-			String name;
-			if (member.getEffectiveName().equals(user.getName()))
-				name = "";
-			else
-				name = " (" + member.getEffectiveName() + ")";
-			String desc = "`" + user.getAsTag() + "`" + name + " est resté `" + time + "` Nous sommes `" + DiscordUtils.getMembersSize(guild) + "`.";
-			EmbedBuilder embed = LogsHandler.get("❌ Un joueur a quitté", null, desc, member);
+			StringBuilder name = new StringBuilder();
+			name.append("`" + user.getAsTag() + "`");
+			name.append("(");
+			if (!member.getEffectiveName().equals(user.getName()))
+				name.append(member.getEffectiveName() + "|");
+			name.append(member.getId() + ")");
+			String desc = name + " nous a quitté après être resté  `" + time + "` avec nous.";
+			EmbedBuilder embed = new EmbedBuilder();
+			embed.setDescription(desc);
 			embed.setColor(Color.RED);
 			InvitesHandler.addUsesLeaver(dm, opGuild, invites -> {
 				if (olympaGuild.isLogEntries()) {
