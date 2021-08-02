@@ -36,7 +36,6 @@ import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
-import fr.olympa.core.bungee.OlympaBungee;
 import fr.olympa.core.common.utils.UtilsCore;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -103,9 +102,8 @@ public class DiscordMember {
 		removeTask();
 		if (!updateQueueSQL.isEmpty()) {
 			Map<SQLColumn<DiscordMember>, Object> toRemoved = new HashMap<>(updateQueueSQL);
-			if (updateQueueSQL.size() > 1)
-				OlympaBungee.getInstance().sendMessage("&7[DEBUG] DiscordMember de %s a été sauvegardé en bdd les modifications %s", getAsTag(),
-						updateQueueSQL.keySet().stream().map(SQLColumn::getCleanName).collect(Collectors.joining(", ")));
+			//				OlympaBungee.getInstance().sendMessage("&7[DEBUG] DiscordMember de %s a été sauvegardé en bdd les modifications %s", getAsTag(),
+			//						updateQueueSQL.keySet().stream().map(SQLColumn::getCleanName).collect(Collectors.joining(", ")));
 			try {
 				table.update(this, updateQueueSQL);
 				toRemoved.forEach((key, value) -> updateQueueSQL.remove(key, value));
