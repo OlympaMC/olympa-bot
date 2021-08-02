@@ -3,7 +3,6 @@ package fr.olympa.bot.discord.invites;
 import java.awt.Color;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.common.chat.ColorUtils;
@@ -18,7 +17,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message.MentionType;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
@@ -82,9 +80,12 @@ public class InvitesListener extends ListenerAdapter {
 				if (opGuild.isSendingWelcomeMessage()) {
 					TextChannel defaultChannel = guild.getDefaultChannel();
 					if (defaultChannel != null)
-						defaultChannel.sendMessage(String.format("`%s` rejoint %s suite à l'invitation de `%s`, qui comptabilise maintenant **%d** invitation%s.",
-								member.getUser().getAsTag(), guild.getName(), authorMember.getAsTag(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
-								.allowedMentions(Arrays.asList(MentionType.ROLE)).queue();
+						if (authorMember != null)
+							defaultChannel.sendMessage(String.format("%s nous a rejoint suite à l'invitation de `%s`, qui comptabilise maintenant **%d** invitation%s.",
+									member.getUser().getAsMention(), authorMember.getAsTag(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
+									.queue();
+						else
+							defaultChannel.sendMessage(String.format("%s nous a rejoint.", member.getUser().getAsMention())).queue();
 				}
 			});
 			InvitesHandler.removeLeaverUser(discordMember, opGuild);
