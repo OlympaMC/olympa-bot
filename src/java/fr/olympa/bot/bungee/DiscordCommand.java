@@ -94,7 +94,7 @@ public class DiscordCommand extends BungeeCommand {
 			}
 			if (discordMember != null) {
 				OlympaBots.getInstance().getDiscord();
-				sendError("Tu as déjà relier ton compte avec &4%s&c.", discordMember.getTagName());
+				sendError("Tu as déjà relié ton compte avec &4%s&c.", discordMember.getTagName());
 				return;
 			}
 
