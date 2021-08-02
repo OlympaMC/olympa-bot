@@ -39,6 +39,10 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class MemberListener extends ListenerAdapter {
 
+	private long channelUpdateExpiration1 = 0;
+	private long channelUpdateExpiration2 = 0;
+	private boolean task = false;
+	
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Guild guild = event.getGuild();
@@ -131,13 +135,23 @@ public class MemberListener extends ListenerAdapter {
 	}
 
 	public long updateChannelMember(Guild defaultGuild) {
-		int usersTotal = 0;
-		for (Member user2 : defaultGuild.getMembers())
-			if (!user2.getUser().isBot())
-				usersTotal++;
-		GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
-		if (membersChannel != null)
-			membersChannel.getManager().setName("Membres : " + usersTotal).queue();
+		long usersTotal = defaultGuild.getMembers().stream().filter(member -> !member.getUser().isBot()).count();
+		long time1 = channelUpdateExpiration1 - System.currentTimeMillis();
+		long time2 = channelUpdateExpiration2 - System.currentTimeMillis();
+		if (time1 > 0 && time2 > 0) {
+			if (!task) {
+				task = true;
+				OlympaBungee.getInstance().getTask().runTaskLater(() -> updateChannelMember(defaultGuild), time1);
+			}
+		}else {
+			GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
+			if (membersChannel != null)
+				membersChannel.getManager().setName("Membres : " + usersTotal).queue();
+			long expiration = System.currentTimeMillis() + 10 * 60 * 1000;
+			if (time1 > 0) {
+				channelUpdateExpiration1 = expiration;
+			}else channelUpdateExpiration2 = expiration;
+		}
 		return usersTotal;
 	}
 
