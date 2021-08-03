@@ -59,6 +59,7 @@ public class InvitesListener extends ListenerAdapter {
 			User user = member.getUser();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			EmbedBuilder embed = new EmbedBuilder();
+			embed.setTitle("✅ Un nouveau joueur est arrivé !");
 			embed.setDescription("`" + member.getUser().getAsTag() + "` est le **" + DiscordUtils.getMembersSize(guild) + "**ème a rejoindre.");
 			embed.setThumbnail(member.getUser().getAvatarUrl());
 			embed.setColor(Color.GREEN);
@@ -114,8 +115,10 @@ public class InvitesListener extends ListenerAdapter {
 			if (!member.getEffectiveName().equals(user.getName()))
 				name.append(member.getEffectiveName() + "|");
 			name.append(member.getId() + ")");
-			String desc = name + " nous a quitté après être resté  `" + time + "` avec nous.";
+			String desc = name + " est resté  `" + time + "`.";
 			EmbedBuilder embed = new EmbedBuilder();
+			embed.setTitle("❌ Un joueur a quitté");
+			embed.setThumbnail(member.getUser().getAvatarUrl());
 			embed.setDescription(desc);
 			embed.setColor(Color.RED);
 			InvitesHandler.addUsesLeaver(dm, opGuild, invites -> {
@@ -129,7 +132,7 @@ public class InvitesListener extends ListenerAdapter {
 							}
 							return "null";
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
-					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
+					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).append(member.getAsMention()).queue();
 				}
 			});
 		} catch (SQLException e) {

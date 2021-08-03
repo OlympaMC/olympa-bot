@@ -42,7 +42,21 @@ public class MemberListener extends ListenerAdapter {
 	private long channelUpdateExpiration1 = 0;
 	private long channelUpdateExpiration2 = 0;
 	private boolean task = false;
-	
+
+	/*
+		@Override
+		public void onGuildMemberUpdateBoostTime(GuildMemberUpdateBoostTimeEvent event) {
+			Guild guild = event.getGuild();
+			Member member = event.getMember();
+			TextChannel defaultChannel = guild.getDefaultChannel();
+			OlympaGuild opGuild = GuildHandler.getOlympaGuild(guild);
+			if (opGuild == null || !opGuild.isSendingWelcomeMessage() || defaultChannel == null)
+				return;
+			EmbedBuilder em = new EmbedBuilder();
+			em.setDescription(member.getAsMention() + " vient de boost le serveur !");
+			defaultChannel.sendMessageEmbeds(em.build()).queue();
+		}
+	*/
 	@Override
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		Guild guild = event.getGuild();
@@ -143,14 +157,15 @@ public class MemberListener extends ListenerAdapter {
 				task = true;
 				OlympaBungee.getInstance().getTask().runTaskLater(() -> updateChannelMember(defaultGuild), time1);
 			}
-		}else {
+		} else {
 			GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
 			if (membersChannel != null)
 				membersChannel.getManager().setName("Membres : " + usersTotal).queue();
 			long expiration = System.currentTimeMillis() + 10 * 60 * 1000;
-			if (time1 > 0) {
+			if (time1 > 0)
 				channelUpdateExpiration1 = expiration;
-			}else channelUpdateExpiration2 = expiration;
+			else
+				channelUpdateExpiration2 = expiration;
 		}
 		return usersTotal;
 	}
