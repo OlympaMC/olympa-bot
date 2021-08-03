@@ -3,7 +3,8 @@ package fr.olympa.bot.discord.invites;
 import java.awt.Color;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.common.chat.ColorUtils;
@@ -12,13 +13,11 @@ import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
-import fr.olympa.bot.discord.message.LogsHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message.MentionType;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
@@ -59,16 +58,19 @@ public class InvitesListener extends ListenerAdapter {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(member);
 			User user = member.getUser();
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
-			EmbedBuilder embed = LogsHandler.get("✅ Un nouveau joueur est arrivé !", null, member.getAsMention() + " est le **" + DiscordUtils.getMembersSize(guild) + "ème** a rejoindre le discord.", member);
+			EmbedBuilder embed = new EmbedBuilder();
+			embed.setTitle("✅ Un nouveau joueur est arrivé !");
+			embed.setDescription("`" + member.getUser().getAsTag() + "` est le **" + DiscordUtils.getMembersSize(guild) + "**ème a rejoindre.");
+			embed.setThumbnail(member.getUser().getAvatarUrl());
 			embed.setColor(Color.GREEN);
 			long time = user.getTimeCreated().toEpochSecond();
 			long duration = Utils.getCurrentTimeInSeconds() - time;
-			String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
+			String sDuration = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
 			if (duration < 60 * 12 * 31)
-				embed.addField("Nouveau compte", "Créé il y a `" + t + "`", true);
+				embed.addField("Nouveau compte", "Créé il y a `" + sDuration + "`", true);
 			else {
-				String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-				embed.addField("Création du compte", "Créé le " + date + " (" + t + ")", true);
+				String date = user.getTimeCreated().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(Locale.FRANCE));
+				embed.addField("Création du compte", date + " (" + sDuration + ")", true);
 			}
 			InvitesHandler.detectNewInvite(opGuild, inviters -> {
 				if (olympaGuild.isLogEntries()) {
@@ -76,15 +78,18 @@ public class InvitesListener extends ListenerAdapter {
 						embed.addField("Invité par ", ColorUtils.join(inviters.stream().map(inviter -> {
 							return inviter.getAsMention() + " (" + inviter.getAsTag() + ")";
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
-					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
+					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).append(member.getAsMention()).queue();
 				}
 			}, discordMember, (memberWhoInviteScore, authorMember) -> {
 				if (opGuild.isSendingWelcomeMessage()) {
 					TextChannel defaultChannel = guild.getDefaultChannel();
 					if (defaultChannel != null)
-						defaultChannel.sendMessage(String.format("`%s` rejoint %s suite à l'invitation de `%s`, qui comptabilise maintenant **%d** invitation%s.",
-								member.getUser().getAsTag(), guild.getName(), authorMember.getAsTag(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
-								.allowedMentions(Arrays.asList(MentionType.ROLE)).queue();
+						if (memberWhoInviteScore != null && authorMember != null)
+							defaultChannel.sendMessage(String.format("%s nous a rejoint suite à l'invitation de `%s`, qui comptabilise maintenant **%d** invitation%s.",
+									member.getUser().getAsMention(), authorMember.getAsTag(), memberWhoInviteScore.getRealUses(), Utils.withOrWithoutS(memberWhoInviteScore.getRealUses())))
+									.queue();
+						else
+							defaultChannel.sendMessage(String.format("%s nous a rejoint.", member.getUser().getAsMention())).queue();
 				}
 			});
 			InvitesHandler.removeLeaverUser(discordMember, opGuild);
@@ -104,13 +109,17 @@ public class InvitesListener extends ListenerAdapter {
 			dm = CacheDiscordSQL.getDiscordMember(member);
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(guild);
 			String time = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
-			String name;
-			if (member.getEffectiveName().equals(user.getName()))
-				name = "";
-			else
-				name = " (" + member.getEffectiveName() + ")";
-			String desc = "`" + user.getAsTag() + "`" + name + " est resté `" + time + "` Nous sommes `" + DiscordUtils.getMembersSize(guild) + "`.";
-			EmbedBuilder embed = LogsHandler.get("❌ Un joueur a quitté", null, desc, member);
+			StringBuilder name = new StringBuilder();
+			name.append("`" + user.getAsTag() + "`");
+			name.append("(");
+			if (!member.getEffectiveName().equals(user.getName()))
+				name.append(member.getEffectiveName() + "|");
+			name.append(member.getId() + ")");
+			String desc = name + " est resté  `" + time + "`.";
+			EmbedBuilder embed = new EmbedBuilder();
+			embed.setTitle("❌ Un joueur a quitté");
+			embed.setThumbnail(member.getUser().getAvatarUrl());
+			embed.setDescription(desc);
 			embed.setColor(Color.RED);
 			InvitesHandler.addUsesLeaver(dm, opGuild, invites -> {
 				if (olympaGuild.isLogEntries()) {
@@ -123,7 +132,7 @@ public class InvitesListener extends ListenerAdapter {
 							}
 							return "null";
 						}).collect(Collectors.toList()).iterator(), "ou"), true);
-					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).queue();
+					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).append(member.getAsMention()).queue();
 				}
 			});
 		} catch (SQLException e) {
