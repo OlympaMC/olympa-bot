@@ -141,13 +141,16 @@ public class MemberListener extends ListenerAdapter {
 		if (time1 > 0 && time2 > 0) {
 			if (!task) {
 				task = true;
-				OlympaBungee.getInstance().getTask().runTaskLater(() -> updateChannelMember(defaultGuild), time1);
+				OlympaBungee.getInstance().getTask().runTaskLater(() -> {
+					task = false;
+					updateChannelMember(defaultGuild);
+				}, Math.min(time1, time2) + 2000, TimeUnit.MILLISECONDS);
 			}
 		}else {
 			GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
 			if (membersChannel != null)
 				membersChannel.getManager().setName("Membres : " + usersTotal).queue();
-			long expiration = System.currentTimeMillis() + 10 * 60 * 1000;
+			long expiration = System.currentTimeMillis() + 10 * 60 * 1000 + 2000;
 			if (time1 > 0) {
 				channelUpdateExpiration1 = expiration;
 			}else channelUpdateExpiration2 = expiration;
