@@ -179,8 +179,6 @@ public class InviteCommand extends DiscordCommand {
 						channel.sendMessageEmbeds(embeds).queue(msg -> msg.delete().queueAfter(1, TimeUnit.MINUTES));
 				}
 			} else if (label.equalsIgnoreCase("invitefix")) {
-				List<DiscordInvite> targetInvites = null;
-
 				if (!DiscordPermission.STAFF.hasPermission(member)) {
 					MessageAction out = channel.sendMessage(user.getAsMention() + " ➤ Tu n'a pas la permission :open_mouth:.");
 					if (!message.isFromGuild())
@@ -190,6 +188,7 @@ public class InviteCommand extends DiscordCommand {
 						DiscordUtils.sendTempMessage(out);
 					}
 				}
+				List<DiscordInvite> targetInvites = null;
 				List<Member> members = message.getMentionedMembers();
 				Member memberTarget = null;
 				if (args.length != 0) {
@@ -210,7 +209,7 @@ public class InviteCommand extends DiscordCommand {
 					DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
 					targetInvites = InvitesHandler.getByAuthor(opGuild, dmTarget);
 				}
-				em.setDescription("Les invitation qui ont été fixés (" + targetInvites.size() + (memberTarget != null ? " " + member.getAsMention() : "") + ") :");
+				em.setDescription("Les invitation qui ont été fixés : (" + targetInvites.size() + (memberTarget != null ? " " + member.getAsMention() : "") + " ont été vérifiés) :");
 				for (DiscordInvite di : targetInvites)
 					try {
 						boolean b = di.fixInvite();
@@ -219,7 +218,7 @@ public class InviteCommand extends DiscordCommand {
 							di.update();
 					} catch (Exception e) {
 						e.printStackTrace();
-						em.addField(di.getCode(), "Erreur > `" + e.getMessage() + "`", true);
+						em.appendDescription("Erreur sur " + di.getCode() + " > `" + e.getMessage() + "`");
 					}
 				channel.sendMessageEmbeds(em.build()).queue();
 			}

@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.api.bungee.task.BungeeTaskManager;
 import fr.olympa.api.common.server.ServerStatus;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
@@ -155,10 +156,12 @@ public class MemberListener extends ListenerAdapter {
 		if (time1 > 0 && time2 > 0) {
 			if (!task) {
 				task = true;
-				OlympaBungee.getInstance().getTask().runTaskLater(() -> {
-					task = false;
-					updateChannelMember(defaultGuild);
-				}, Math.min(time1, time2) + 2000, TimeUnit.MILLISECONDS);
+				BungeeTaskManager taskManager = OlympaBungee.getInstance().getTask();
+				if (!taskManager.taskExist("discord_update_channel"))
+					taskManager.runTaskLater("discord_update_channel", () -> {
+						task = false;
+						updateChannelMember(defaultGuild);
+					}, Math.min(time1, time2) + 2000, TimeUnit.MILLISECONDS);
 			}
 		} else {
 			GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);

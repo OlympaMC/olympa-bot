@@ -55,7 +55,7 @@ public class GuildsListener extends ListenerAdapter {
 
 	@Override
 	public void onGuildReady(GuildReadyEvent event) {
-		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
+		LinkSpigotBungee.getInstance().getTask().runTaskAsynchronously(() -> {
 			try {
 				if (allUsers == null)
 					allUsers = DiscordSQL.selectDiscordMembersIds();
