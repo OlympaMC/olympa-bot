@@ -17,7 +17,7 @@ public class DiscordURL {
 	}
 
 	public DiscordURL(Message message) {
-		this(message.getGuild().getId(), message.getChannel().getId(), message.getId());
+		this(message.isFromGuild() ? message.getGuild().getId() : "@me", message.getChannel().getId(), message.getId());
 	}
 
 	public DiscordURL(TextChannel channel, String messageId) {

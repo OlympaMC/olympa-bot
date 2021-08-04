@@ -57,7 +57,7 @@ public class SupportChatListener extends ListenerAdapter {
 					u.openPrivateChannel().queue(pv -> {
 						pv.sendTyping().queue(v -> {
 							NativeTask.getInstance().runTaskLater(() -> pv.sendMessage(msgFinal).queue(out -> {
-								channel.sendMessage("Message envoyé à " + u.getAsMention() + new DiscordURL(out).getJumpLabel() + ": \n" + out.getContentRaw() + "").queue();
+								channel.sendMessage("Message envoyé à " + u.getAsMention() + ": \n" + out.getContentRaw() + "").queue();
 							}, error -> {
 								channel.sendMessage("Impossible d'envoyer un message à " + u.getAsMention() + ": `" + error.getMessage() + "`").queue();
 							}), msgFinal.length() * 100l, TimeUnit.MILLISECONDS);
