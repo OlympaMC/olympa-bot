@@ -66,7 +66,7 @@ public class InfoCommand extends DiscordCommand {
 					.addField("Ping", String.valueOf(jda.getGatewayPing()), true)
 					.addField("Clients", usersConnected + "/" + usersTotal, true)
 					.addField("Serveurs Discord", String.valueOf(guilds.size()), true)
-					.addField("Donnés envoyés", String.valueOf(jda.getResponseTotal()), true)
+					.addField("Données envoyées", String.valueOf(jda.getResponseTotal()), true)
 					.addField("Connecté depuis ", OlympaDiscord.connectedFrom(), true);
 			embed.setColor(discord.getColor());
 			channel.sendMessageEmbeds(embed.build()).queue(m -> m.delete().queueAfter(OlympaDiscord.getTimeToDelete(), TimeUnit.SECONDS));

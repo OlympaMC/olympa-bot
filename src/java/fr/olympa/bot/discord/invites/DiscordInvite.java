@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.common.match.RegexMatcher;
@@ -117,7 +118,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return list;
 	}
 
-	public static Map<Long, Integer> getStats(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
+	private static Stream<Entry<Long, Integer>> getStatsStream(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
 		Map<Long, Integer> stats = new HashMap<>();
 		for (DiscordInvite invite : getAll(opGuild)) {
 			long user = invite.getAuthorId();
@@ -129,7 +130,15 @@ public class DiscordInvite extends DiscordSmallInvite {
 				stats.put(user, uses);
 			}
 		}
-		return stats.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		return stats.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()));
+	}
+
+	public static Map<Long, Integer> getStats(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
+		return getStatsStream(opGuild).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+	}
+
+	public static Map<Long, Integer> getStats(OlympaGuild opGuild, int maxSize) throws SQLException, IllegalAccessException {
+		return getStatsStream(opGuild).limit(maxSize).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 	}
 
 	public static int getPosOfAuthor(OlympaGuild opGuild, DiscordMember dm) throws SQLException, IllegalAccessException {
@@ -287,13 +296,13 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	public void addUser(DiscordMember member) {
 		uses++;
-		if (!usersIds.contains(member.getId()))
-			usersIds.add(member.getId());
-		removeLeaver(member);
-		if (!listIdsContainsUser(pastUsersIds, member)) {
+		if (!usersIds.contains(member.getId())) {
 			usesUnique++;
-			pastUsersIds.add(member.getId());
+			usersIds.add(member.getId());
 		}
+		removeLeaver(member);
+		if (!listIdsContainsUser(pastUsersIds, member))
+			pastUsersIds.add(member.getId());
 		//		sendNewJoinToAuthor(member); pv msg
 		isUpWithDb = false;
 	}

@@ -59,6 +59,8 @@ public class InvitesHandler {
 					.map(dsi -> invs.stream().filter(iv -> dsi.getUses() == iv.getUses() - 1 && dsi.getCode().equals(iv.getCode())).findFirst().orElse(null))
 					.filter(di -> di != null).collect(Collectors.toList());
 			inviter.accept(discordInvites.stream().map(Invite::getInviter).collect(Collectors.toList()));
+			if (discordInvites.isEmpty())
+				return; // discord.gg/olympa
 			if (discordInvites.size() > 1) {
 				LinkSpigotBungee.getInstance().sendMessage("&e[DISCORD INVITE] &cImpossible de déterminer comment %s est arrivé là, il y a %d possibilités ...", memberInvited.getName(), discordInvites.size());
 				init(opGuild);

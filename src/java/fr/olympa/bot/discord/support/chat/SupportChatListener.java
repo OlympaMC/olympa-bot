@@ -2,6 +2,7 @@ package fr.olympa.bot.discord.support.chat;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.common.task.NativeTask;
@@ -11,7 +12,9 @@ import fr.olympa.bot.discord.message.DiscordURL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageActivity;
+import net.dv8tion.jda.api.entities.MessageActivity.Application;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -37,7 +40,7 @@ public class SupportChatListener extends ListenerAdapter {
 		if (user.isBot() || user.isSystem())
 			return;
 		Message message = event.getMessage();
-		MessageChannel channel = event.getChannel();
+		PrivateChannel channel = event.getChannel();
 		if (!DiscordPermission.AUTHOR.hasPermissionIdUser(user))
 			sendMessage(message);
 		else {
@@ -131,6 +134,18 @@ public class SupportChatListener extends ListenerAdapter {
 			eb.setTitle("Message privé reçu");
 			eb.setFooter("Pour répondre : `@" + user.getId() + " <ton message>`");
 			eb.setColor(Color.BLUE);
+		}
+		MessageActivity activity = message.getActivity();
+		if (activity != null) {
+			Application appli = activity.getApplication();
+			StringJoiner sj = new StringJoiner(" ");
+			if (activity.getPartyId() != null)
+				sj.add(activity.getPartyId());
+			if (appli != null) {
+				sj.add(appli.getName());
+				sj.add(appli.getDescription());
+			}
+			eb.addField("Activiter " + activity.getType().name(), sj.toString(), false);
 		}
 		DiscordPermission.AUTHOR.fetchAllowIdsUser(u -> {
 			u.openPrivateChannel().queue(ch -> ch.sendMessageEmbeds(eb.build()).queue());

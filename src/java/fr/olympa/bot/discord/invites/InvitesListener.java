@@ -77,7 +77,7 @@ public class InvitesListener extends ListenerAdapter {
 					if (!inviters.isEmpty())
 						embed.addField("Invité par ", ColorUtils.join(inviters.stream().map(inviter -> {
 							return inviter.getAsMention() + " (" + inviter.getAsTag() + ")";
-						}).collect(Collectors.toList()).iterator(), "ou"), true);
+						}).collect(Collectors.toList()).iterator(), " ou "), true);
 					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).append(member.getAsMention()).queue();
 				}
 			}, discordMember, (memberWhoInviteScore, authorMember) -> {
