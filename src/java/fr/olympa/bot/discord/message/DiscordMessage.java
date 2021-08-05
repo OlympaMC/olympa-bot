@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -63,14 +63,14 @@ public class DiscordMessage {
 	}
 
 	public DiscordMessage(long olympaGuildId, long channelId, long messageId, long olympaDiscordAuthorId, String contents, Timestamp created, long logMessageId) {
-		this.olympaGuildId = olympaGuildId;
-		this.channelId = channelId;
-		this.messageId = messageId;
-		this.olympaDiscordAuthorId = olympaDiscordAuthorId;
+		olympaGuildId = olympaGuildId;
+		channelId = channelId;
+		messageId = messageId;
+		olympaDiscordAuthorId = olympaDiscordAuthorId;
 		if (contents != null && !contents.isBlank())
-			this.contents = new Gson().fromJson(contents, new TypeToken<List<MessageContent>>() {}.getType());
-		this.created = created.getTime() / 1000L;
-		this.logMessageId = logMessageId;
+			contents = new Gson().fromJson(contents, new TypeToken<List<MessageContent>>() {}.getType());
+		created = created.getTime() / 1000L;
+		logMessageId = logMessageId;
 	}
 
 	public long getGuildId() {
