@@ -1,5 +1,5 @@
 package fr.olympa.bot.discord.api.reaction;
-
+ 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,8 +51,8 @@ public abstract class ReactionDiscord {
 	}
 
 	protected ReactionDiscord(LinkedMap<String, String> reactionsEmojis, boolean canMultiple) {
-		canMultiple = canMultiple;
-		reactionsEmojis = reactionsEmojis;
+		this.canMultiple = canMultiple;
+		this.reactionsEmojis = reactionsEmojis;
 	}
 
 	public boolean canInteract(User user) {
@@ -62,7 +62,7 @@ public abstract class ReactionDiscord {
 	}
 
 	public boolean setMutiple(boolean canMultiple) {
-		return canMultiple = canMultiple;
+		return this.canMultiple = canMultiple;
 	}
 
 	public boolean enableMutiple() {
@@ -178,7 +178,7 @@ public abstract class ReactionDiscord {
 		AwaitReaction.reactions.put(message.getIdLong(), this);
 		addReaction(message, getEmojis());
 		messageId = message.getIdLong();
-		message = message;
+		this.message = message;
 		if (message.isFromGuild())
 			olympaGuildId = GuildHandler.getOlympaGuild(message.getGuild()).getId();
 	}

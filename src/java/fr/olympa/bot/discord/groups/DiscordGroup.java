@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 import com.vdurmont.emoji.EmojiParser;
 
-import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.api.common.groups.OlympaGroup;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
@@ -22,6 +22,7 @@ public enum DiscordGroup {
 	FONDA(OlympaGroup.FONDA, 610410821868060673L, 606161934126940193L, null, false),
 	ADMIN(OlympaGroup.ADMIN, 558322950680346624L, 544594116932272139L, "Ils sont très occupés, utilise plutôt le forum pour discuter avec eux.", false),
 	RESP(OlympaGroup.RESP, 731215969128808508L, 731225340655173632L, null, false),
+	AMBASSADOR(OlympaGroup.AMBASSADOR, 871854901863518348L, 871852276854181919L, null, false),
 	RESP_TECH(OlympaGroup.RESP_TECH, 571755659557601290L, 600770206192762908L, null, false),
 	RESP_STAFF(OlympaGroup.RESP_STAFF, 600766523354644491L, 600770102006120452L, null, false),
 	RESP_BUILDER(OlympaGroup.RESP_BUILDER, 570320569443155983L, 560935286289203202L, null, false),
@@ -37,6 +38,8 @@ public enum DiscordGroup {
 	GAMEMASTER(OlympaGroup.GAMEMASTER, 730161035088101416L, 730164373418541057L, "Question spécifique au fonctionnement d'un de nos jeux Minecraft.", true),
 	GRAPHISTE(OlympaGroup.GRAPHISTE, 558322958905638944L, 558442057174089740L, null, false),
 	FRIEND(OlympaGroup.FRIEND, 603012821630058498L, 558168724708786187L, null, false),
+	VIPPLUS(OlympaGroup.VIPPLUS, 0, 866362977527136266L, null, false),
+	VIP(OlympaGroup.VIP, 0, 866362977527136266L, null, false),
 	YOUTUBER(OlympaGroup.YOUTUBER, 558322955386617858L, 558570424288542740L, null, false),
 	MINI_YOUTUBER(OlympaGroup.MINI_YOUTUBER, 558322956070289430L, 558440310108323874L, null, false),
 	PLAYER(OlympaGroup.PLAYER, 0, 558334380393627670L, null, false),
