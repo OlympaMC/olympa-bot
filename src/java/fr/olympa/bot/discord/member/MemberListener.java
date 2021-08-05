@@ -42,7 +42,6 @@ public class MemberListener extends ListenerAdapter {
 
 	private long channelUpdateExpiration1 = 0;
 	private long channelUpdateExpiration2 = 0;
-	private int nbTimeUpdate = 0;
 	private boolean task = false;
 
 	/*
@@ -171,7 +170,7 @@ public class MemberListener extends ListenerAdapter {
 			GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
 			if (membersChannel != null)
 				membersChannel.getManager().setName("Membres : " + usersTotal).queue();
-			long expiration = System.currentTimeMillis() + 10 * 60 + 2;
+			long expiration = Utils.getCurrentTimeInSeconds() + 10 * 60 + 2;
 			if (time1 < 0)
 				channelUpdateExpiration1 = expiration;
 			else
