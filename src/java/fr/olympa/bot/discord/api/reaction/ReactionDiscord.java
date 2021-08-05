@@ -1,5 +1,5 @@
 package fr.olympa.bot.discord.api.reaction;
- 
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -53,6 +53,19 @@ public abstract class ReactionDiscord {
 	protected ReactionDiscord(LinkedMap<String, String> reactionsEmojis, boolean canMultiple) {
 		this.canMultiple = canMultiple;
 		this.reactionsEmojis = reactionsEmojis;
+	}
+
+	/**
+	 *
+	 * @param canMultiple
+	 * @param emojisAndName emoji, name, emoji, name ...
+	 */
+	protected ReactionDiscord(boolean canMultiple, String... emojisAndName) {
+		this.canMultiple = canMultiple;
+		reactionsEmojis = new LinkedMap<>();
+		if (emojisAndName != null && emojisAndName.length != 0)
+			for (int i = 0; emojisAndName.length > i + 1; i++)
+				reactionsEmojis.put(emojisAndName[i], emojisAndName[++i]);
 	}
 
 	public boolean canInteract(User user) {

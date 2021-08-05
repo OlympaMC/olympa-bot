@@ -9,6 +9,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.bungee.command.BungeeCommand;
+import fr.olympa.api.common.player.OlympaPlayer;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -32,6 +33,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.HoverEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class DiscordCommand extends BungeeCommand {
@@ -57,19 +59,23 @@ public class DiscordCommand extends BungeeCommand {
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
 
-		textComponent = new TextComponent("discord.olympa.fr");
+		textComponent = new TextComponent("discord.gg/olympa");
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
 		textComponent.setUnderlined(true);
 		textComponent.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
-		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "discord.olympa.fr"));
+		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://discord.olympa.fr"));
 		message.addExtra(textComponent);
 
-		textComponent = new TextComponent(". Pour relier ton compte discord à Minecraft, fais ");
+		textComponent = new TextComponent(". Pour relier ton compte Discord à Minecraft, fais ");
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
 
 		textComponent = new TextComponent("/discord link");
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
+		message.addExtra(textComponent);
+
+		textComponent = new TextComponent(".");
+		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
 	}
 
@@ -84,7 +90,7 @@ public class DiscordCommand extends BungeeCommand {
 		switch (args[0].toLowerCase()) {
 
 		case "link":
-			DiscordMember discordMember;
+			DiscordMember discordMember = null;
 			try {
 				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
 			} catch (SQLException e) {
@@ -93,7 +99,7 @@ public class DiscordCommand extends BungeeCommand {
 				return;
 			}
 			if (discordMember != null) {
-				OlympaBots.getInstance().getDiscord();
+				//				OlympaBots.getInstance().getDiscord();
 				sendError("Tu as déjà relié ton compte avec &4%s&c.", discordMember.getTagName());
 				return;
 			}
@@ -117,16 +123,26 @@ public class DiscordCommand extends BungeeCommand {
 		case "roles":
 			OlympaGuild olympaGuild = GuildHandler.getOlympaGuild(DiscordGuildType.PUBLIC);
 			Guild guild = olympaGuild.getGuild();
-			if (args.length > 2) {
-				proxiedPlayer = ProxyServer.getInstance().getPlayer(args[1]);
+			OlympaPlayer olympaPlayerTarget;
+			ProxiedPlayer playerTarget;
+
+			if (args.length >= 2) {
+				playerTarget = ProxyServer.getInstance().getPlayer(args[1]);
+				olympaPlayerTarget = AccountProvider.getter().get(proxiedPlayer.getUniqueId());
+			} else {
 				if (proxiedPlayer == null) {
-					sendUnknownPlayer(args[1]);
+					sendError("Impossible en console. Ajoute un joueur");
 					return;
 				}
+				playerTarget = proxiedPlayer;
+				olympaPlayerTarget = getOlympaPlayer();
 			}
-			olympaPlayer = AccountProvider.getter().get(proxiedPlayer.getUniqueId());
+			if (olympaPlayerTarget == null || playerTarget == null) {
+				sendUnknownPlayer(args[1]);
+				return;
+			}
 			try {
-				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
+				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayerTarget.getId());
 				if (discordMember == null) {
 					if (args.length > 2)
 						sendError("&4" + proxiedPlayer.getDisplayName() + "&c n'as pas lié son compte Discord et Minecraft.");

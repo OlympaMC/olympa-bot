@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.map.LinkedMap;
-
 import fr.olympa.bot.discord.api.reaction.ReactionDiscord;
 import fr.olympa.bot.discord.commands.ClearCommand;
 import net.dv8tion.jda.api.entities.Message;
@@ -21,16 +19,7 @@ public class ErrorReaction extends ReactionDiscord {
 	Map<String, Integer> exceptionByServers = new HashMap<>();
 
 	public ErrorReaction(String serverName, String stackTrace) {
-		super(new LinkedMap<String, String>() {
-			private static final long serialVersionUID = -3385687263702744975L;
-			{
-				put("☝️", "forMe");
-				put("📌", "pin");
-				put("👍", "fix");
-				put("❌", "delete");
-				put("🗑️", "clear_channel");
-			}
-		}, true);
+		super(true, "☝️", "forMe", "📌", "pin", "👍", "fix", "❌", "delete", "🗑️", "clear_channel");
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 		exceptionByServers.put(serverName, 1);
