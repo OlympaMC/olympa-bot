@@ -3,7 +3,6 @@ package fr.olympa.bot;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import org.apache.logging.slf4j.Log4jLogger;
 
@@ -67,9 +66,6 @@ public class OlympaBots extends Plugin {
 		spigotReceiveError = new SpigotReceiveError();
 		//		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, this::sendBungeeErrorTestStandardOutputError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
-		for (Logger logger : LoggerUtils.getAllHooks()) {
-
-		}
 		LoggerUtils.hook(new ErrorLoggerHandler(spigotReceiveError::sendBungeeError));
 		try {
 			Field f = Log4jLogger.class.getDeclaredField("logger");
