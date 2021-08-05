@@ -7,7 +7,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ArrayListMultimap;
 
-import fr.olympa.api.LinkSpigotBungee;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.ErrorReaction;
 import fr.olympa.bot.discord.OlympaDiscord;
@@ -45,7 +44,7 @@ public class SpigotReceiveError extends JedisPubSub {
 	public static Cache<String, ErrorReaction> cache = CacheBuilder.newBuilder().recordStats().maximumSize(50).build();
 
 	public void sendBungeeError(String stackTrace) {
-		sendError("bungee", stackTrace);
+		sendError(OlympaBots.getInstance().getServerName(), stackTrace);
 	}
 
 	public void sendError(String serverName, String stackTrace) {
@@ -62,12 +61,12 @@ public class SpigotReceiveError extends JedisPubSub {
 			if (message != null)
 				message.editMessage(errorReaction.getMessageTitle()).queue();
 			else
-				LinkSpigotBungee.Provider.link.sendMessage("§cImpossible de modifier une erreur (de &4serverName = %s&c) sur discord, l'instance message est null.", serverName);
+				OlympaBots.getInstance().sendMessage("§cImpossible de modifier une erreur (de &4serverName = %s&c) sur discord, l'instance message est null.", serverName);
 			return;
 		}
 		TextChannel channelStaffDiscord = GuildHandler.getBugsChannel();
 		if (channelStaffDiscord == null) {
-			LinkSpigotBungee.Provider.link.sendMessage("§cImpossible de print une erreur (de &4serverName = %s&c) sur discord, le bot discord est pas connecté.", serverName);
+			OlympaBots.getInstance().sendMessage("§cImpossible de print une erreur (de &4serverName = %s&c) sur discord, le bot discord est pas connecté.", serverName);
 			return;
 		}
 		byte[] byteArrray = stackTrace.getBytes(StandardCharsets.UTF_8);

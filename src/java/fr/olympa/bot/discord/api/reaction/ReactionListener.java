@@ -61,7 +61,7 @@ public class ReactionListener extends ListenerAdapter {
 				react.removeReaction(user).queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS, ErrorResponse.UNKNOWN_MESSAGE));
 			return;
 		}
-		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
+		LinkSpigotBungee.getInstance().getTask().runTaskAsynchronously(() -> {
 			Message message = event.getTextChannel().retrieveMessageById(messageId).complete();
 			long nb = 0;
 			if (!reaction.canMultiple())

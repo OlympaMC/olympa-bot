@@ -56,14 +56,14 @@ public class DeployCommand extends DiscordCommand {
 	private void disableTask() {
 		if (taskId == -1)
 			return;
-		LinkSpigotBungee.Provider.link.getTask().removeTaskById(taskId);
+		LinkSpigotBungee.getInstance().getTask().removeTaskById(taskId);
 		taskId = -1;
 	}
 
 	private void enableTask() {
 		if (taskId != -1)
 			return;
-		taskId = LinkSpigotBungee.Provider.link.getTask().scheduleSyncRepeatingTask(() -> {
+		taskId = LinkSpigotBungee.getInstance().getTask().scheduleSyncRepeatingTask(() -> {
 			if (OUT.isEmpty()) {
 				disableTask();
 				return;

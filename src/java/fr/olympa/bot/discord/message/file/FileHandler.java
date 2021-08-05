@@ -45,7 +45,7 @@ public class FileHandler {
 		try {
 			file = addFile(new URL(primarURL), fileName);
 		} catch (IOException e) {
-			LinkSpigotBungee.Provider.link.sendMessage("Impossible de télécharger le fichier %s sur les serveurs discords, 2ème essai avec le lien original...", fileName);
+			OlympaBots.getInstance().sendMessage("Impossible de télécharger le fichier %s sur les serveurs discords, 2ème essai avec le lien original...", fileName);
 			e.printStackTrace();
 			file = addFile(new URL(secondURL), fileName);
 		}

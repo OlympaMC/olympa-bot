@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import fr.olympa.api.LinkSpigotBungee;
+import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
@@ -59,11 +59,11 @@ public class InvitesHandler {
 					.map(dsi -> invs.stream().filter(iv -> dsi.getUses() == iv.getUses() - 1 && dsi.getCode().equals(iv.getCode())).findFirst().orElse(null))
 					.filter(di -> di != null).collect(Collectors.toList());
 			inviter.accept(discordInvites.stream().map(Invite::getInviter).collect(Collectors.toList()));
-			if (discordInvites.isEmpty())
-				return; // discord.gg/olympa
-			if (discordInvites.size() > 1) {
-				LinkSpigotBungee.getInstance().sendMessage("&e[DISCORD INVITE] &cImpossible de déterminer comment %s est arrivé là, il y a %d possibilités ...", memberInvited.getName(), discordInvites.size());
-				init(opGuild);
+			if (discordInvites.size() != 1) {
+				if (!discordInvites.isEmpty()) { // != discord.gg/olympa
+					OlympaBots.getInstance().sendMessage("&e[DISCORD INVITE] &cImpossible de déterminer comment %s est arrivé là, il y a %d possibilités ...", memberInvited.getName(), discordInvites.size());
+					init(opGuild);
+				}
 				if (memberWhoInviteScore != null)
 					memberWhoInviteScore.accept(null, null);
 				return;

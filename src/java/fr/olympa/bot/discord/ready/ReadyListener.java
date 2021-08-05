@@ -155,7 +155,7 @@ public class ReadyListener extends ListenerAdapter {
 		OlympaBots.getInstance().spigotReceiveError.sendErrorsInQueue();
 
 		// DEBUG if some DiscordMember has tag enmpty
-		//		LinkSpigotBungee.Provider.link.getTask().runTaskAsynchronously(() -> {
+		//		LinkSpigotBungee.getInstance().getTask().runTaskAsynchronously(() -> {
 		//			try {
 		//				List<DiscordMember> list = DiscordSQL.debug();
 		//				System.out.println("list " + list.size());

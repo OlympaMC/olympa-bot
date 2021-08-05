@@ -54,7 +54,7 @@ public enum DiscordGroup {
 				.filter(dg -> Arrays.stream(DiscordGroup.values()).anyMatch(dg2 -> !dg2.name().equals(dg.name()) && (dg2.idStaff != 0 && dg2.idStaff == dg.idStaff || dg2.idPublic != 0 && dg2.idPublic == dg.idPublic)))
 				.map(DiscordGroup::name).collect(Collectors.joining(", "));
 		if (badParameter != null && !badParameter.isEmpty())
-			LinkSpigotBungee.getInstance().sendMessage("&4CRITICAL ERROR &cL'enum DiscordGroup a mal été configurer, en effet, les groupes %s ont un id discord qui est utiliser plusieurs fois.", badParameter);
+			OlympaBots.getInstance().sendMessage("&4CRITICAL ERROR &cL'enum DiscordGroup a mal été configurer, en effet, les groupes %s ont un id discord qui est utiliser plusieurs fois.", badParameter);
 
 	}
 

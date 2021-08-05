@@ -42,6 +42,7 @@ public class MemberListener extends ListenerAdapter {
 
 	private long channelUpdateExpiration1 = 0;
 	private long channelUpdateExpiration2 = 0;
+	private int nbTimeUpdate = 0;
 	private boolean task = false;
 
 	/*
@@ -122,7 +123,7 @@ public class MemberListener extends ListenerAdapter {
 				//				DiscordSQL.updateMember(discordMember);
 			}
 			if (discordMember.getOlympaId() != 0)
-				LinkSpigotBungee.Provider.link.getTask().runTaskLater(() -> {
+				LinkSpigotBungee.getInstance().getTask().runTaskLater(() -> {
 					try {
 						LinkHandler.updateGroups(member, AccountProvider.getter().get(discordMember.getOlympaId()));
 					} catch (SQLException e) {
@@ -151,24 +152,27 @@ public class MemberListener extends ListenerAdapter {
 
 	public long updateChannelMember(Guild defaultGuild) {
 		long usersTotal = defaultGuild.getMembers().stream().filter(member -> !member.getUser().isBot()).count();
-		long time1 = channelUpdateExpiration1 - System.currentTimeMillis();
-		long time2 = channelUpdateExpiration2 - System.currentTimeMillis();
+		long now = Utils.getCurrentTimeInSeconds();
+		//		if (channelUpdateExpiration1 == 0 || now > channelUpdateExpiration1 || channelUpdateExpiration2 == 0 || now > channelUpdateExpiration2) {
+		//
+		//		}
+		long time1 = channelUpdateExpiration1 - now;
+		long time2 = channelUpdateExpiration2 - now;
 		if (time1 > 0 && time2 > 0) {
 			if (!task) {
 				task = true;
 				BungeeTaskManager taskManager = OlympaBungee.getInstance().getTask();
-				if (!taskManager.taskExist("discord_update_channel"))
-					taskManager.runTaskLater("discord_update_channel", () -> {
-						task = false;
-						updateChannelMember(defaultGuild);
-					}, Math.min(time1, time2) + 2000, TimeUnit.MILLISECONDS);
+				taskManager.runTaskLater(() -> {
+					task = false;
+					updateChannelMember(defaultGuild);
+				}, Math.min(time1, time2) + 2, TimeUnit.SECONDS);
 			}
 		} else {
 			GuildChannel membersChannel = defaultGuild.getChannels().stream().filter(c -> c.getIdLong() == 589164145664851972L).findFirst().orElse(null);
 			if (membersChannel != null)
 				membersChannel.getManager().setName("Membres : " + usersTotal).queue();
-			long expiration = System.currentTimeMillis() + 10 * 60 * 1000 + 2000;
-			if (time1 > 0)
+			long expiration = System.currentTimeMillis() + 10 * 60 + 2;
+			if (time1 < 0)
 				channelUpdateExpiration1 = expiration;
 			else
 				channelUpdateExpiration2 = expiration;

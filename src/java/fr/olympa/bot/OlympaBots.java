@@ -3,6 +3,7 @@ package fr.olympa.bot;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import org.apache.logging.slf4j.Log4jLogger;
 
@@ -57,7 +58,7 @@ public class OlympaBots extends Plugin {
 	}
 
 	public void sendBungeeErrorTestStandardOutputError(String stackTrace) {
-		LinkSpigotBungee.Provider.link.sendMessage("[TEST TO BE REMOVED] Standard error output catched.");
+		OlympaBots.getInstance().sendMessage("[TEST TO BE REMOVED] Standard error output catched.");
 	}
 
 	@Override
@@ -66,13 +67,16 @@ public class OlympaBots extends Plugin {
 		spigotReceiveError = new SpigotReceiveError();
 		//		System.setErr(new PrintStream(new ErrorOutputStream(System.err, spigotReceiveError::sendBungeeError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
 		System.setErr(new PrintStream(new ErrorOutputStream(System.err, this::sendBungeeErrorTestStandardOutputError, run -> NativeTask.getInstance().runTaskLater(run, 1, TimeUnit.SECONDS))));
+		for (Logger logger : LoggerUtils.getAllHooks()) {
+
+		}
 		LoggerUtils.hook(new ErrorLoggerHandler(spigotReceiveError::sendBungeeError));
 		try {
 			Field f = Log4jLogger.class.getDeclaredField("logger");
 			f.setAccessible(true);
 			org.apache.logging.log4j.core.Logger log = (org.apache.logging.log4j.core.Logger) f.get(JDAImpl.LOG);
 			log.addAppender(new Log4JErrorAppender(spigotReceiveError::sendBungeeError));
-		}catch (Exception ex) {
+		} catch (Exception ex) {
 			sendMessage("§cFailed to implement custom appender in JDA logger (type %s).", JDAImpl.LOG.getClass().getName());
 			ex.printStackTrace();
 		}
@@ -90,7 +94,7 @@ public class OlympaBots extends Plugin {
 		new DiscordCommand(this).register();
 		new TeamspeakCommand(this).register();
 
-		LinkSpigotBungee.Provider.link.launchAsync(() -> {
+		LinkSpigotBungee.getInstance().launchAsync(() -> {
 			olympaDiscord = new OlympaDiscord(this);
 			olympaDiscord.connect();
 
@@ -125,5 +129,9 @@ public class OlympaBots extends Plugin {
 
 	private String getPrefixConsole() {
 		return "&f[&6" + getDescription().getName() + "&f] &e";
+	}
+
+	public String getServerName() {
+		return "bungee";
 	}
 }

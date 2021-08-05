@@ -270,7 +270,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			throw new IllegalAccessError("Unable to update deleted DiscordInvite");
 		int inviteUses = invite.getUses();
 		if (inviteUses != uses) {
-			LinkSpigotBungee.getInstance().sendMessage("&e[DISCORD INVITE] &cL'invitation %s par %s n'était pas à jour dans la bdd ...", invite.getCode(), invite.getInviter().getAsTag());
+			OlympaBots.getInstance().sendMessage("&e[DISCORD INVITE] &cL'invitation %s par %s n'était pas à jour dans la bdd ...", invite.getCode(), invite.getInviter().getAsTag());
 			isUpWithDb = false;
 			uses = invite.getUses();
 		}
@@ -346,7 +346,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 				continue;
 			if (pastUsersIds.add(userId)) {
 				fixed = true;
-				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addPastUsers from users");
+				OlympaBots.getInstance().sendMessage("&cFix invite sucess -> &4" + code + "&c addPastUsers from users");
 			}
 		}
 		Set<DiscordMember> toBeRemoved = new HashSet<>();
@@ -359,12 +359,12 @@ public class DiscordInvite extends DiscordSmallInvite {
 			if (user == null || !guild.isMember(user)) {
 				// Check if user in on guild
 				toBeRemoved.add(discordMember);
-				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c removeUser");
+				OlympaBots.getInstance().sendMessage("&cFix invite sucess -> &4" + code + "&c removeUser");
 				fixed = true;
 			} else
 				// Check if user is set as leaver on other invite
 				DiscordInvite.getByUser(DiscordInvite.COLUMN_USERS_LEAVER_OLYMPA_DISCORD_ID, discordMember, getDiscordGuild()).forEach(di -> {
-					LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite");
+					OlympaBots.getInstance().sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite");
 					di.removeLeaver(discordMember);
 					di.update();
 				});
@@ -378,7 +378,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			if (list.size() > 1)
 				list.forEach(di -> {
 					if (!di.getCode().equals(code)) {
-						LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c remove cause it is on other invite");
+						OlympaBots.getInstance().sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c remove cause it is on other invite");
 						di.removeUser(discordMember);
 						di.update();
 					}
@@ -391,7 +391,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 				throw new NullPointerException("Unable to get DiscordMember of olympaDiscordId n°" + userId + ".");
 			User user = discordMember.getUser();
 			if (user != null && guild.isMember(user)) {
-				LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c removeUserLeaver");
+				OlympaBots.getInstance().sendMessage("&cFix invite sucess -> &4" + code + "&c removeUserLeaver");
 				toBeRemoved.add(discordMember);
 				fixed = true;
 			}
@@ -405,7 +405,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 			if (list.size() > 1)
 				list.forEach(di -> {
 					if (!di.getCode().equals(code)) {
-						LinkSpigotBungee.Provider.link.sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite as leaver");
+						OlympaBots.getInstance().sendMessage(code + " &cFix invite sucess -> &4" + di.getCode() + "&c removeLeave cause it is on other invite as leaver");
 						di.removeLeaver(discordMember);
 						di.update();
 					}
@@ -423,7 +423,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 				List<DiscordInvite> list = DiscordInvite.getLastAssociedInvites(discordMember, getDiscordGuild());
 				if (list.isEmpty()) {
 					fixed = true;
-					LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
+					OlympaBots.getInstance().sendMessage("&cFix invite sucess -> &4" + code + "&c addLeaver");
 					removeUser(discordMember);
 				}
 			}
@@ -432,12 +432,12 @@ public class DiscordInvite extends DiscordSmallInvite {
 		//		toBeRemoved.clear();
 		//
 		if (leaveUsersIds.size() != usesLeaver) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver (%d != %d)", leaveUsersIds.size(), usesLeaver);
+			OlympaBots.getInstance().sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesLeaver, leaveUsersIds.size() != usesLeaver (%d != %d)", leaveUsersIds.size(), usesLeaver);
 			usesLeaver = leaveUsersIds.size();
 			fixed = true;
 		}
 		if (usersIds.size() != usesUnique) {
-			LinkSpigotBungee.Provider.link.sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique usersIds.size() != usesUnique (%d != %d).", usersIds.size(), usesUnique);
+			OlympaBots.getInstance().sendMessage("&cFix invite sucess -> &4" + code + "&c bad usesUnique usersIds.size() != usesUnique (%d != %d).", usersIds.size(), usesUnique);
 			usesUnique = usersIds.size();
 			fixed = true;
 		}

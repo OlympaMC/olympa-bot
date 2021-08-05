@@ -105,13 +105,13 @@ public class DiscordMessage {
 	public void addEditedMessage(Message message, Map<Attachment, String> attachments) {
 		getContents().add(new MessageContent(message, this, attachments));
 		while (isFullContents())
-			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", "?", new Gson().toJson(contents.remove(contents.size() / 2)));
+			OlympaBots.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", "?", new Gson().toJson(contents.remove(contents.size() / 2)));
 	}
 
 	public void addEditedMessage(Message message) {
 		getContents().add(new MessageContent(message, this, Collections.emptyMap()));
 		while (isFullContents())
-			LinkSpigotBungee.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", "?", new Gson().toJson(contents.remove(contents.size() / 2)));
+			OlympaBots.getInstance().sendMessage("[DISCORD BOT] Message edition of %s is too long for saving in db. data lost : %s", "?", new Gson().toJson(contents.remove(contents.size() / 2)));
 	}
 
 	public OlympaGuild getOlympaGuild() {
