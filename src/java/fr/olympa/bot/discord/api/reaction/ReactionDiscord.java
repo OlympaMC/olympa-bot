@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
@@ -42,6 +43,7 @@ public abstract class ReactionDiscord {
 	private long olympaGuildId;
 	@Nullable
 	protected Message message;
+	protected long time;
 
 	protected ReactionDiscord() {}
 
@@ -53,6 +55,7 @@ public abstract class ReactionDiscord {
 	protected ReactionDiscord(LinkedMap<String, String> reactionsEmojis, boolean canMultiple) {
 		this.canMultiple = canMultiple;
 		this.reactionsEmojis = reactionsEmojis;
+		time = Utils.getCurrentTimeInSeconds();
 	}
 
 	/**
@@ -72,6 +75,10 @@ public abstract class ReactionDiscord {
 		if (canReactUserIds == null || canReactUserIds.isEmpty())
 			return true;
 		return canReactUserIds.stream().anyMatch(id -> user.getIdLong() == id);
+	}
+
+	public long getTime() {
+		return time;
 	}
 
 	public boolean setMutiple(boolean canMultiple) {
@@ -179,6 +186,7 @@ public abstract class ReactionDiscord {
 		removeWhenModClearAll = resultSet.getInt("remove_when_modclearall") == 1;
 		messageId = resultSet.getLong("message_id");
 		olympaGuildId = resultSet.getLong("guild_id");
+		time = resultSet.getTimestamp("time").getTime() / 1000L;
 		if (resultSet.getString("data") != null)
 			data = new Gson().fromJson(resultSet.getString("data"), new TypeToken<Map<Object, Object>>() {}.getType());
 	}

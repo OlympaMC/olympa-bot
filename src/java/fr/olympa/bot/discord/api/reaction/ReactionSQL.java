@@ -3,6 +3,7 @@ package fr.olympa.bot.discord.api.reaction;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class ReactionSQL {
 	static String tableReaction = "discord.reactions";
 
 	private static OlympaStatement insertReactionStatement = new OlympaStatement(StatementType.INSERT, tableReaction,
-			new String[] { "name", "message_id", "allowed_users_ids", "emojis", "data", "can_multiple", "remove_when_modclearall", "guild_id" });
+			new String[] { "name", "message_id", "allowed_users_ids", "emojis", "data", "can_multiple", "remove_when_modclearall", "guild_id", "date" });
 
 	public static void addReaction(ReactionDiscord reaction) throws SQLException, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		String name = ReactionHandler.toString(reaction);
@@ -35,6 +36,7 @@ public class ReactionSQL {
 			statement.setString(i++, new Gson().toJson(reaction.getData()));
 			statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
 			statement.setInt(i++, reaction.isRemoveWhenModClearAll() ? 1 : 0);
+			statement.setTimestamp(i++, new Timestamp(reaction.getTime() * 1000L));
 			statement.setLong(i, reaction.getOlympaGuildId());
 			insertReactionStatement.executeUpdate(statement);
 		}
