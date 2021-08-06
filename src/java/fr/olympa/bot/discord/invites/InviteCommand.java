@@ -84,7 +84,7 @@ public class InviteCommand extends DiscordCommand {
 						String.valueOf(mInv.getInvites().size())));
 				if (mInv.getRealLeaves() != 0)
 					em.addField(getField("Nombre de quittés", MessageEmbed.VALUE_MAX_LENGTH,
-							mInv.getLeavers().stream().map(dm -> DiscordUtils.getMemberFullNames(dm.getMember(guild))).collect(Collectors.joining(", ")),
+							mInv.getLeavers().stream().map(DiscordMember::getAsTag).collect(Collectors.joining(", ")),
 							String.valueOf(mInv.getRealLeaves())));
 				if (mInv.getReinvited() != 0)
 					em.addField(getField("Membres revenu par un autre lien", MessageEmbed.VALUE_MAX_LENGTH,
