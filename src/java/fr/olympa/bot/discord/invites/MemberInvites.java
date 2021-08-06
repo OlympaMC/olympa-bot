@@ -48,8 +48,8 @@ public class MemberInvites {
 		return invites;
 	}
 
-	public Set<DiscordInvite> getInvitesSorted() {
-		return invites.stream().sorted(new Sorting<DiscordInvite>(di -> di.getUses())).collect(Collectors.toSet());
+	public List<DiscordInvite> getInvitesSorted() {
+		return invites.stream().sorted(new Sorting<>(di -> di.getUses())).collect(Collectors.toList());
 	}
 
 	public Set<DiscordMember> getUsers() {
