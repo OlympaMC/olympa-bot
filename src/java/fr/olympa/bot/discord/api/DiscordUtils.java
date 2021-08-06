@@ -111,7 +111,7 @@ public class DiscordUtils {
 		if (member.getNickname() != null)
 			return "`" + member.getNickname() + "`" + "(`" + user.getAsTag() + "`)";
 		else
-			return user.getAsTag();
+			return "`" + user.getAsTag() + "`";
 	}
 
 	public static String getMemberMentionNameFull(Member member) {
