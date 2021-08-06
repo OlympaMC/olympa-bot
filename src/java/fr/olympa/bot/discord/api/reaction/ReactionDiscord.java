@@ -186,7 +186,7 @@ public abstract class ReactionDiscord {
 		removeWhenModClearAll = resultSet.getInt("remove_when_modclearall") == 1;
 		messageId = resultSet.getLong("message_id");
 		olympaGuildId = resultSet.getLong("guild_id");
-		time = resultSet.getTimestamp("time").getTime() / 1000L;
+		time = resultSet.getTimestamp("date").getTime() / 1000L;
 		if (resultSet.getString("data") != null)
 			data = new Gson().fromJson(resultSet.getString("data"), new TypeToken<Map<Object, Object>>() {}.getType());
 	}
