@@ -52,30 +52,61 @@ public class ServersCommand extends DiscordCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
 		Map<ServerInfo, ServerInfoAdvancedBungee> infos = MonitorServers.getServersMap();
-		for (ServerInfoAdvancedBungee info : MonitorServers.getServersSorted().toList())
-			if (!info.getName().contains("bungee")) {
+		MonitorServers.getServersByTypeWithBungee().forEach((olympaServer, serverEntrys) -> {
+			StringJoiner sb = new StringJoiner("\n");
+			serverEntrys.forEach((nb, info) -> {
+				if (sb.length() != 0)
+					sb.add("\n");
 				ServerStatus status = info.getStatus();
-				StringJoiner sb = new StringJoiner("\n");
 				sb.add("**" + info.getName() + "** " + (!info.isOpen() ? "__" + status.getName() + "__" : ""));
 				if (info.getOnlinePlayers() != null)
-					sb.add("**Joueurs** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "");
+					sb.add("**Joueurs** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers());
 				StringJoiner sj = new StringJoiner(" | ");
 				if (info.getTps() != null)
 					sj.add("**TPS** " + info.getTps());
-				if (info.getRawMemUsage() != null)
-					sj.add("**RAM** " + info.getMemUsage());
+				if (info.getTps() != null)
+					sj.add("**CPU** " + info.getCPUUsage());
+				//				if (info.getRawMemUsage() != null)
+				//					sj.add("**RAM** " + info.getMemUsage());
 				String infoExtra = sj.toString();
 				if (!infoExtra.isBlank())
-					sj.add(infoExtra);
+					sb.add(infoExtra);
 				String ver = info.getRangeVersionMinecraft();
 				if (!ver.equals("unknown"))
 					sb.add("**Version" + (ver.contains("à") ? "s" : "") + " : **" + ver + "");
-				if (info.getPing() != null)
+				if (info.getPing() != null && status != ServerStatus.CLOSE)
 					sb.add("**Ping :** " + info.getPing() + "ms");
 				if (info.getError() != null && !info.getError().isEmpty())
 					sb.add("Erreur : `" + info.getError() + "`");
-				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
-			}
+			});
+			embedBuilder.addField(olympaServer.getNameCaps() != null ? olympaServer.getNameCaps() : "Autres", sb.toString(), true);
+		});
+		//
+		//		MonitorServers.getServersWithBungee();
+		//		for (ServerInfoAdvancedBungee info : MonitorServers.getServersSorted().toList())
+		//			if (!info.getName().contains("bungee")) {
+		//				ServerStatus status = info.getStatus();
+		//				StringJoiner sb = new StringJoiner("\n");
+		//				sb.add("**" + info.getName() + "** " + (!info.isOpen() ? "__" + status.getName() + "__" : ""));
+		//				if (info.getOnlinePlayers() != null)
+		//					sb.add("**Joueurs** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "");
+		//				StringJoiner sj = new StringJoiner(" | ");
+		//				if (info.getTps() != null)
+		//					sj.add("**TPS** " + info.getTps());
+		//				if (info.getRawMemUsage() != null)
+		//					sj.add("**RAM** " + info.getMemUsage());
+		//				String infoExtra = sj.toString();
+		//				if (!infoExtra.isBlank())
+		//					sj.add(infoExtra);
+		//				String ver = info.getRangeVersionMinecraft();
+		//				if (!ver.equals("unknown"))
+		//					sb.add("**Version" + (ver.contains("à") ? "s" : "") + " : **" + ver + "");
+		//				if (info.getPing() != null)
+		//					sb.add("**Ping :** " + info.getPing() + "ms");
+		//				if (info.getError() != null && !info.getError().isEmpty())
+		//					sb.add("Erreur : `" + info.getError() + "`");
+		//				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
+		//			}
 		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).toList();
 		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
 			embedBuilder.setColor(Color.GREEN);
