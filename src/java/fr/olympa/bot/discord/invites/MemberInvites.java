@@ -51,7 +51,7 @@ public class MemberInvites {
 		return users;
 	}
 
-	public Set<DiscordMember> getUsersPast() {
+	public Set<DiscordMember> getUsersReivited() {
 		return usersReivited;
 	}
 

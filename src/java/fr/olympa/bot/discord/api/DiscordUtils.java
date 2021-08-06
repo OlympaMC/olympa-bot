@@ -116,7 +116,7 @@ public class DiscordUtils {
 	}
 
 	public static String getMemberMentionNameFull(Member member) {
-		return getMemberMentionNameFull(member);
+		return getMemberMentionNameFull(member.getUser());
 	}
 
 	public static String getMemberMentionNameFull(User user) {
