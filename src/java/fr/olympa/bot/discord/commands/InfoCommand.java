@@ -78,7 +78,7 @@ public class InfoCommand extends DiscordCommand {
 		case "ancien", "vieux":
 			if (!checkPrivateChannel(message, user))
 				return;
-			List<Member> older = message.getGuild().getMembers().stream().sorted((e1, e2) -> e1.getTimeJoined().compareTo(e2.getTimeJoined())).limit(25).collect(Collectors.toList());
+			List<Member> older = message.getGuild().getMembers().stream().sorted((e1, e2) -> e1.getTimeJoined().compareTo(e2.getTimeJoined())).limit(25).toList();
 			EmbedBuilder embed = new EmbedBuilder();
 			embed.setTitle("Les 25 membres les plus anciens :");
 			embed.setDescription(older.stream().map(m -> "`" + m.getUser().getAsTag() + "` depuis " + Utils.timestampToDuration(m.getTimeJoined().toEpochSecond())).collect(Collectors.joining("\n")));

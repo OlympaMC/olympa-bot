@@ -77,7 +77,7 @@ public class InvitesListener extends ListenerAdapter {
 					if (!inviters.isEmpty())
 						embed.addField("Invité par ", ColorUtils.join(inviters.stream().map(inviter -> {
 							return inviter.getAsMention() + " (" + inviter.getAsTag() + ")";
-						}).collect(Collectors.toList()).iterator(), " ou "), true);
+						}).toList().iterator(), " ou "), true);
 					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).append(member.getAsMention()).queue();
 				}
 			}, discordMember, (memberWhoInviteScore, authorMember) -> {
@@ -131,7 +131,7 @@ public class InvitesListener extends ListenerAdapter {
 								e.printStackTrace();
 							}
 							return "null";
-						}).collect(Collectors.toList()).iterator(), "ou"), true);
+						}).toList().iterator(), "ou"), true);
 					olympaGuild.getLogChannel().sendMessageEmbeds(embed.build()).append(member.getAsMention()).queue();
 				}
 			});

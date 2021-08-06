@@ -93,7 +93,7 @@ public class SupportHandler {
 	}
 
 	public static Category getCategory(Guild guild) {
-		List<Category> cats = guild.getCategories().stream().filter(cat -> cat.getName().endsWith("Support")).collect(Collectors.toList());
+		List<Category> cats = guild.getCategories().stream().filter(cat -> cat.getName().endsWith("Support")).toList();
 		if (cats.isEmpty())
 			return null;
 		Set<Category> catsSameGuild = cats.stream().map(cat -> cats.stream().filter(cat2 -> cat2.getGuild().getIdLong() == cat.getGuild().getIdLong()).findFirst().orElse(null)).collect(Collectors.toSet());

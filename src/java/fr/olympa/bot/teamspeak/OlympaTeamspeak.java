@@ -58,7 +58,7 @@ public class OlympaTeamspeak {
 						query.kickClientFromServer("Merci de ne pas utiliser le nom '" + nickName + "'.", client);
 			query.setNickname(nickName);
 			helpChannelsAdmin = query.getChannelByNameExact("☆ | Attente - Administrateur", true);
-			helpChannels = query.getChannelsByName("☆ | Besoin d'aide").stream().filter(c -> c.isPermanent() && (helpChannelsAdmin == null || helpChannelsAdmin.getId() != c.getId())).collect(Collectors.toList());
+			helpChannels = query.getChannelsByName("☆ | Besoin d'aide").stream().filter(c -> c.isPermanent() && (helpChannelsAdmin == null || helpChannelsAdmin.getId() != c.getId())).toList();
 			helpQueueChannel = query.getChannelByNameExact("File d'attente", true);
 			//			System.out.println("map : " + new Gson().toJson(helpChannelsAdmin.getMap()));
 			/*

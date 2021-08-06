@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.olympa.api.common.sort.Sorting;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
 
@@ -45,6 +46,10 @@ public class MemberInvites {
 
 	public List<DiscordInvite> getInvites() {
 		return invites;
+	}
+
+	public Set<DiscordInvite> getInvitesSorted() {
+		return invites.stream().sorted(new Sorting<DiscordInvite>(di -> di.getUses())).collect(Collectors.toSet());
 	}
 
 	public Set<DiscordMember> getUsers() {

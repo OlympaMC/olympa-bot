@@ -86,7 +86,7 @@ public enum DiscordGroup {
 	}
 
 	public static List<DiscordGroup> getStaffs() {
-		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.isStaff()).collect(Collectors.toList());
+		return Arrays.stream(DiscordGroup.values()).filter(dg -> dg.isStaff()).toList();
 	}
 
 	public static DiscordGroup get(Role role) {

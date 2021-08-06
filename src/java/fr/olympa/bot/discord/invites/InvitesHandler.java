@@ -57,8 +57,8 @@ public class InvitesHandler {
 			//			}
 			List<Invite> discordInvites = invites.stream()
 					.map(dsi -> invs.stream().filter(iv -> dsi.getUses() == iv.getUses() - 1 && dsi.getCode().equals(iv.getCode())).findFirst().orElse(null))
-					.filter(di -> di != null).collect(Collectors.toList());
-			inviter.accept(discordInvites.stream().map(Invite::getInviter).collect(Collectors.toList()));
+					.filter(di -> di != null).toList();
+			inviter.accept(discordInvites.stream().map(Invite::getInviter).toList());
 			if (discordInvites.size() != 1) {
 				if (!discordInvites.isEmpty()) { // != discord.gg/olympa
 					OlympaBots.getInstance().sendMessage("&e[DISCORD INVITE] &cImpossible de déterminer comment %s est arrivé là, il y a %d possibilités ...", memberInvited.getName(), discordInvites.size());
@@ -106,7 +106,7 @@ public class InvitesHandler {
 		List<DiscordInvite> list;
 		//		if (opGuild.isCacheComplete()) {
 		//			list = CACHE.asMap().values().stream().filter(iv -> iv.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).filter(iv -> iv.getAuthorId() == discordMember.getId())
-		//					.collect(Collectors.toList());
+		//					.toList();
 		//			if (!list.isEmpty())
 		//				return list;
 		//			else

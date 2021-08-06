@@ -63,15 +63,15 @@ public enum TeamspeakGroups {
 	}
 
 	public static List<TeamspeakGroups> getSeperators() {
-		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.isSeperator).collect(Collectors.toList());
+		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.isSeperator).toList();
 	}
 
 	public static List<TeamspeakGroups> get(OlympaGroup group) {
-		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.groups != null && Arrays.stream(tg.groups).anyMatch(g -> g.getId() == group.getId())).collect(Collectors.toList());
+		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.groups != null && Arrays.stream(tg.groups).anyMatch(g -> g.getId() == group.getId())).toList();
 	}
 
 	public static List<TeamspeakGroups> get(Collection<OlympaGroup> groups) {
-		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.groups != null && Arrays.stream(tg.groups).anyMatch(g -> groups.stream().anyMatch(gs -> g.getId() == gs.getId()))).collect(Collectors.toList());
+		return Arrays.stream(TeamspeakGroups.values()).filter(tg -> tg.groups != null && Arrays.stream(tg.groups).anyMatch(g -> groups.stream().anyMatch(gs -> g.getId() == gs.getId()))).toList();
 	}
 
 }

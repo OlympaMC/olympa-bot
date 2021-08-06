@@ -18,7 +18,7 @@ public enum NumberEmoji {
 	TEN("🔟", 10);
 
 	public static List<String> get() {
-		return Arrays.stream(NumberEmoji.values()).map(NumberEmoji::getEmoji).collect(Collectors.toList());
+		return Arrays.stream(NumberEmoji.values()).map(NumberEmoji::getEmoji).toList();
 	}
 
 	public static NumberEmoji get(int id) {

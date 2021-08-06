@@ -31,7 +31,7 @@ public class SpamListener extends ListenerAdapter {
 		SpamHandler.removeAllTagMember(member);
 		TextChannel channel = message.getTextChannel();
 		List<Member> mentionedMembers = message.getMentionedMembers().stream().filter(m -> DiscordUtils.isReal(m.getUser()) && m.getPermissions(channel).contains(Permission.MESSAGE_READ)).distinct()
-				.collect(Collectors.toList());
+				.toList();
 		if (mentionedMembers.isEmpty())
 			return;
 		List<Member> out = SpamHandler.addData(member, mentionedMembers);

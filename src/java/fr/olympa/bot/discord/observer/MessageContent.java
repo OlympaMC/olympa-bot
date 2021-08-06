@@ -55,7 +55,7 @@ public class MessageContent {
 		if (message.isEdited())
 			time = message.getTimeEdited().toEpochSecond() - dm.getCreated();
 		if (!attachments.isEmpty())
-			this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).collect(Collectors.toList());
+			this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).toList();
 	}
 
 	public MessageContent(Message message, DiscordMessage dm) {
@@ -63,13 +63,13 @@ public class MessageContent {
 		if (message.isEdited())
 			time = message.getTimeEdited().toEpochSecond() - dm.getCreated();
 		if (!message.getAttachments().isEmpty())
-			attachments = message.getAttachments().stream().map(MessageAttachement::new).collect(Collectors.toList());
+			attachments = message.getAttachments().stream().map(MessageAttachement::new).toList();
 	}
 
 	public MessageContent(String content, Map<Attachment, String> attachments) {
 		this.content = content;
 		if (!attachments.isEmpty())
-			this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).collect(Collectors.toList());
+			this.attachments = attachments.entrySet().stream().map(e -> new MessageAttachement(e.getKey(), e.getValue())).toList();
 	}
 
 	public boolean hasData() {

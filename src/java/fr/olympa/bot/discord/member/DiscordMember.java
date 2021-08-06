@@ -160,7 +160,7 @@ public class DiscordMember {
 			targets = UtilsCore.similarWords(name, guild.getMembers().stream().map(Member::getEffectiveName)
 					.collect(Collectors.toSet())).stream()
 					.map(n -> guild.getMembersByEffectiveName(n, false)).filter(m -> !m.isEmpty()).map(m -> m.get(0))
-					.collect(Collectors.toList());
+					.toList();
 		return targets;
 	}
 

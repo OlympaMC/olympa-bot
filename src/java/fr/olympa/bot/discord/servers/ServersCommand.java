@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
@@ -53,20 +52,18 @@ public class ServersCommand extends DiscordCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
 		Map<ServerInfo, ServerInfoAdvancedBungee> infos = MonitorServers.getServersMap();
-		for (ServerInfoAdvancedBungee info : MonitorServers.getServersSorted().collect(Collectors.toList()))
+		for (ServerInfoAdvancedBungee info : MonitorServers.getServersSorted().toList())
 			if (!info.getName().contains("bungee")) {
 				ServerStatus status = info.getStatus();
 				StringJoiner sb = new StringJoiner("\n");
-				sb.add("**" + info.getHumanName() + " : ** __" + status.getName() + "__");
+				sb.add("**" + info.getName() + "** " + (!info.isOpen() ? "__" + status.getName() + "__" : ""));
 				if (info.getOnlinePlayers() != null)
-					sb.add("**Joueurs :** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "");
+					sb.add("**Joueurs** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers() + "");
 				StringJoiner sj = new StringJoiner(" | ");
 				if (info.getTps() != null)
-					sj.add("**TPS :** " + info.getTps());
-				if (info.getCpuProcUsage() != null)
-					sj.add("**CPU :** " + info.getCPUUsage());
+					sj.add("**TPS** " + info.getTps());
 				if (info.getRawMemUsage() != null)
-					sj.add("**RAM :** " + info.getMemUsage());
+					sj.add("**RAM** " + info.getMemUsage());
 				String infoExtra = sj.toString();
 				if (!infoExtra.isBlank())
 					sj.add(infoExtra);
@@ -79,7 +76,7 @@ public class ServersCommand extends DiscordCommand {
 					sb.add("Erreur : `" + info.getError() + "`");
 				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
 			}
-		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).collect(Collectors.toList());
+		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).toList();
 		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
 			embedBuilder.setColor(Color.GREEN);
 		else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE))

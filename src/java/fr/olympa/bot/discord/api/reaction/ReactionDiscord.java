@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -49,7 +48,7 @@ public abstract class ReactionDiscord {
 
 	protected ReactionDiscord(LinkedMap<String, String> reactionsEmojis, boolean canMultiple, IMentionable... canReactUsers) {
 		this(reactionsEmojis, canMultiple);
-		canReactUserIds = Arrays.stream(canReactUsers).mapToLong(IMentionable::getIdLong).boxed().collect(Collectors.toList());
+		canReactUserIds = Arrays.stream(canReactUsers).mapToLong(IMentionable::getIdLong).boxed().toList();
 	}
 
 	protected ReactionDiscord(LinkedMap<String, String> reactionsEmojis, boolean canMultiple) {

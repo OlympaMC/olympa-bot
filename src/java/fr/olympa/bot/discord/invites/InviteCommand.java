@@ -16,6 +16,7 @@ import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
+import fr.olympa.bot.discord.message.DiscordURL;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -80,7 +81,7 @@ public class InviteCommand extends DiscordCommand {
 						String.valueOf(mInv.getUsers().size())));
 				s = Utils.withOrWithoutS(mInv.getInvites().size());
 				em.addField(getField("Lien" + s, MessageEmbed.VALUE_MAX_LENGTH,
-						mInv.getInvites().stream().map(DiscordSmallInvite::getUrl).collect(Collectors.joining(", ")),
+						mInv.getInvitesSorted().stream().map(di -> new DiscordURL(di.getUrl()).withLabel(di.getCode()) + " (" + di.getUses() + ")").collect(Collectors.joining(", ")),
 						String.valueOf(mInv.getInvites().size())));
 				if (mInv.getRealLeaves() != 0)
 					em.addField(getField("Nombre de quittés", MessageEmbed.VALUE_MAX_LENGTH,
@@ -168,7 +169,7 @@ public class InviteCommand extends DiscordCommand {
 				} else {
 					long invitesPerUser = invites.stream().map(invite -> invite.getAuthorId()).distinct().count();
 					em.setDescription("Il y a " + invites.size() + " invitations par " + invitesPerUser + " membres.\n");
-					for (DiscordInvite invite : invites.stream().sorted(InvitesHandler.getComparator()).collect(Collectors.toList())) {
+					for (DiscordInvite invite : invites.stream().sorted(InvitesHandler.getComparator()).toList()) {
 						DiscordMember author;
 						author = invite.getAuthor();
 						User user = author.getUser();

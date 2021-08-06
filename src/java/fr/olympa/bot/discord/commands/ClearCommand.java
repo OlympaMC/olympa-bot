@@ -53,7 +53,7 @@ public class ClearCommand extends DiscordCommand {
 			TextChannel channel = (TextChannel) message.getChannel();
 			DiscordUtils.sendTempMessage(channel, user.getAsMention() + " ➤ Suppression de tous les messages du channel " + channel.getAsMention() + " en cours...");
 			while (true) {
-				List<Message> messagesPurges = channel.getHistory().getRetrievedHistory().stream().filter(msg -> !msg.isPinned()).collect(Collectors.toList());
+				List<Message> messagesPurges = channel.getHistory().getRetrievedHistory().stream().filter(msg -> !msg.isPinned()).toList();
 				if (messagesPurges.isEmpty())
 					break;
 				channel.purgeMessages(messagesPurges);

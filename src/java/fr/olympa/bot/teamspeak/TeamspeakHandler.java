@@ -28,7 +28,7 @@ public class TeamspeakHandler {
 			player.sendMessage(Prefix.DEFAULT_BAD.formatMessageB("La laison TeamSpeak/Serveur est cassée."));
 			return;
 		}
-		List<Client> sameip = query.getClients().stream().filter(client -> client.getIp().equals(player.getAddress().getAddress().getHostAddress())).collect(Collectors.toList());
+		List<Client> sameip = query.getClients().stream().filter(client -> client.getIp().equals(player.getAddress().getAddress().getHostAddress())).toList();
 		if (sameip.isEmpty()) {
 			player.sendMessage(Prefix.DEFAULT_BAD.formatMessageB("Tu dois être connecté sur le TeamSpeak."));
 			return;
@@ -74,7 +74,7 @@ public class TeamspeakHandler {
 		List<TeamspeakGroups> permissions = TeamspeakGroups.get(olympaPlayer.getGroups().keySet());
 		permissions.add(TeamspeakGroups.CUSTOM.name(olympaPlayer.getGroupName()));
 		permissions.addAll(TeamspeakGroups.getSeperators());
-		List<ServerGroup> servergroups = query.getServerGroups().stream().filter(sg -> permissions.stream().anyMatch(p -> sg.getName().equalsIgnoreCase(p.getName()))).collect(Collectors.toList());
+		List<ServerGroup> servergroups = query.getServerGroups().stream().filter(sg -> permissions.stream().anyMatch(p -> sg.getName().equalsIgnoreCase(p.getName()))).toList();
 		for (ServerGroup tsGroup : servergroups)
 			queryAsync.addClientToServerGroup(tsGroup.getId(), client.getDatabaseId()).await();
 	}

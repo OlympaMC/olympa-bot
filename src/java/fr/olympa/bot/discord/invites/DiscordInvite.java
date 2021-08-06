@@ -106,7 +106,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 	public static List<DiscordInvite> getAll(OlympaGuild opGuild) throws SQLException, IllegalAccessException {
 		List<DiscordInvite> list;
 		//		if (opGuild.isCacheComplete()) {
-		//			list = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).collect(Collectors.toList());
+		//			list = InvitesHandler.CACHE.asMap().values().stream().filter(entry -> entry.getDiscordGuild().getId() == opGuild.getId()).map(DiscordSmallInvite::expand).toList();
 		//			if (!list.isEmpty())
 		//				return list;
 		//			else
