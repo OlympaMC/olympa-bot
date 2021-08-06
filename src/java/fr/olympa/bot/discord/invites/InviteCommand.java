@@ -84,11 +84,11 @@ public class InviteCommand extends DiscordCommand {
 						String.valueOf(mInv.getInvites().size())));
 				if (mInv.getRealLeaves() != 0)
 					em.addField(getField("Nombre de quittés", MessageEmbed.VALUE_MAX_LENGTH,
-							mInv.getLeavers().stream().map(DiscordMember::getAsTag).collect(Collectors.joining(", ")),
+							mInv.getLeavers().stream().map(dm -> "`" + dm.getAsTag() + "`").collect(Collectors.joining(", ")),
 							String.valueOf(mInv.getRealLeaves())));
 				if (mInv.getReinvited() != 0)
 					em.addField(getField("Membres revenu par un autre lien", MessageEmbed.VALUE_MAX_LENGTH,
-							mInv.getInvites().stream().map(DiscordSmallInvite::getUrl).collect(Collectors.joining(", ")),
+							mInv.getUsersReivited().stream().map(dm -> "`" + dm.getAsTag() + "`").collect(Collectors.joining(", ")),
 							String.valueOf(mInv.getInvites().size())));
 				em.setFooter(DiscordCommand.prefix + "invitetop pour voir le classement");
 				channel.sendMessageEmbeds(em.build()).queue();
