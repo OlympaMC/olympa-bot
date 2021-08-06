@@ -27,7 +27,7 @@ public class RefreshServersReaction extends ReactionDiscord {
 	@Override
 	public boolean onReactAdd(Message message, MessageChannel messageChannel, User user, MessageReaction messageReaction, String reactionsEmojis) {
 		if ("refresh".equalsIgnoreCase(reactionsEmojis))
-			message.editMessage(ServersCommand.getEmbed()).queue();
+			message.editMessageEmbeds(ServersCommand.getEmbeds()).queue();
 		return false;
 	}
 

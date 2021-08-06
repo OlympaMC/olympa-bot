@@ -1,14 +1,18 @@
 package fr.olympa.bot.discord.servers;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringJoiner;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
+import fr.olympa.api.common.server.OlympaServer;
 import fr.olympa.api.common.server.ServerInfoAdvancedBungee;
 import fr.olympa.api.common.server.ServerStatus;
+import fr.olympa.api.common.sort.Sorting;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
 import fr.olympa.core.bungee.servers.MonitorServers;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -42,45 +46,71 @@ public class ServersCommand extends DiscordCommand {
 	public void onCommandSend(DiscordCommand command, String[] args, Message message, String label) {
 		TextChannel channel = message.getTextChannel();
 		RefreshServersReaction reaction = new RefreshServersReaction(base, message.getAuthor());
-		channel.sendMessage(getEmbed()).queue(msg -> {
+		channel.sendMessageEmbeds(getEmbeds()).queue(msg -> {
 			reaction.addToMessage(msg);
 			reaction.saveToDB();
 		});
 	}
 
-	public static MessageEmbed getEmbed() {
+	public static List<MessageEmbed> getEmbeds() {
+		List<MessageEmbed> list = new ArrayList<>();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
 		Map<ServerInfo, ServerInfoAdvancedBungee> infos = MonitorServers.getServersMap();
-		MonitorServers.getServersByTypeWithBungee().forEach((olympaServer, serverEntrys) -> {
+		Color color;
+		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).toList();
+		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
+			color = Color.GREEN;
+		else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE))
+			color = Color.RED;
+		else
+			color = Color.PINK;
+		embedBuilder.setColor(color);
+		for (Entry<OlympaServer, Map<Integer, ServerInfoAdvancedBungee>> entry : MonitorServers.getServersByTypeWithBungee().entrySet().stream().filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
+				.sorted(new Sorting<>(entry -> entry.getKey().ordinal() == 0 ? 100 : entry.getKey().ordinal(), false)).toList()) {
+			OlympaServer olympaServer = entry.getKey();
+			Map<Integer, ServerInfoAdvancedBungee> serverEntrys = entry.getValue();
 			StringJoiner sb = new StringJoiner("\n");
 			serverEntrys.forEach((nb, info) -> {
 				if (sb.length() != 0)
-					sb.add("\n");
+					sb.add("");
 				ServerStatus status = info.getStatus();
-				sb.add("**" + info.getName() + "** " + (!info.isOpen() ? "__" + status.getName() + "__" : ""));
-				if (info.getOnlinePlayers() != null)
-					sb.add("**Joueurs** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers());
 				StringJoiner sj = new StringJoiner(" | ");
+				sj.add("**" + info.getName() + "** " + (!info.isOpen() ? "__" + status.getName() + "__" : ""));
+				if (info.getOnlinePlayers() != null)
+					sj.add("**Joueurs** " + info.getOnlinePlayers() + "/" + info.getMaxPlayers());
+				String infoExtra = sj.toString();
+				if (!infoExtra.isBlank())
+					sb.add(infoExtra);
+				sj = new StringJoiner(" | ");
 				if (info.getTps() != null)
 					sj.add("**TPS** " + info.getTps());
 				if (info.getTps() != null)
 					sj.add("**CPU** " + info.getCPUUsage());
 				//				if (info.getRawMemUsage() != null)
 				//					sj.add("**RAM** " + info.getMemUsage());
-				String infoExtra = sj.toString();
+				infoExtra = sj.toString();
 				if (!infoExtra.isBlank())
 					sb.add(infoExtra);
+				sj = new StringJoiner(" | ");
 				String ver = info.getRangeVersionMinecraft();
 				if (!ver.equals("unknown"))
-					sb.add("**Version" + (ver.contains("à") ? "s" : "") + " : **" + ver + "");
+					sj.add("**Version" + (ver.contains("à") ? "s" : "") + " : **" + ver + "");
 				if (info.getPing() != null && status != ServerStatus.CLOSE)
-					sb.add("**Ping :** " + info.getPing() + "ms");
+					sj.add("**Ping :** " + info.getPing() + "ms");
+				infoExtra = sj.toString();
+				if (!infoExtra.isBlank())
+					sb.add(infoExtra);
 				if (info.getError() != null && !info.getError().isEmpty())
 					sb.add("Erreur : `" + info.getError() + "`");
 			});
+			if (embedBuilder.getFields().size() > 25) {
+				list.add(embedBuilder.build());
+				embedBuilder = new EmbedBuilder();
+				embedBuilder.setColor(color);
+			}
 			embedBuilder.addField(olympaServer.getNameCaps() != null ? olympaServer.getNameCaps() : "Autres", sb.toString(), true);
-		});
+		}
 		//
 		//		MonitorServers.getServersWithBungee();
 		//		for (ServerInfoAdvancedBungee info : MonitorServers.getServersSorted().toList())
@@ -107,13 +137,7 @@ public class ServersCommand extends DiscordCommand {
 		//					sb.add("Erreur : `" + info.getError() + "`");
 		//				embedBuilder.addField(info.getOlympaServer().getNameCaps(), sb.toString(), true);
 		//			}
-		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).toList();
-		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
-			embedBuilder.setColor(Color.GREEN);
-		else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE))
-			embedBuilder.setColor(Color.RED);
-		else
-			embedBuilder.setColor(Color.PINK);
-		return embedBuilder.build();
+		list.add(embedBuilder.build());
+		return list;
 	}
 }
