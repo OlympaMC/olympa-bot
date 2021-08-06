@@ -31,7 +31,7 @@ public class SurveyReaction extends ReactionDiscord {
 
 	private boolean action = false;
 	@Nullable
-	private Integer time;
+	private Integer expireTime;
 
 	public SurveyReaction(LinkedMap<String, String> map, boolean multiVote) {
 		super(map, multiVote);
@@ -109,7 +109,7 @@ public class SurveyReaction extends ReactionDiscord {
 			int totalUnique = (int) users.stream().distinct().count();
 			embedBuilder.appendDescription("\n\nVotes " + total + "\n" + (!canMultiple() ? "Les votes sont uniques" : "Vous pouvez voter plusieurs fois" + "\nNombre de vote unique " + totalUnique));
 			embedBuilder.setColor(OlympaBots.getInstance().getDiscord().getColor());
-			Integer time = getTime();
+			Integer time = getExpireTime();
 			if (time != null) {
 				Date date = new Date(time * 1000l);
 				embedBuilder.setTimestamp(date.toInstant());
@@ -146,24 +146,24 @@ public class SurveyReaction extends ReactionDiscord {
 	}
 
 	public boolean isClosed() {
-		Integer time = getTime();
+		Integer time = getExpireTime();
 		if (time == null || time == 0)
 			return false;
 		return Utils.getCurrentTimeInSeconds() > time;
 	}
 
-	public Integer getTime() {
-		if (time != null)
-			return time;
+	public Integer getExpireTime() {
+		if (expireTime != null)
+			return expireTime;
 		Object objectTime = getData("time");
 		if (objectTime == null)
 			return null;
 		if (objectTime instanceof Integer)
-			return time = (int) objectTime;
+			return expireTime = (int) objectTime;
 		else if (objectTime instanceof String)
-			return time = RegexMatcher.INT.parse((String) objectTime);
+			return expireTime = RegexMatcher.INT.parse((String) objectTime);
 		else
-			return time = RegexMatcher.INT.parse(objectTime.toString());
+			return expireTime = RegexMatcher.INT.parse(objectTime.toString());
 	}
 
 	public void setTime(Integer time) {
