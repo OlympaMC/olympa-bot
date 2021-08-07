@@ -36,7 +36,7 @@ public class ReactionSQL {
 			statement.setString(i++, new Gson().toJson(reaction.getData()));
 			statement.setInt(i++, reaction.canMultiple() ? 1 : 0);
 			statement.setInt(i++, reaction.isRemoveWhenModClearAll() ? 1 : 0);
-			statement.setLong(i, reaction.getOlympaGuildId());
+			statement.setLong(i++, reaction.getOlympaGuildId());
 			statement.setTimestamp(i++, new Timestamp(reaction.getTime() * 1000L));
 			insertReactionStatement.executeUpdate(statement);
 		}
