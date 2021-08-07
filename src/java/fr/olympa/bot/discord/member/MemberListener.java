@@ -220,7 +220,9 @@ public class MemberListener extends ListenerAdapter {
 			return;
 		try {
 			DiscordMember discordMember = CacheDiscordSQL.getDiscordMember(user);
-			discordMember.updateLastSeen();
+			if (discordMember == null) {
+				OlympaBungee.getInstance().sendMessage("§cImpossible de trouver le DiscordMember de %s", user.getAsTag());
+			}else discordMember.updateLastSeen();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
