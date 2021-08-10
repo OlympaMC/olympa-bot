@@ -67,13 +67,17 @@ public class ServersCommand extends DiscordCommand {
 			color = Color.PINK;
 		embedBuilder.setColor(color);
 		for (Entry<OlympaServer, Map<Integer, ServerInfoAdvancedBungee>> entry : MonitorServers.getServersByTypeWithBungee().entrySet().stream().filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
-				.sorted(new Sorting<>(entry -> entry.getKey().ordinal() == 0 ? 100 : entry.getKey().ordinal(), false)).toList()) {
+				.sorted(new Sorting<>(entry -> entry.getKey().ordinal(), true)).toList()) {
 			OlympaServer olympaServer = entry.getKey();
 			Map<Integer, ServerInfoAdvancedBungee> serverEntrys = entry.getValue();
 			StringJoiner sb = new StringJoiner("\n");
+			if (serverEntrys.entrySet().stream().noneMatch(e -> e.getValue().isOpen()))
+				continue;
 			serverEntrys.forEach((nb, info) -> {
 				if (sb.length() != 0)
 					sb.add("");
+				if (!info.isOpen())
+					return;
 				ServerStatus status = info.getStatus();
 				StringJoiner sj = new StringJoiner(" | ");
 				sj.add("**" + info.getName() + "** " + (!info.isOpen() ? "__" + status.getName() + "__" : ""));
@@ -86,21 +90,17 @@ public class ServersCommand extends DiscordCommand {
 				if (info.getTps() != null)
 					sj.add("**TPS** " + info.getTps());
 				if (info.getTps() != null)
-					sj.add("**CPU** " + info.getCPUUsage());
+					sj.add("**CPU** " + info.getCPUUsage().replaceFirst("§.", ""));
 				//				if (info.getRawMemUsage() != null)
 				//					sj.add("**RAM** " + info.getMemUsage());
 				infoExtra = sj.toString();
 				if (!infoExtra.isBlank())
 					sb.add(infoExtra);
-				sj = new StringJoiner(" | ");
 				String ver = info.getRangeVersionMinecraft();
 				if (!ver.equals("unknown"))
-					sj.add("**Version" + (ver.contains("à") ? "s" : "") + " : **" + ver + "");
+					sb.add("**Version" + (ver.contains("à") ? "s" : "") + " : **" + ver + "");
 				if (info.getPing() != null && status != ServerStatus.CLOSE)
-					sj.add("**Ping :** " + info.getPing() + "ms");
-				infoExtra = sj.toString();
-				if (!infoExtra.isBlank())
-					sb.add(infoExtra);
+					sb.add("**Ping :** " + info.getPing() + "ms");
 				if (info.getError() != null && !info.getError().isEmpty())
 					sb.add("Erreur : `" + info.getError() + "`");
 			});
