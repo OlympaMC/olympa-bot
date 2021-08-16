@@ -63,7 +63,7 @@ public class DiscordCommand extends BungeeCommand {
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
 		textComponent.setUnderlined(true);
 		textComponent.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
-		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://discord.olympa.fr"));
+		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://discord.com/olympa"));
 		message.addExtra(textComponent);
 
 		textComponent = new TextComponent(". Pour relier ton compte Discord à Minecraft, fais ");
@@ -145,7 +145,7 @@ public class DiscordCommand extends BungeeCommand {
 				discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayerTarget.getId());
 				if (discordMember == null) {
 					if (args.length > 2)
-						sendError("&4" + proxiedPlayer.getDisplayName() + "&c n'as pas lié son compte Discord et Minecraft.");
+						sendError("&4" + proxiedPlayer.getDisplayName() + "&c n'a pas lié son compte Discord et Minecraft.");
 					else
 						sendError("Tu n'as pas lié ton compte Discord et Minecraft.");
 					return;
@@ -158,17 +158,17 @@ public class DiscordCommand extends BungeeCommand {
 				if (!member.getEffectiveName().equals(user.getName()))
 					sj.add("&7➤ &dNom: &5" + member.getEffectiveName() + "&d.");
 				sj.add("&7➤ &dTag: &5" + user.getAsTag() + "&d.");
-				sj.add("&7➤ &dRoles: &5" + roles + "&d.");
+				sj.add("&7➤ &dRôles: &5" + roles + "&d.");
 				String t = Utils.timestampToDuration(user.getTimeCreated().toEpochSecond());
 				String date = user.getTimeCreated().format(DateTimeFormatter.ISO_LOCAL_DATE);
-				sj.add("&7➤ &dCompte discord crée: &5" + date + "&d (" + t + ").");
+				sj.add("&7➤ &dCompte discord créé: &5" + date + "&d (" + t + ").");
 				t = Utils.timestampToDuration(member.getTimeJoined().toEpochSecond());
 				date = member.getTimeJoined().format(DateTimeFormatter.ISO_LOCAL_DATE);
-				sj.add("&7➤ &dRejoint le discord le &5" + date + "&d (" + t + ").");
+				sj.add("&7➤ &dA rejoint le discord le &5" + date + "&d (" + t + ").");
 				sj.add("&7➤ &dXP: &5" + String.valueOf(discordMember.getXp()) + "&d.");
 				OnlineStatus onlineStatus = member.getOnlineStatus();
 				if (onlineStatus == OnlineStatus.OFFLINE && discordMember.getLastSeenTime() != 0)
-					sj.add("&7➤ &dDernière Action: &5il y a " + Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()) + "&d.");
+					sj.add("&7➤ &dDernière action: &5il y a " + Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()) + "&d.");
 				else
 					sj.add("&7➤ &dStatut: &5" + Utils.capitalize(onlineStatus.name().replaceAll("_", " ")) + "&d.");
 				sendMessage(sj.toString());
