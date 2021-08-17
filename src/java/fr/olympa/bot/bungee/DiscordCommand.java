@@ -63,7 +63,7 @@ public class DiscordCommand extends BungeeCommand {
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
 		textComponent.setUnderlined(true);
 		textComponent.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
-		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://discord.com/olympa"));
+		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/olympa"));
 		message.addExtra(textComponent);
 
 		textComponent = new TextComponent(". Pour relier ton compte Discord à Minecraft, fais ");
