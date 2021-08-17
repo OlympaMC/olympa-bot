@@ -10,9 +10,9 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
+import fr.olympa.api.common.permission.list.OlympaAPIPermissionsBungee;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.core.common.permission.list.OlympaCorePermissionsBungee;
 
 public class TsListener extends TS3EventAdapter {
 
@@ -82,7 +82,7 @@ public class TsListener extends TS3EventAdapter {
 					modAreOnline = true;
 				}
 			if (!modAreOnline)
-				OlympaCorePermissionsBungee.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
+				OlympaAPIPermissionsBungee.TEAMSPEAK_SEE_MODHELP.getPlayersBungee(ps -> {
 					boolean hasModOnMinecraft = false;
 					if (ps != null) {
 						hasModOnMinecraft = !ps.isEmpty();
@@ -92,7 +92,7 @@ public class TsListener extends TS3EventAdapter {
 						for (Client admin : query.getClients())
 							if (TeamspeakGroups.ADMIN.hasPermission(admin)) {
 								query.sendPrivateMessage(admin.getId(), TeamspeakUtils.getClientURI(clientInfo) +"[color=red] a besoin de l'aide dans le channel [/color]"
-							+ TeamspeakUtils.getChannelURI(channelInfo) + "[color=red] d'un Modérateur/Assistant mais aucun n'est disponible IG/TS[/color]");
+										+ TeamspeakUtils.getChannelURI(channelInfo) + "[color=red] d'un Modérateur/Assistant mais aucun n'est disponible IG/TS[/color]");
 								hasModOnMinecraft = true;
 							}
 						if (!hasModOnMinecraft) {
@@ -119,7 +119,7 @@ public class TsListener extends TS3EventAdapter {
 					adminAreOnline = true;
 				}
 			if (!adminAreOnline)
-				OlympaCorePermissionsBungee.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
+				OlympaAPIPermissionsBungee.TEAMSPEAK_SEE_ADMINHELP.getPlayersBungee(ps -> {
 					if (ps != null)
 						ps.forEach(p -> {
 							p.sendMessage(Prefix.INFO.formatMessageB("&6%s &eest en attente d'aide d'Administrateur dans %s sur le Teamspeak.", clientInfo.getNickname(), channelInfo.getName()));

@@ -9,15 +9,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import fr.olympa.api.common.sql.DatabaseConnection;
 import fr.olympa.api.common.sql.statement.OlympaStatement;
 import fr.olympa.api.common.sql.statement.StatementType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sanctions.DiscordSanction;
-import fr.olympa.core.common.sql.DbConnection;
 
 public class DiscordSQL {
 
-	static DbConnection dbConnection;
+	static DatabaseConnection dbConnection;
 	static String tableMembers = "discord.members";
 	static String tableSanction = "discord.sanctions";
 

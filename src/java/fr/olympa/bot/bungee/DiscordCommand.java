@@ -9,7 +9,9 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import fr.olympa.api.bungee.command.BungeeCommand;
+import fr.olympa.api.common.permission.list.OlympaAPIPermissionsBungee;
 import fr.olympa.api.common.player.OlympaPlayer;
+import fr.olympa.api.common.provider.AccountProviderAPI;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.GuildHandler;
@@ -18,8 +20,6 @@ import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.core.common.permission.list.OlympaCorePermissionsBungee;
-import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -128,7 +128,7 @@ public class DiscordCommand extends BungeeCommand {
 
 			if (args.length >= 2) {
 				playerTarget = ProxyServer.getInstance().getPlayer(args[1]);
-				olympaPlayerTarget = AccountProvider.getter().get(proxiedPlayer.getUniqueId());
+				olympaPlayerTarget = AccountProviderAPI.getter().get(proxiedPlayer.getUniqueId());
 			} else {
 				if (proxiedPlayer == null) {
 					sendError("Impossible en console. Ajoute un joueur");
@@ -177,7 +177,7 @@ public class DiscordCommand extends BungeeCommand {
 			}
 			break;
 		case "stop":
-			if (olympaPlayer != null && !OlympaCorePermissionsBungee.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaAPIPermissionsBungee.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}
@@ -189,7 +189,7 @@ public class DiscordCommand extends BungeeCommand {
 
 			break;
 		case "start":
-			if (olympaPlayer != null && !OlympaCorePermissionsBungee.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
+			if (olympaPlayer != null && !OlympaAPIPermissionsBungee.DISCORD_COMMAND_MANAGE.hasPermission(olympaPlayer)) {
 				sendDoNotHavePermission();
 				return;
 			}

@@ -15,8 +15,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ServerGroup;
 import fr.olympa.api.common.player.OlympaPlayer;
 import fr.olympa.api.utils.Prefix;
 import fr.olympa.bot.OlympaBots;
-import fr.olympa.core.bungee.redis.RedisBungeeSend;
-import fr.olympa.core.common.provider.AccountProvider;
+import fr.olympa.api.common.provider.AccountProviderAPI;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class TeamspeakHandler {
@@ -42,7 +41,7 @@ public class TeamspeakHandler {
 	}
 
 	private static void setSynchronized(ProxiedPlayer player, Client client) throws InterruptedException {
-		AccountProvider accountProvider = new AccountProvider(player.getUniqueId());
+		AccountProviderAPI accountProvider = new AccountProviderAPI(player.getUniqueId());
 		OlympaPlayer olympaPlayer;
 		try {
 			olympaPlayer = accountProvider.get();
@@ -52,7 +51,7 @@ public class TeamspeakHandler {
 		}
 		olympaPlayer.setTeamspeakId(client.getDatabaseId());
 		updateRank(olympaPlayer, client);
-		RedisBungeeSend.sendOlympaPlayerTeamspeakIDChanged(olympaPlayer);
+		//		RedisBungeeSend.sendOlympaPlayerTeamspeakIDChanged(olympaPlayer); TODO
 		OlympaBots.getInstance().getTeamspeak().getQueryAsync().sendPrivateMessage(client.getId(), String.format("Ton identitée Teamspeak est désormais liée au compte Minecraft %s.", player.getName())).await();
 		player.sendMessage(Prefix.DEFAULT_GOOD.formatMessageB("Ton compte Minecraft est désormais lié à ton identitée Teamspeak &2%s&a.", client.getNickname()));
 	}

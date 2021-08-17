@@ -3,10 +3,10 @@ package fr.olympa.bot.discord.message;
 import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 
+import fr.olympa.api.common.chat.SwearHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
 import fr.olympa.core.bungee.OlympaBungee;
-import fr.olympa.core.common.SwearHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

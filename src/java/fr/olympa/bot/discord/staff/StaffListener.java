@@ -2,13 +2,13 @@ package fr.olympa.bot.discord.staff;
 
 import java.sql.SQLException;
 
+import fr.olympa.api.bungee.staffchat.StaffChatHandler;
 import fr.olympa.api.common.player.OlympaPlayer;
 import fr.olympa.bot.discord.api.DiscordUtils;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.core.bungee.staffchat.StaffChatHandler;
-import fr.olympa.core.common.provider.AccountProvider;
+import fr.olympa.api.common.provider.AccountProviderAPI;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -62,9 +62,9 @@ public class StaffListener extends ListenerAdapter {
 			dm = CacheDiscordSQL.getDiscordMember(member.getUser());
 			OlympaPlayer olympaPlayer;
 			if (dm.getOlympaId() == 0)
-				olympaPlayer = AccountProvider.getter().getSQL().getPlayer(member.getEffectiveName());
+				olympaPlayer = AccountProviderAPI.getter().getSQL().getPlayer(member.getEffectiveName());
 			else
-				olympaPlayer = AccountProvider.getter().getSQL().getPlayer(dm.getOlympaId());
+				olympaPlayer = AccountProviderAPI.getter().getSQL().getPlayer(dm.getOlympaId());
 			if (olympaPlayer == null) {
 				message.addReaction(guild.getEmotesByName("V_", false).get(0)).queue();
 				return;

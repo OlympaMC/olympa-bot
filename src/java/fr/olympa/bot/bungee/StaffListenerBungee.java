@@ -3,6 +3,7 @@ package fr.olympa.bot.bungee;
 import java.sql.SQLException;
 import java.util.List;
 
+import fr.olympa.api.bungee.customevent.StaffChatEvent;
 import fr.olympa.api.common.player.OlympaPlayer;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
@@ -10,7 +11,6 @@ import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
-import fr.olympa.core.bungee.staffchat.StaffChatEvent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -51,7 +51,7 @@ public class StaffListenerBungee implements Listener {
 			eb.setColor(Color.RED);
 			channelStaffDiscord.sendMessageEmbeds(eb.build()).queue();
 		}
-	
+
 		@EventHandler
 		public void onPostLogin(ServerSwitchEvent event) {
 			if (event.getFrom() != null)
@@ -86,7 +86,7 @@ public class StaffListenerBungee implements Listener {
 			eb.setColor(Color.GREEN);
 			channelStaffDiscord.sendMessageEmbeds(eb.build()).queue();
 		}
-	*/
+	 */
 	@EventHandler
 	public void onStaffChat(StaffChatEvent event) {
 		OlympaPlayer olympaPlayer = event.getOlympaPlayer();

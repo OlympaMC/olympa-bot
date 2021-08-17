@@ -2,6 +2,7 @@ package fr.olympa.bot.discord.servers;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,11 +11,12 @@ import java.util.StringJoiner;
 import org.apache.commons.collections4.map.LinkedMap;
 
 import fr.olympa.api.common.server.OlympaServer;
+import fr.olympa.api.common.server.ServerInfoAdvanced;
 import fr.olympa.api.common.server.ServerInfoAdvancedBungee;
 import fr.olympa.api.common.server.ServerStatus;
 import fr.olympa.api.common.sort.Sorting;
 import fr.olympa.bot.discord.api.commands.DiscordCommand;
-import fr.olympa.core.bungee.servers.MonitorServers;
+import fr.olympa.core.bungee.OlympaBungee;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -56,9 +58,10 @@ public class ServersCommand extends DiscordCommand {
 		List<MessageEmbed> list = new ArrayList<>();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setTitle("Liste des serveurs Minecraft:");
-		Map<ServerInfo, ServerInfoAdvancedBungee> infos = MonitorServers.getServersMap();
+		OlympaBungee.getInstance().getMonitorServers();
+		Collection<ServerInfoAdvanced> infos = OlympaBungee.getInstance().getMonitorServers();
 		Color color;
-		List<ServerStatus> statuss = infos.entrySet().stream().map(entry -> entry.getValue().getStatus()).toList();
+		List<ServerStatus> statuss = infos.stream().map(entry -> entry.getStatus()).toList();
 		if (statuss.stream().allMatch(s -> s == ServerStatus.OPEN))
 			color = Color.GREEN;
 		else if (statuss.stream().allMatch(s -> s == ServerStatus.CLOSE))
@@ -66,7 +69,7 @@ public class ServersCommand extends DiscordCommand {
 		else
 			color = Color.PINK;
 		embedBuilder.setColor(color);
-		for (Entry<OlympaServer, Map<Integer, ServerInfoAdvancedBungee>> entry : MonitorServers.getServersByTypeWithBungee().entrySet().stream().filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
+		for (Entry<OlympaServer, Map<Integer, ServerInfoAdvancedBungee>> entry : OlympaBungee.getInstance().getServersByTypeWithBungee().entrySet().stream().filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
 				.sorted(new Sorting<>(entry -> entry.getKey().ordinal(), true)).toList()) {
 			OlympaServer olympaServer = entry.getKey();
 			Map<Integer, ServerInfoAdvancedBungee> serverEntrys = entry.getValue();

@@ -3,11 +3,11 @@ package fr.olympa.bot.discord.link;
 import java.sql.SQLException;
 
 import fr.olympa.api.common.player.OlympaPlayer;
+import fr.olympa.api.common.provider.AccountProviderAPI;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -48,7 +48,7 @@ public class LinkListener extends ListenerAdapter {
 				channel.sendMessageEmbeds(embed.build()).queue();
 				return;
 			}
-			OlympaPlayer olympaPlayer = new AccountProvider(player.getUniqueId()).get();
+			OlympaPlayer olympaPlayer = new AccountProviderAPI(player.getUniqueId()).get();
 			discordMember.setOlympaId(olympaPlayer.getId());
 			//			DiscordSQL.updateMember(discordMember);
 			LinkHandler.updateGroups(member, olympaPlayer);

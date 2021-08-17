@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.olympa.api.common.player.OlympaPlayer;
+import fr.olympa.api.common.provider.AccountProviderAPI;
 import fr.olympa.api.utils.Utils;
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.OlympaDiscord;
@@ -19,7 +20,6 @@ import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild.DiscordGuildType;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -78,33 +78,33 @@ public class InfoCommand extends DiscordCommand {
 		case "ancien", "vieux":
 			if (!checkPrivateChannel(message, user))
 				return;
-			List<Member> older = message.getGuild().getMembers().stream().sorted((e1, e2) -> e1.getTimeJoined().compareTo(e2.getTimeJoined())).limit(25).toList();
-			EmbedBuilder embed = new EmbedBuilder();
-			embed.setTitle("Les 25 membres les plus anciens :");
-			embed.setDescription(older.stream().map(m -> "`" + m.getUser().getAsTag() + "` depuis " + Utils.timestampToDuration(m.getTimeJoined().toEpochSecond())).collect(Collectors.joining("\n")));
-			embed.setColor(discord.getColor());
-			channel.sendMessageEmbeds(embed.build()).queue();
-			break;
+		List<Member> older = message.getGuild().getMembers().stream().sorted((e1, e2) -> e1.getTimeJoined().compareTo(e2.getTimeJoined())).limit(25).toList();
+		EmbedBuilder embed = new EmbedBuilder();
+		embed.setTitle("Les 25 membres les plus anciens :");
+		embed.setDescription(older.stream().map(m -> "`" + m.getUser().getAsTag() + "` depuis " + Utils.timestampToDuration(m.getTimeJoined().toEpochSecond())).collect(Collectors.joining("\n")));
+		embed.setColor(discord.getColor());
+		channel.sendMessageEmbeds(embed.build()).queue();
+		break;
 		case "nitro", "boost":
 			if (!checkPrivateChannel(message, user))
 				return;
-			Stream<Member> boost = message.getGuild().getBoosters().stream().sorted((e1, e2) -> e1.getTimeBoosted().compareTo(e2.getTimeBoosted())).limit(25);
-			embed = new EmbedBuilder();
-			embed.setTitle("Les Nitros Boost :");
-			embed.setDescription(boost.map(m -> m.getAsMention() + " depuis " + Utils.timestampToDuration(m.getTimeBoosted().toEpochSecond())).collect(Collectors.joining("\n")));
-			embed.setColor(discord.getColor());
-			channel.sendMessageEmbeds(embed.build()).queue();
-			break;
+		Stream<Member> boost = message.getGuild().getBoosters().stream().sorted((e1, e2) -> e1.getTimeBoosted().compareTo(e2.getTimeBoosted())).limit(25);
+		embed = new EmbedBuilder();
+		embed.setTitle("Les Nitros Boost :");
+		embed.setDescription(boost.map(m -> m.getAsMention() + " depuis " + Utils.timestampToDuration(m.getTimeBoosted().toEpochSecond())).collect(Collectors.joining("\n")));
+		embed.setColor(discord.getColor());
+		channel.sendMessageEmbeds(embed.build()).queue();
+		break;
 		case "bots", "bot":
 			if (!checkPrivateChannel(message, user))
 				return;
-			Set<Member> bots = message.getGuild().getMembers().stream().filter(m -> m.getUser().isBot()).collect(Collectors.toSet());
-			embed = new EmbedBuilder();
-			embed.setTitle("Les Bots: (" + bots.size() + ")");
-			embed.setDescription(bots.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
-			embed.setColor(discord.getColor());
-			channel.sendMessageEmbeds(embed.build()).queue();
-			break;
+		Set<Member> bots = message.getGuild().getMembers().stream().filter(m -> m.getUser().isBot()).collect(Collectors.toSet());
+		embed = new EmbedBuilder();
+		embed.setTitle("Les Bots: (" + bots.size() + ")");
+		embed.setDescription(bots.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
+		embed.setColor(discord.getColor());
+		channel.sendMessageEmbeds(embed.build()).queue();
+		break;
 		case "nonsigne":
 			if (!checkPrivateChannel(message, user))
 				return;
@@ -139,68 +139,68 @@ public class InfoCommand extends DiscordCommand {
 			break;
 		case "joueur", "membre":
 			embed = new EmbedBuilder();
-			List<Member> members = message.getMentionedMembers();
-			Member memberTarget = null;
-			if (!members.isEmpty())
-				memberTarget = members.get(0);
-			else
-				memberTarget = getMember(message.getGuild(), buildText(1, args));
-			if (memberTarget == null) {
-				embed.setTitle("Erreur");
-				embed.setDescription("Membre " + (args.length > 1 ? args[1] : "") + " introuvable.");
-				channel.sendMessageEmbeds(embed.build()).queue();
-				return;
-			}
-			User usertarget = memberTarget.getUser();
-			embed.setTitle("Informations");
-			embed.setDescription(memberTarget.getAsMention());
-			embed.setImage(usertarget.getAvatarUrl());
-			embed.setColor(discord.getColor());
-			String t = Utils.timestampToDuration(usertarget.getTimeCreated().toEpochSecond());
-			String date = Utils.timestampToDate(usertarget.getTimeCreated().toEpochSecond());
-			embed.addField("Compte créé", date + " (" + t + ")", true);
-			t = Utils.timestampToDuration(memberTarget.getTimeJoined().toEpochSecond());
-			date = Utils.timestampToDate(memberTarget.getTimeJoined().toEpochSecond());
-			embed.addField("Membre depuis", date + " (" + t + ")", true);
-			embed.setFooter(usertarget.getAsTag() + "|" + (memberTarget.getNickname() != null ? memberTarget.getNickname() + "|" : "") + usertarget.getIdLong());
-			DiscordMember discordMember;
-			try {
-				discordMember = CacheDiscordSQL.getDiscordMember(usertarget);
-				if (discordMember.getOlympaId() != 0) {
-					OlympaPlayer olympaTarget = null;
-					olympaTarget = AccountProvider.getter().get(discordMember.getOlympaId());
-					embed.setThumbnail("https://minotar.net/helm/" + olympaTarget.getName());
-					embed.addField("Compte Minecraft :", olympaTarget.getName(), true);
-				}
-				if (discordMember.getLeaveTime() != 0) {
-					t = Utils.timestampToDuration(discordMember.getLeaveTime());
-					date = Utils.timestampToDate(discordMember.getLeaveTime());
-					embed.addField("Nous a quitté pour la dernière fois le ", date + " (" + t + ")", true);
-				}
-				if (discordMember.getPermissions() != null && !discordMember.getPermissions().isEmpty())
-					embed.addField("Permissions extra " + discordMember.getPermissions().size(), discordMember.getPermissions().keySet().stream().map(dp -> dp.getName()).collect(Collectors.joining(", ")), true);
-				if (!discordMember.getOldNames().isEmpty())
-					embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
-				if (discordMember.getXp() != 0)
-					embed.addField("XP", new DecimalFormat("0.#").format(discordMember.getXp()), true);
-				if (discordMember.getLastSeenTime() != 0)
-					embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+		List<Member> members = message.getMentionedMembers();
+		Member memberTarget = null;
+		if (!members.isEmpty())
+			memberTarget = members.get(0);
+		else
+			memberTarget = getMember(message.getGuild(), buildText(1, args));
+		if (memberTarget == null) {
+			embed.setTitle("Erreur");
+			embed.setDescription("Membre " + (args.length > 1 ? args[1] : "") + " introuvable.");
 			channel.sendMessageEmbeds(embed.build()).queue();
-			break;
+			return;
+		}
+		User usertarget = memberTarget.getUser();
+		embed.setTitle("Informations");
+		embed.setDescription(memberTarget.getAsMention());
+		embed.setImage(usertarget.getAvatarUrl());
+		embed.setColor(discord.getColor());
+		String t = Utils.timestampToDuration(usertarget.getTimeCreated().toEpochSecond());
+		String date = Utils.timestampToDate(usertarget.getTimeCreated().toEpochSecond());
+		embed.addField("Compte créé", date + " (" + t + ")", true);
+		t = Utils.timestampToDuration(memberTarget.getTimeJoined().toEpochSecond());
+		date = Utils.timestampToDate(memberTarget.getTimeJoined().toEpochSecond());
+		embed.addField("Membre depuis", date + " (" + t + ")", true);
+		embed.setFooter(usertarget.getAsTag() + "|" + (memberTarget.getNickname() != null ? memberTarget.getNickname() + "|" : "") + usertarget.getIdLong());
+		DiscordMember discordMember;
+		try {
+			discordMember = CacheDiscordSQL.getDiscordMember(usertarget);
+			if (discordMember.getOlympaId() != 0) {
+				OlympaPlayer olympaTarget = null;
+				olympaTarget = AccountProviderAPI.getter().get(discordMember.getOlympaId());
+				embed.setThumbnail("https://minotar.net/helm/" + olympaTarget.getName());
+				embed.addField("Compte Minecraft :", olympaTarget.getName(), true);
+			}
+			if (discordMember.getLeaveTime() != 0) {
+				t = Utils.timestampToDuration(discordMember.getLeaveTime());
+				date = Utils.timestampToDate(discordMember.getLeaveTime());
+				embed.addField("Nous a quitté pour la dernière fois le ", date + " (" + t + ")", true);
+			}
+			if (discordMember.getPermissions() != null && !discordMember.getPermissions().isEmpty())
+				embed.addField("Permissions extra " + discordMember.getPermissions().size(), discordMember.getPermissions().keySet().stream().map(dp -> dp.getName()).collect(Collectors.joining(", ")), true);
+			if (!discordMember.getOldNames().isEmpty())
+				embed.addField("Ancien noms :", discordMember.getOldNames().entrySet().stream().map(entry -> entry.getValue() + " (il y a " + Utils.timestampToDuration(entry.getKey()) + " )").collect(Collectors.joining(", ")), true);
+			if (discordMember.getXp() != 0)
+				embed.addField("XP", new DecimalFormat("0.#").format(discordMember.getXp()), true);
+			if (discordMember.getLastSeenTime() != 0)
+				embed.addField("Dernière Action", Utils.timestampToDuration(Utils.getCurrentTimeInSeconds() - discordMember.getLastSeenTime()), true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		channel.sendMessageEmbeds(embed.build()).queue();
+		break;
 		case "roles", "role":
 			if (!checkPrivateChannel(message, user))
 				return;
-			List<Role> roles = message.getMentionedRoles();
-			members = message.getGuild().getMembersWithRoles(roles);
-			embed = new EmbedBuilder();
-			embed.setTitle("Membre avec le role " + roles.stream().map(Role::getName).collect(Collectors.joining(", ")) + ": ");
-			embed.setDescription(members.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
-			embed.setColor(discord.getColor());
-			channel.sendMessageEmbeds(embed.build()).queue();
-			break;
+		List<Role> roles = message.getMentionedRoles();
+		members = message.getGuild().getMembersWithRoles(roles);
+		embed = new EmbedBuilder();
+		embed.setTitle("Membre avec le role " + roles.stream().map(Role::getName).collect(Collectors.joining(", ")) + ": ");
+		embed.setDescription(members.stream().map(Member::getAsMention).collect(Collectors.joining(", ")));
+		embed.setColor(discord.getColor());
+		channel.sendMessageEmbeds(embed.build()).queue();
+		break;
 		case "absent":
 			if (!checkPrivateChannel(message, user))
 				return;

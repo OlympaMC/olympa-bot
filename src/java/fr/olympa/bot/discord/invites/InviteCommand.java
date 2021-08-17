@@ -35,6 +35,11 @@ public class InviteCommand extends DiscordCommand {
 		description = "Donne des stats concernant les invitations.";
 	}
 
+	public static int getTotalUsers(OlympaGuild opGuild, DiscordMember discordMember) {
+		MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, discordMember));
+		return 0;
+	}
+
 	public static Field getField(String name, long maxSize, String data, String shortData) {
 		String finalData;
 		if (data.isBlank() || data.length() > maxSize)
@@ -91,6 +96,12 @@ public class InviteCommand extends DiscordCommand {
 					em.addField(getField("Membres revenu par un autre lien", MessageEmbed.VALUE_MAX_LENGTH,
 							mInv.getUsersReivited().stream().map(dm -> "`" + dm.getAsTag() + "`").collect(Collectors.joining(", ")),
 							String.valueOf(mInv.getInvites().size())));
+				if (!mInv.getUsers().isEmpty()) {
+
+				}
+				em.addField(getField("Membres revenu par un autre lien", MessageEmbed.VALUE_MAX_LENGTH,
+						mInv.getUsersReivited().stream().map(dm -> "`" + dm.getAsTag() + "`").collect(Collectors.joining(", ")),
+						String.valueOf(mInv.getInvites().size())));
 				em.setFooter(DiscordCommand.prefix + "invitetop pour voir le classement");
 				channel.sendMessageEmbeds(em.build()).queue();
 				/*} else if (label.equalsIgnoreCase("inviteparrain")) {

@@ -75,7 +75,7 @@ public class GuildsListener extends ListenerAdapter {
 					//				if (discordMember == null)
 					//					DiscordSQL.addMember(new DiscordMember(member));
 					//				else if (olympaGuild.isOlympaDiscord() && discordMember.getOlympaId() != 0) {
-					//					OlympaPlayer olympaPlayer = AccountProvider.getter().get(discordMember.getOlympaId());
+					//					OlympaPlayer olympaPlayer = AccountProviderAPI.getter().get(discordMember.getOlympaId());
 					//					if (!member.getEffectiveName().equals(olympaPlayer.getName())) {
 					//						System.err.println("DEBUG " + guild.getName() + " membre " + member.getEffectiveName() + " n'a pas le bon pseudo " + olympaPlayer.getName());
 					//						member.modifyNickname(olympaPlayer.getName()).reason("MAJ Manuelle").queue(null, ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));

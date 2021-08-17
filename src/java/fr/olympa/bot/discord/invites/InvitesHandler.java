@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.guild.OlympaGuild;
 import fr.olympa.bot.discord.member.DiscordMember;
@@ -115,6 +113,17 @@ public class InvitesHandler {
 		try {
 			list = DiscordInvite.table.select(Map.of(DiscordInvite.COLUMN_OLYMPA_GUILD_ID, opGuild.getId(), DiscordInvite.COLUMN_OLYMPA_DISCORD_ID, discordMember.getId()));
 			//			list.forEach(l -> addInvite(l));
+			return list;
+		} catch (IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static List<DiscordInvite> getMinimalInvites(OlympaGuild opGuild, long discordOlympaId) {
+		List<DiscordInvite> list;
+		try {
+			list = DiscordInvite.table.select(Map.of(DiscordInvite.COLUMN_OLYMPA_GUILD_ID, opGuild.getId(), DiscordInvite.COLUMN_OLYMPA_DISCORD_ID, discordOlympaId));
 			return list;
 		} catch (IllegalAccessException | SQLException e) {
 			e.printStackTrace();

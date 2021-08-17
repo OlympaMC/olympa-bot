@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 
 import fr.olympa.api.common.match.RegexMatcher;
 import fr.olympa.api.common.player.OlympaPlayer;
+import fr.olympa.api.common.provider.AccountProviderAPI;
 import fr.olympa.bot.discord.OlympaDiscord;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.member.DiscordMember;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
-import fr.olympa.core.common.provider.AccountProvider;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -120,7 +120,7 @@ public abstract class DiscordCommand implements CommandEvent {
 	public Member getMemberByMinecraftName(Guild guild, String arg) throws SQLException {
 		Member member = null;
 		DiscordMember discordMember;
-		OlympaPlayer olympaPlayer = AccountProvider.getter().get(arg);
+		OlympaPlayer olympaPlayer = AccountProviderAPI.getter().get(arg);
 		if (olympaPlayer != null) {
 			discordMember = CacheDiscordSQL.getDiscordMemberByOlympaId(olympaPlayer.getId());
 			if (discordMember != null)

@@ -40,7 +40,7 @@ import net.dv8tion.jda.api.entities.User;
 
 public class DiscordInvite extends DiscordSmallInvite {
 
-	static final SQLColumn<DiscordInvite> COLUMN_ID = new SQLColumn<DiscordInvite>("id", "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT", Types.INTEGER).setPrimaryKey(DiscordInvite::getId);
+	static final SQLColumn<DiscordInvite> COLUMN_ID = new SQLColumn<DiscordInvite>("id", "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT", Types.BIGINT).setPrimaryKey(DiscordInvite::getId);
 	static final SQLColumn<DiscordInvite> COLUMN_OLYMPA_GUILD_ID = new SQLColumn<DiscordInvite>("olympa_guild_id", "INT(10) UNSIGNED NOT NULL", Types.INTEGER).setNotDefault();
 	static final SQLColumn<DiscordInvite> COLUMN_OLYMPA_DISCORD_ID = new SQLColumn<DiscordInvite>("olympa_discord_id", "INT(10) UNSIGNED NOT NULL", Types.INTEGER).setNotDefault();
 	static final SQLColumn<DiscordInvite> COLUMN_USES = new SQLColumn<DiscordInvite>("uses", "INT(10) UNSIGNED NULL NOT NULL", Types.INTEGER).setUpdatable().setNotDefault();
@@ -195,7 +195,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 		return COLUMN_OLYMPA_DISCORD_ID.select(discordMember.getId());
 	}
 
-	int id;
+	long id;
 	DiscordMember author;
 	long authorId;
 	int usesLeaver;
@@ -223,7 +223,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 
 	private DiscordInvite(ResultSet rs) throws SQLException {
 		super(rs);
-		id = rs.getInt(COLUMN_ID.getCleanName());
+		id = rs.getLong(COLUMN_ID.getCleanName());
 		authorId = rs.getInt(COLUMN_OLYMPA_DISCORD_ID.getCleanName());
 		uses = rs.getInt(COLUMN_USES.getCleanName());
 		usesUnique = rs.getInt(COLUMN_USES_UNIQUE.getCleanName());
@@ -322,7 +322,7 @@ public class DiscordInvite extends DiscordSmallInvite {
 		isUpWithDb = false;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 

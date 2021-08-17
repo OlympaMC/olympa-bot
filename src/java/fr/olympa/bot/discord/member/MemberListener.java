@@ -15,7 +15,7 @@ import fr.olympa.bot.discord.link.LinkHandler;
 import fr.olympa.bot.discord.sql.CacheDiscordSQL;
 import fr.olympa.bot.discord.webhook.WebHookHandler;
 import fr.olympa.core.bungee.OlympaBungee;
-import fr.olympa.core.common.provider.AccountProvider;
+import fr.olympa.api.common.provider.AccountProviderAPI;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -124,7 +124,7 @@ public class MemberListener extends ListenerAdapter {
 			if (discordMember.getOlympaId() != 0)
 				LinkSpigotBungee.getInstance().getTask().runTaskLater(() -> {
 					try {
-						LinkHandler.updateGroups(member, AccountProvider.getter().get(discordMember.getOlympaId()));
+						LinkHandler.updateGroups(member, AccountProviderAPI.getter().get(discordMember.getOlympaId()));
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}

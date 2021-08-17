@@ -17,8 +17,6 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +34,6 @@ import fr.olympa.bot.OlympaBots;
 import fr.olympa.bot.discord.api.DiscordPermission;
 import fr.olympa.bot.discord.guild.GuildHandler;
 import fr.olympa.bot.discord.guild.OlympaGuild;
-import fr.olympa.core.common.utils.UtilsCore;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -156,11 +153,11 @@ public class DiscordMember {
 			targets = Arrays.asList(guild.getMemberByTag(name));
 		if (targets.isEmpty() && RegexMatcher.INT.is(name))
 			targets = Arrays.asList(guild.getMemberById(name));
-		if (targets.isEmpty())
-			targets = UtilsCore.similarWords(name, guild.getMembers().stream().map(Member::getEffectiveName)
-					.collect(Collectors.toSet())).stream()
-					.map(n -> guild.getMembersByEffectiveName(n, false)).filter(m -> !m.isEmpty()).map(m -> m.get(0))
-					.toList();
+		//		if (targets.isEmpty())
+		//			targets = UtilsCore.similarWords(name, guild.getMembers().stream().map(Member::getEffectiveName)
+		//					.collect(Collectors.toSet())).stream()
+		//					.map(n -> guild.getMembersByEffectiveName(n, false)).filter(m -> !m.isEmpty()).map(m -> m.get(0))
+		//					.toList();
 		return targets;
 	}
 
