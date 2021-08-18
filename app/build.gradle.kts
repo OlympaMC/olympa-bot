@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import java.nio.file.Path as FilePath
@@ -23,13 +24,13 @@ repositories {
     }
 }
 
-/*configurations {
+configurations {
     all {
         resolutionStrategy.dependencySubstitution {
             substitute(module("fr.olympa:olympa-api")).with(project(":olympa-api"))
         }
     }
-}*/
+}
 
 fun getCheckedOutGitCommitHash(): String {
     val gitFolder = FilePath.of(projectDir.toString(), "..", "/.git").toString()
@@ -45,18 +46,18 @@ fun getCheckedOutGitCommitHash(): String {
 
     if (isCommit) return head[0].trim().take(takeFromHash) // e5a7c79edabb
 
-    val refHead = File("$gitFolder/${head[1].trim().replace("kotlin", "dev")}") // .git/refs/heads/master
+    val refHead = File("$gitFolder/${head[1].trim()}") // .git/refs/heads/master
     return refHead.readText().trim().take(takeFromHash)
 }
 
-fun getGitBranch(): String = /*run {
+fun getGitBranch(): String = run {
     val stdout = ByteArrayOutputStream()
     exec {
         setCommandLine("git", "rev-parse", "--abbrev-ref", "--", "HEAD")
         standardOutput = stdout
     }
     return@run stdout.toString().trim()
-}*/ "dev"
+}
 
 fun getDate() = SimpleDateFormat("yyyyMMddHHmmss").format(Date())
 
