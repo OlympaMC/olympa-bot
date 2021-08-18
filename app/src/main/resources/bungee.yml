@@ -1,0 +1,6 @@
+name: OlympaBots
+main: fr.olympa.bot.OlympaBots
+author: Tristiisch, SkytAsul
+version: @plugin_version@
+depends: [ OlympaBungee ]
+website: https://gitlab.com/olympa/olympabot
