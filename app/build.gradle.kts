@@ -16,11 +16,16 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
+    mavenLocal()
 
     maven {
         name = "Kotlin Discord"
         url = uri("https://maven.kotlindiscord.com/repository/maven-public/")
+    }
+
+    maven {
+        name = "Paper MC"
+        url = uri("https://papermc.io/repo/repository/maven-public/")
     }
 }
 
@@ -62,6 +67,7 @@ fun getGitBranch(): String = run {
 fun getDate() = SimpleDateFormat("yyyyMMddHHmmss").format(Date())
 
 dependencies {
+    compileOnly(libs.olympa.api)
     implementation(libs.twitter4j)
     implementation(libs.teamspeak3)
     implementation(libs.kotlin.stdlib)
