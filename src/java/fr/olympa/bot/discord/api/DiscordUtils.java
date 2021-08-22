@@ -107,6 +107,8 @@ public class DiscordUtils {
 	}
 
 	public static String getMemberFullNames(Member member) {
+		if (member == null)
+			return "membre inconnu";
 		User user = member.getUser();
 		if (member.getNickname() != null)
 			return "`" + member.getNickname() + "`" + "(`" + user.getAsTag() + "`)";

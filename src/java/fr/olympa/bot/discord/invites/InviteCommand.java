@@ -96,12 +96,6 @@ public class InviteCommand extends DiscordCommand {
 					em.addField(getField("Membres revenu par un autre lien", MessageEmbed.VALUE_MAX_LENGTH,
 							mInv.getUsersReivited().stream().map(dm -> "`" + dm.getAsTag() + "`").collect(Collectors.joining(", ")),
 							String.valueOf(mInv.getInvites().size())));
-				if (!mInv.getUsers().isEmpty()) {
-
-				}
-				em.addField(getField("Membres revenu par un autre lien", MessageEmbed.VALUE_MAX_LENGTH,
-						mInv.getUsersReivited().stream().map(dm -> "`" + dm.getAsTag() + "`").collect(Collectors.joining(", ")),
-						String.valueOf(mInv.getInvites().size())));
 				em.setFooter(DiscordCommand.prefix + "invitetop pour voir le classement");
 				channel.sendMessageEmbeds(em.build()).queue();
 				/*} else if (label.equalsIgnoreCase("inviteparrain")) {
