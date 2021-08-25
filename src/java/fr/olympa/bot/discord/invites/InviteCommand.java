@@ -35,6 +35,7 @@ public class InviteCommand extends DiscordCommand {
 		description = "Donne des stats concernant les invitations.";
 	}
 
+	// TODO
 	public static int getTotalUsers(OlympaGuild opGuild, DiscordMember discordMember) {
 		MemberInvites mInv = new MemberInvites(opGuild, InvitesHandler.getByAuthor(opGuild, discordMember));
 		return 0;
@@ -165,6 +166,7 @@ public class InviteCommand extends DiscordCommand {
 						DiscordUtils.deleteTempMessage(message);
 						DiscordUtils.sendTempMessage(out);
 					}
+					return;
 				}
 				List<DiscordInvite> invites = DiscordInvite.getAll(opGuild);
 				em.setTitle("💌 Invitations");
@@ -209,6 +211,7 @@ public class InviteCommand extends DiscordCommand {
 						DiscordUtils.deleteTempMessage(message);
 						DiscordUtils.sendTempMessage(out);
 					}
+					return;
 				}
 				List<DiscordInvite> targetInvites = null;
 				List<Member> members = message.getMentionedMembers();
@@ -231,7 +234,7 @@ public class InviteCommand extends DiscordCommand {
 					DiscordMember dmTarget = CacheDiscordSQL.getDiscordMember(memberTarget.getUser());
 					targetInvites = InvitesHandler.getByAuthor(opGuild, dmTarget);
 				}
-				em.setDescription("Les invitation qui ont été fixés : (" + targetInvites.size() + (memberTarget != null ? " " + member.getAsMention() : "") + " ont été vérifiés) :");
+				em.setDescription("Les invitation qui ont été fixés : (" + targetInvites.size() + " ont été vérifiés) :");
 				for (DiscordInvite di : targetInvites)
 					try {
 						boolean b = di.fixInvite();

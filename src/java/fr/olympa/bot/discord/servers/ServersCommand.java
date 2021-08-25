@@ -115,8 +115,8 @@ public class ServersCommand extends DiscordCommand {
 			embedBuilder.addField(olympaServer.getNameCaps() != null ? olympaServer.getNameCaps() : "Autres", sb.toString(), true);
 		}
 		//
-		//		MonitorServers.getServersWithBungee();
-		//		for (ServerInfoAdvancedBungee info : MonitorServers.getServersSorted().toList())
+		//		OlympaBungee.getInstance().getMonitoring().getServersWithBungee();
+		//		for (ServerInfoAdvancedBungee info : OlympaBungee.getInstance().getMonitoring().getServersSorted().toList())
 		//			if (!info.getName().contains("bungee")) {
 		//				ServerStatus status = info.getStatus();
 		//				StringJoiner sb = new StringJoiner("\n");
