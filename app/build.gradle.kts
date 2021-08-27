@@ -72,11 +72,13 @@ dependencies {
     implementation(libs.teamspeak3)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kord.extensions)
+    implementation(libs.emoji)
 }
 
 tasks {
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "16"
+        kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 
     withType<Jar> {
