@@ -11,7 +11,7 @@ description = "olympa-bot"
 java.sourceCompatibility = JavaVersion.VERSION_16
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.5.21"
+    id("org.jetbrains.kotlin.jvm") version "1.5.30"
     id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
@@ -75,10 +75,13 @@ dependencies {
     implementation(libs.emoji)
 }
 
+kotlin {
+    kotlinDaemonJvmArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+}
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "16"
-        kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 
     withType<Jar> {
