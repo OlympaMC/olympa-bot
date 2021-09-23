@@ -1,4 +1,4 @@
-package fr.olympa.bot.bungee;
+ package fr.olympa.bot.bungee;
 
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -59,11 +59,11 @@ public class DiscordCommand extends BungeeCommand {
 		textComponent.setColor(ChatColor.DARK_PURPLE);
 		message.addExtra(textComponent);
 
-		textComponent = new TextComponent("discord.gg/olympa");
+		textComponent = new TextComponent("discord.olympa.fr");
 		textComponent.setColor(ChatColor.LIGHT_PURPLE);
 		textComponent.setUnderlined(true);
 		textComponent.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder("Clique pour rejoindre le discord").color(ChatColor.GREEN).create()));
-		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/olympa"));
+		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://discord.olympa.fr"));
 		message.addExtra(textComponent);
 
 		textComponent = new TextComponent(". Pour relier ton compte Discord à Minecraft, fais ");
