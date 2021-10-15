@@ -35,7 +35,7 @@ public enum DiscordGroup {
 	DEV(OlympaGroup.DEV, 558322951250771978L, 558441264140386304L, "Signalement de bugs, quelque soit la platforme (Minecraft, Site, Forum, Discord, Teamspeak ...).", true),
 	BUILDER(OlympaGroup.BUILDER, 558322957798080514L, 558441911271161867L, null, false),
 	ANIMATEUR(OlympaGroup.ANIMATOR, 600766311169130496L, 620711429942804512L, "Tous ce qui concerne les events.", true),
-	GAMEMASTER(OlympaGroup.GAMEMASTER, 730161035088101416L, 730164373418541057L, "Question spécifique au fonctionnement d'un de nos jeux Minecraft.", true),
+	GAMEDESIGNER(OlympaGroup.GAMEDESIGNER, 730161035088101416L, 730164373418541057L, "Question spécifique au fonctionnement d'un de nos jeux Minecraft.", true),
 	GRAPHISTE(OlympaGroup.GRAPHISTE, 558322958905638944L, 558442057174089740L, null, false),
 	FRIEND(OlympaGroup.FRIEND, 603012821630058498L, 558168724708786187L, null, false),
 	//	VIPPLUS(OlympaGroup.VIPPLUS, 0, 866362977527136266L, null, false),
